@@ -35,17 +35,14 @@ export default function TrainingProgramExercise() {
           </div>
         </header>
         <main className={styles.main}>
-          <video className={styles.video} autoPlay muted loop playsInline>
-            <source
-              src="https://traino.nu/app/assets/bg800.mp4"
-              type="video/mp4"
+          <div className={styles.videoWrapper}>
+            <iframe
+              src="https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             />
-            <source
-              src="https://traino.nu/app/assets/bg800.webp"
-              type="video/webp"
-            />
-            Your browser does not support the video tag.
-          </video>
+          </div>
           <section className={styles.descriptionContainer}>
             <div className={styles.buttonContainer}>
               <button

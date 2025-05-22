@@ -51,6 +51,7 @@
 
         .mounthDay {
             font-size: 1.5rem;
+            margin-bottom: 1.7rem;
         }
 
         .title {
@@ -74,14 +75,6 @@
     width: 100%;
     max-width: 30rem;
 
-    .video {
-        width: 100%;
-        margin: 1.5rem 0;
-        max-height: 16rem;
-        aspect-ratio: 1 / 1;
-        object-fit: cover;
-    }
-
     .buttonContainer {
         box-sizing: border-box;
         display: flex;
@@ -97,7 +90,7 @@
         flex-direction: column;
         justify-content: flex-start;
         width: 100%;
-        padding: 0 1.2rem;
+        padding: 1rem 1.2rem;
         gap: 1rem;
 
         .titleCompleted {
@@ -185,4 +178,21 @@
 
         }
     }
+}
+
+.videoWrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    /* 16:9 */
+    height: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+.videoWrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
