@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import workouts from "@/data/workouts.json";
@@ -9,9 +9,26 @@ import styles from "./page.module.css";
 
 export default function TrainingProgramPage() {
   const params = useParams();
-  const day = params.day  
+  const day = params.day;
   const router = useRouter();
+  const [completed, setCompleted] = useState(false);
+  const [completedTask, setCompletedTask] = useState(
+    workouts.exercises.map(() => false)
+  );
 
+  const onCompleted = (e) => {
+    e.preventDefault();
+    console.log("Completed is now:", !completed);
+    setCompleted(!completed);
+  };
+
+  const toggleCompleted = (index) => {
+    setCompletedTask((prev) => {
+      const updated = [...prev];
+      updated[index] = !updated[index];
+      return updated;
+    });
+  };
   return (
     <>
       <div className={styles.traingProgramContainer}>
@@ -34,7 +51,7 @@ export default function TrainingProgramPage() {
           </div>
           <section className={styles.descriptionContainer}>
             <h4 className={styles.titleCompleted}>1/2 Avklarade</h4>
-            {workouts.exercises.map((exercise) => (
+            {workouts.exercises.map((exercise, index) => (
               <div key={exercise.name} className={styles.descriptionItem}>
                 <div className={styles.iconContainer}>
                   <span className={styles.chevronIcon}></span>
@@ -62,14 +79,38 @@ export default function TrainingProgramPage() {
                   </span>
                 </p>
                 <div className={styles.checkContainer}>
-                  <span className={styles.check}></span>
+                  <button
+                    onClick={() => toggleCompleted(index)}
+                    className={styles.iconButton}
+                    aria-label={completedTask ? "Markera avklarad" : "Avklarad"}
+                  >
+                    {completedTask[index] ? (
+                      <span className={styles.checked}></span>
+                    ) : (
+                      <span className={styles.unchecked}></span>
+                    )}
+                  </button>
                 </div>
               </div>
             ))}
+            <div className={styles.buttonContainer}>
+              <button
+                type="button"
+                onClick={onCompleted}
+                className={styles.completedButton}
+              >
+                {completed ? (
+                  <>
+                    Avklarad <span className={styles.checkedButton}></span>
+                  </>
+                ) : (
+                  "Markera Avklarad"
+                )}
+              </button>
+            </div>
           </section>
         </main>
       </div>
     </>
   );
 }
-

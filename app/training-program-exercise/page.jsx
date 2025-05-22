@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import { Circle, CheckCircle } from "lucide-react";
 
 import styles from "./page.module.css";
 
@@ -12,6 +13,7 @@ export default function TrainingProgramExercise() {
   const duration = searchParams.get("duration");
   const router = useRouter();
   const [completed, setCompleted] = useState(false);
+
 
   var onCompleted = (e) => {
     e.preventDefault();
