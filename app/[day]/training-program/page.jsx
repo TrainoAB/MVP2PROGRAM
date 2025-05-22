@@ -29,6 +29,18 @@ export default function TrainingProgramPage() {
       return updated;
     });
   };
+
+    const exercise = {
+    name: "Armhävningar",
+    videoUrl: "https://www.youtube.com/embed/xYcxxW5f5fQ?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    imageUrl: "/assets/armhavningar.png"
+  };
+
+  // const exercise = {
+  //   name: "Armhävningar",
+  //   videoUrl: "", 
+  //   imageUrl: "",
+  // };
   return (
     <>
       <div className={styles.traingProgramContainer}>
@@ -41,14 +53,20 @@ export default function TrainingProgramPage() {
           <h3 className={styles.mounthDay}>Månad 1 / Dag {day}</h3>
         </header>
         <main className={styles.main}>
-          <div className={styles.videoWrapper}>
-            <iframe
-              src="https://www.youtube.com/embed/xYcxxW5f5fQ?autoplay=1&mute=1"
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          {exercise.videoUrl &&
+          (exercise.videoUrl.includes("youtube.com") ||
+            exercise.videoUrl.includes("youtu.be")) ? (
+            <div className={styles.videoWrapper}>
+              <iframe
+                src={exercise.videoUrl}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <span className={styles.pictureDiv}></span>
+          )}
           <section className={styles.descriptionContainer}>
             <h4 className={styles.titleCompleted}>1/2 Avklarade</h4>
             {workouts.exercises.map((exercise, index) => (

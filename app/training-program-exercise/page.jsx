@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { Circle, CheckCircle } from "lucide-react";
 
 import styles from "./page.module.css";
 
@@ -12,14 +11,25 @@ export default function TrainingProgramExercise() {
   const name = searchParams.get("name");
   const duration = searchParams.get("duration");
   const router = useRouter();
-  const [completed, setCompleted] = useState(false);
+  // const [completed, setCompleted] = useState(false);
 
+  // var onCompleted = (e) => {
+  //   e.preventDefault();
+  //   console.log("Completed is now:", !completed);
+  //   setCompleted(!completed);
+  // };
 
-  var onCompleted = (e) => {
-    e.preventDefault();
-    console.log("Completed is now:", !completed);
-    setCompleted(!completed);
+  const exercise = {
+    name: "Armhävningar",
+    videoUrl: "https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    imageUrl: "/assets/armhavningar.png",
   };
+
+  // const exercise = {
+  //   name: "Armhävningar",
+  //   videoUrl: "",
+  //   imageUrl: "",
+  // };
 
   return (
     <>
@@ -37,16 +47,22 @@ export default function TrainingProgramExercise() {
           </div>
         </header>
         <main className={styles.main}>
-          <div className={styles.videoWrapper}>
-            <iframe
-              src="https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1"
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          {exercise.videoUrl &&
+          (exercise.videoUrl.includes("youtube.com") ||
+            exercise.videoUrl.includes("youtu.be")) ? (
+            <div className={styles.videoWrapper}>
+              <iframe
+                src={exercise.videoUrl}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <span className={styles.pictureDiv}></span>
+          )}
           <section className={styles.descriptionContainer}>
-            <div className={styles.buttonContainer}>
+            {/* <div className={styles.buttonContainer}>
               <button
                 type="button"
                 onClick={onCompleted}
@@ -54,7 +70,7 @@ export default function TrainingProgramExercise() {
               >
                 {completed ? "Avklarad" : "Markera Avklarad"}
               </button>
-            </div>
+            </div> */}
             <article className={styles.descriptionItem}>
               <h4 className={styles.item}>1</h4>
               <p className={styles.descriptionText}>

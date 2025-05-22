@@ -69,7 +69,6 @@
         }
     }
 
-
     .main {
         display: flex;
         flex-direction: column;
@@ -79,14 +78,27 @@
         width: 100%;
         max-width: 30rem;
 
+        .pictureDiv {
+            width: 100%;
+            margin: 1.5rem;
+            max-height: 16rem;
+            aspect-ratio: auto;
+            aspect-ratio: 1/1;
+            background-image: url('../assets/traningsprogram.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-position: center;
+        }
+
         .descriptionContainer {
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             width: 100%;
-            padding: 0 .4rem;
+            padding: 2rem .4rem;
             gap: 1rem;
-
+            /* 
             .buttonContainer {
                 box-sizing: border-box;
                 display: flex;
@@ -95,22 +107,6 @@
                 width: 100%;
                 padding: 1.2rem;
                 gap: 1rem;
-
-                .iconContainer {
-                    display: flex;
-                    justify-content: flex-end;
-
-                    .checkIcon {
-                        background-image: url('../assets/check.svg');
-                        background-repeat: no-repeat;
-                        background-size: 1.2rem;
-                        background-position: center;
-                        width: 1.5rem;
-                        height: 1.5rem;
-                    }
-                }
-
-
 
                 .completedButton {
                     border: none;
@@ -130,7 +126,7 @@
                 .completedButton:hover {
                     background: var(--maincolor-hover);
                 }
-            }
+            }*/
 
             .descriptionItem {
                 display: flex;
@@ -155,10 +151,10 @@
                     text-align: left;
                 }
             }
-
         }
     }
 }
+
 
 .videoWrapper {
     position: relative;
