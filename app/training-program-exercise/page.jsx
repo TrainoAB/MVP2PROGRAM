@@ -15,7 +15,6 @@ export default function TrainingProgramExercise() {
 
   var onCompleted = (e) => {
     e.preventDefault();
-    console.log("Completed is now:", !completed);
     setCompleted(!completed);
   };
 
