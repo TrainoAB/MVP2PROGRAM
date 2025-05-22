@@ -90,6 +90,17 @@
             background-size: 100%;
             background-position: center;
         }
+        .fallbackImage {
+            width: 100%;
+            margin: 1rem;
+            max-height: 16rem;
+            aspect-ratio: auto;
+            aspect-ratio: 1/1;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-size: 100%;
+            background-position: center;
+        }
 
         .descriptionContainer {
             display: flex;

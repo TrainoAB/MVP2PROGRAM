@@ -5,24 +5,24 @@ import { useRouter } from "next/navigation";
 import Header_DisplayButton from "@/components/Header_DisplayButton";
 import Calendar from "@/components/Calendar/Calendar";
 import Image from "next/image";
-// import FallbackImg from "/traningsprogram.png";
+import imageUrl from "@/assets/traningsprogram.png";
 import styles from "./page.module.css";
 
 export default function TrainingProgramPlan() {
   const router = useRouter();
   const [active, setActive] = useState("Kalender");
 
-  const exercise = {
-    name: "Armhävningar",
-    videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
-    imageUrl: "/assets/armhavningar.png"
-  };
-
   // const exercise = {
   //   name: "Armhävningar",
-  //   videoUrl: "", 
-  //   imageUrl: "",
+  //   videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+  //   imageUrl: "/traningsprogram.png",
   // };
+
+  const exercise = {
+    name: "Armhävningar",
+    videoUrl: "", 
+    imageUrl: "",
+  };
 
   return (
     <div className={styles.traingProgramContainer}>
@@ -46,7 +46,13 @@ export default function TrainingProgramPlan() {
             />
           </div>
         ) : (
-              <span className={styles.pictureDiv}></span>
+          <Image
+            src={exercise.imageUrl || imageUrl}
+            alt="Fallback image"
+            width={500}
+            height={500}
+            className={styles.fallbackImage}
+          ></Image>
         )}
         <div className={styles.buttonContainer}>
           <button className={styles.restartButton}>Börja om</button>

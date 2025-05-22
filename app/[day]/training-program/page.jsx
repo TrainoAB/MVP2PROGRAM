@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import imageUrl from "@/assets/traningsprogram.png";
 import workouts from "@/data/workouts.json";
 
 import styles from "./page.module.css";
@@ -30,17 +32,17 @@ export default function TrainingProgramPage() {
     });
   };
 
-    const exercise = {
-    name: "Armhävningar",
-    videoUrl: "https://www.youtube.com/embed/xYcxxW5f5fQ?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
-    imageUrl: "/assets/armhavningar.png"
-  };
+    // const exercise = {
+    //   name: "Armhävningar",
+    //   videoUrl: "https://www.youtube.com/embed/xYcxxW5f5fQ?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    //   imageUrl: "/traningsprogram.png",
+    // };
 
-  // const exercise = {
-  //   name: "Armhävningar",
-  //   videoUrl: "", 
-  //   imageUrl: "",
-  // };
+  const exercise = {
+    name: "Armhävningar",
+    videoUrl: "", 
+    imageUrl: "",
+  };
   return (
     <>
       <div className={styles.traingProgramContainer}>
@@ -65,7 +67,13 @@ export default function TrainingProgramPage() {
               />
             </div>
           ) : (
-            <span className={styles.pictureDiv}></span>
+            <Image
+              src={exercise.imageUrl || imageUrl}
+              alt="Fallback image"
+              width={500}
+              height={500}
+              className={styles.fallbackImage}
+            ></Image>
           )}
           <section className={styles.descriptionContainer}>
             <h4 className={styles.titleCompleted}>1/2 Avklarade</h4>

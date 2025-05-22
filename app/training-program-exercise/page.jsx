@@ -3,6 +3,8 @@
 // import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
+import  imageUrl from "@/assets/traningsprogram.png";
 
 import styles from "./page.module.css";
 
@@ -18,11 +20,15 @@ export default function TrainingProgramExercise() {
   //   console.log("Completed is now:", !completed);
   //   setCompleted(!completed);
   // };
+  // https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1
+    {
+      /* <span className={styles.pictureDiv}></span> */
+    }
 
   const exercise = {
-    name: "Armhävningar",
-    videoUrl: "https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
-    imageUrl: "/assets/armhavningar.png",
+    name: "TestVideoBilder",
+    videoUrl: "", // Lägg till eller ta bort för att testa fallback
+    imageUrl: "/traningsprogram.png",
   };
 
   // const exercise = {
@@ -59,7 +65,13 @@ export default function TrainingProgramExercise() {
               />
             </div>
           ) : (
-            <span className={styles.pictureDiv}></span>
+            <Image
+              src={exercise.imageUrl || imageUrl}
+              alt="Fallback image"
+              width={500}
+              height={500}
+              className={styles.fallbackImage}
+            ></Image>
           )}
           <section className={styles.descriptionContainer}>
             {/* <div className={styles.buttonContainer}>
