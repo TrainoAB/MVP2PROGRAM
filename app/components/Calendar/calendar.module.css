@@ -1,0 +1,44 @@
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 1.2rem;
+    border: 1px solid var(--secondary-light-grey);
+
+    .topHeader {
+        font-size: .9rem;
+        font-weight: 600;
+        color: var(--secondary-grey-shade-dark);
+    }
+}
+
+.daysContainer {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    padding: 0;
+
+    .day {
+        font-size: 1.4rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        border: 1px solid var(--secondary-light-grey);
+        padding: .6rem;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .purple {
+        color: var(--header);
+    }
+
+    .black {
+        color: black;
+    }
+
+    .today {
+        border: 2px solid gray;
+        background: var(--secondary-light-grey-alternative);
+    }
+}

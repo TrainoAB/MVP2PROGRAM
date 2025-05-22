@@ -1,0 +1,38 @@
+.hdbWrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: var(--secondary-light-grey-alternative);
+    justify-content: space-around;
+    color: var(--fgcolor);
+    width: 100%;
+    max-width: 40rem;
+    padding: .2rem;
+    border-radius: 100rem;
+    margin-top: .4rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.hdbButton {
+    flex: 1;
+    text-align: center;
+    padding: 0.rem 0;
+    border: 1px solid transparent;
+    cursor: pointer;
+    color: var(--contrasttext);
+}
+
+.hdbButton:hover {
+    color: var(--fgcolor);
+}
+
+.hdbActive {
+    color: var(--fgcolor);
+    background: var(--taboncolor);
+    border-radius: 100rem;
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem 0;
+}
