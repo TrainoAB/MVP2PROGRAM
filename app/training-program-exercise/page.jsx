@@ -20,14 +20,14 @@ export default function TrainingProgramExercise() {
   //   console.log("Completed is now:", !completed);
   //   setCompleted(!completed);
   // };
-  // https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1
+  //
     {
       /* <span className={styles.pictureDiv}></span> */
     }
 
   const exercise = {
     name: "TestVideoBilder",
-    videoUrl: "", // Lägg till eller ta bort för att testa fallback
+    videoUrl:  "https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
     imageUrl: "/traningsprogram.png",
   };
 

@@ -12,17 +12,17 @@ export default function TrainingProgramPlan() {
   const router = useRouter();
   const [active, setActive] = useState("Kalender");
 
+  const exercise = {
+    name: "Träningsvideo",
+    videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    imageUrl: "/traningsprogram.png",
+  };
+
   // const exercise = {
   //   name: "Armhävningar",
-  //   videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
-  //   imageUrl: "/traningsprogram.png",
+  //   videoUrl: "", 
+  //   imageUrl: "",
   // };
-
-  const exercise = {
-    name: "Armhävningar",
-    videoUrl: "", 
-    imageUrl: "",
-  };
 
   return (
     <div className={styles.traingProgramContainer}>

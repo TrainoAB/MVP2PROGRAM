@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,8 +20,9 @@ export default function TrainingProgramPage() {
 
   const onCompleted = (e) => {
     e.preventDefault();
-    console.log("Completed is now:", !completed);
-    setCompleted(!completed);
+    const newCpmpleted = !completed;
+    setCompleted(newCpmpleted);
+    setCompletedTask(workouts.exercises.map(() => newCpmpleted));
   };
 
   const toggleCompleted = (index) => {
@@ -32,17 +33,23 @@ export default function TrainingProgramPage() {
     });
   };
 
-    // const exercise = {
-    //   name: "Armhävningar",
-    //   videoUrl: "https://www.youtube.com/embed/xYcxxW5f5fQ?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
-    //   imageUrl: "/traningsprogram.png",
-    // };
+// Check if all tasks are completed
+  useEffect(() => {
+    const allCompleted = completedTask.every((task) => task);
+    setCompleted(allCompleted);
+  }, [completedTask]);
 
-  const exercise = {
-    name: "Armhävningar",
-    videoUrl: "", 
-    imageUrl: "",
-  };
+    const exercise = {
+      name: "Armhävningar",
+      videoUrl: "https://www.youtube.com/embed/xYcxxW5f5fQ?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+      imageUrl: "/traningsprogram.png",
+    };
+
+  // const exercise = {
+  //   name: "Armhävningar",
+  //   videoUrl: "", 
+  //   imageUrl: "",
+  // };
   return (
     <>
       <div className={styles.traingProgramContainer}>
