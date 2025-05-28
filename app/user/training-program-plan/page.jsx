@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header_DisplayButton from "@/components/Header_DisplayButton";
-import Calendar from "@/components/Calendar/Calendar";
+// import Calendar from "@/components/Calendar/Calendar";
+import Calendar from "@/components/Calendar";
 import Image from "next/image";
-import imageUrl from "@/assets/traningsprogram.png";
 import styles from "./page.module.css";
 
-export default function CreateTrainingProgramPlan() {
+export default function TrainingProgramPlan() {
   const router = useRouter();
   const [active, setActive] = useState("Kalender");
 
@@ -31,7 +31,7 @@ export default function CreateTrainingProgramPlan() {
           className={styles.backBtn}
           onClick={() => router.push("/")}
         ></button>
-        <h1 className={styles.title}>Skapa träningsprogram</h1>
+        <h1 className={styles.title}>Träningsprogramtitel</h1>
       </header>
       <main className={styles.main}>
         {exercise.videoUrl &&
@@ -47,7 +47,7 @@ export default function CreateTrainingProgramPlan() {
           </div>
         ) : (
           <Image
-            src={exercise.imageUrl || imageUrl}
+            src={exercise.imageUrl || "/assets/traningsprogram.png"}
             alt="Fallback image"
             width={500}
             height={500}
@@ -55,7 +55,7 @@ export default function CreateTrainingProgramPlan() {
           ></Image>
         )}
         <div className={styles.buttonContainer}>
-          <button className={styles.restartButton}>Välj video</button>
+          <button className={styles.restartButton}>Börja om</button>
           <Header_DisplayButton
             links={["Kalender", "Beskrivning"]}
             onChange={(val) => setActive(val)}
@@ -63,7 +63,7 @@ export default function CreateTrainingProgramPlan() {
         </div>
         {active === "Kalender" ? (
           <section className={styles.calendar}>
-            <Calendar />
+            <Calendar/>
           </section>
         ) : (
           <section className={styles.description}>

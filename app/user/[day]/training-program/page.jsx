@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import imageUrl from "@/assets/traningsprogram.png";
 import workouts from "@/data/workouts.json";
 
 import styles from "./page.module.css";
@@ -56,7 +55,7 @@ export default function TrainingProgramPage() {
         <header className={styles.header}>
           <button
             className={styles.backBtn}
-            onClick={() => router.push("/training-program-plan")}
+            onClick={() => router.push("/user/training-program-plan")}
           ></button>
           <h1 className={styles.title}>Träningsprogramtitel</h1>
           <h3 className={styles.mounthDay}>Månad 1 / Dag {day}</h3>
@@ -75,7 +74,7 @@ export default function TrainingProgramPage() {
             </div>
           ) : (
             <Image
-              src={exercise.imageUrl || imageUrl}
+              src={exercise.imageUrl || "/assets/traningsprogram.png"}
               alt="Fallback image"
               width={500}
               height={500}

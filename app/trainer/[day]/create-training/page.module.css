@@ -19,7 +19,7 @@
 
         .backBtn {
             filter: invert(var(--inverted));
-            background-image: url('../assets/icon-chevron.svg');
+            background-image: url('/assets/icon-chevron.svg');
             background-repeat: no-repeat;
             background-size: 1.8rem;
             background-position: center;
@@ -93,7 +93,7 @@
         max-height: 16rem;
         aspect-ratio: auto;
         aspect-ratio: 1/1;
-        background-image: url('../assets/traningsprogram.png');
+        background-image: url('/assets/traningsprogram.png');
         background-size: cover;
         background-repeat: no-repeat;
         background-size: 100%;
@@ -150,7 +150,7 @@
 
             .inputField {
                 display: flex;
-                flex-direction: column; 
+                flex-direction: column;
                 justify-content: flex-start;
                 align-items: flex-start;
                 background-color: var(--bgcolor);
@@ -170,31 +170,35 @@
                 outline: .1875rem solid var(--maincolor);
                 border-color: transparent;
             }
+
+
         }
+    }
+
+    .imageLoadTitle {
+        font-size: 1.1rem;
+        font-weight: var(--weight);
+        color: var(--fgcolor);
+        margin-left: 1.2rem;
     }
 
     .buttonContainer {
         box-sizing: border-box;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: center;
-        align-items: flex-start;
         width: 100%;
-        padding: 1.2rem;
-        gap: .7rem;
+        padding: .5rem 1.2rem;
+        gap: 1rem;
 
-        .imageLoadTitle {
-            font-size: 1.1rem;
-            font-weight: var(--weight);
-            color: var(--fgcolor);
-            margin-left: .5rem;
-        }
-
-        .chooseImageButton {
+        .openBtn,
+        .chooseImageButton,
+        .goOnButton {
             border: none;
             outline: none;
-            width: 100%;
-            padding: var(--button-padding);
+            width: 50%;
+            /* padding: var(--button-padding); */
+            padding: var(--button-small-padding);
             border-radius: var(--radius);
             background: var(--maincolor);
             color: #fff;
@@ -205,15 +209,29 @@
             cursor: pointer;
         }
 
-        .chooseImageButton:hover {
+        .openBtn:hover,
+        .chooseImageButton:hover,
+        .goOnButton:hover {
             background: var(--maincolor-hover);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.2s ease-in-out;
         }
 
+        .openBtn:active,
         .chooseImageButton:active {
             background: var(--maincolor);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .imageLoadTitle {
+            font-size: 1.1rem;
+            font-weight: var(--weight);
+            color: var(--fgcolor);
+            margin-left: .5rem;
+        }
+
+        .goOnButton {
+            width: 100%;
         }
     }
 }

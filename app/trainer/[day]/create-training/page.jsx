@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Header_DisplayButton from "@/components/Header_DisplayButton";
+import { useRouter, useParams } from "next/navigation";
 import MinuteSlider from "@/components/Minute_Slider/MinuteSlider";
 import Image from "next/image";
-import imageUrl from "@/assets/traningsprogram.png";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
+  const params = useParams();
+  const day = params.day;
   const [minutes, setMinutes] = useState(30);
 
   const exercise = {
@@ -29,7 +29,7 @@ export default function CreateTrainingProgram() {
     // Här kan du lägga till logik för att spara träningsprogrammet
     console.log("Träningsprogram sparat med följande data:");
     console.log("Dagar:", minutes);
-    router.push("/create-training/choose-exercises");
+    router.push(`/trainer/${day}/choose-exercises`);
   }
 
   return (
@@ -37,7 +37,7 @@ export default function CreateTrainingProgram() {
       <header className={styles.header}>
         <button
           className={styles.backBtn}
-          onClick={() => router.push("/")}
+          onClick={() => router.push('/trainer/create-training-calendar')}
         ></button>
         <h1 className={styles.title}>Skapa träningsprogram</h1>
       </header>
@@ -55,7 +55,7 @@ export default function CreateTrainingProgram() {
           </div>
         ) : (
           <Image
-            src={exercise.imageUrl || imageUrl}
+            src={exercise.imageUrl || "assets/trainingsprogram.png"}
             alt="Fallback image"
             width={500}
             height={500}
@@ -63,9 +63,13 @@ export default function CreateTrainingProgram() {
           ></Image>
         )}
         <form className={styles.form}>
+          <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
-            <p className={styles.imageLoadTitle}>Omslag</p>
             <button className={styles.chooseImageButton}>Välj bild</button>
+            {/* <button onClick={openModal} className={styles.openBtn}>
+                Välj Video
+              </button> */}
+            <button className={styles.openBtn}>Välj Video</button>
           </div>
           <MinuteSlider />
           <div className={styles.inputGroup}>
@@ -91,7 +95,9 @@ export default function CreateTrainingProgram() {
             />
           </div>
           <div className={styles.buttonContainer}>
-            <button onClick={GoOn} className={styles.chooseImageButton}>Fortsätt</button>
+            <button onClick={GoOn} className={styles.goOnButton}>
+              Fortsätt
+            </button>
           </div>
         </form>
       </main>

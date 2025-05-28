@@ -4,7 +4,6 @@
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import  imageUrl from "@/assets/traningsprogram.png";
 
 import styles from "./page.module.css";
 
@@ -66,7 +65,7 @@ export default function TrainingProgramExercise() {
             </div>
           ) : (
             <Image
-              src={exercise.imageUrl || imageUrl}
+              src={exercise.imageUrl || "/assets/traningsprogram.png"}
               alt="Fallback image"
               width={500}
               height={500}
