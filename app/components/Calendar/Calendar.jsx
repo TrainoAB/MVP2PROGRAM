@@ -6,8 +6,12 @@ import { useRouter } from "next/navigation";
 import styles from "./calendar.module.css";
 
 
-export default function Calendar({ onDayClick, trainer = false }) {
-  const days = 30;
+export default function Calendar({
+  onDayClick,
+  trainer = false,
+  days = 28,
+  month = 1,
+}) {
   const [activeDays, setActiveDays] = useState([]);
   const router = useRouter();
 
@@ -19,35 +23,32 @@ export default function Calendar({ onDayClick, trainer = false }) {
       onDayClick(dayNumber);
     } else {
       if (trainer) {
-        router.push(`/trainer/${dayNumber}/create-training-exercise/`);
+        router.push(`/trainer/month/${month}/day/${dayNumber}/create-training-exercise/`
+        );
       } else {
-        router.push(`/user/${dayNumber}/training-program/`);
+        router.push(`/user/month/${month}/day/${dayNumber}/training-program/`);
       }
     }
   };
   return (
     <>
       <header className={styles.header}>
-        <h4 className={styles.topHeader}>Månad 1</h4>
+        <h4 className={styles.topHeader}> {`Månad ${month}`}</h4>
       </header>
       <div className={styles.daysContainer}>
         {Array.from({ length: days }).map((_, index) => {
           const dayNumber = index + 1;
           const isActive = activeDays.includes(dayNumber);
           const isSunday = dayNumber % 7 === 0;
-          const isToday = dayNumber === new Date().getDate();
-
           const colorClass = isSunday ? styles.black : styles.purple;
 
-          let dayClass = isSunday ? styles.black : styles.purple;
-
-          if (isToday) dayClass += ` ${styles.today}`;
+          let dayClass = colorClass;
           if (isActive) dayClass += ` ${styles.active}`;
 
           return (
             <section
               key={index}
-              className={`${styles.day} ${colorClass}`}
+              className={`${styles.day} ${dayClass}`}
               onClick={() => toggleDay(dayNumber)}
             >
               {isActive ? (

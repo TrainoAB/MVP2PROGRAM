@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header_DisplayButton from "@/components/Header_DisplayButton";
 import Calendar from "@/components/Calendar/Calendar";
 import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgramPlan() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [active, setActive] = useState("Kalender");
+  const totalDays = searchParams.get("days");
 
   const exercise = {
     name: "Träningsvideo",
@@ -59,7 +61,16 @@ export default function CreateTrainingProgramPlan() {
         />
         {active === "Kalender" ? (
           <section className={styles.calendar}>
-            <Calendar trainer />
+            {Array.from({ length: Math.ceil(totalDays / 28) }).map(
+              (_, index) => (
+                <Calendar
+                  key={index}
+                  trainer
+                  month={index + 1}
+                  days={Math.min(28, totalDays - index * 28)}
+                />
+              )
+            )}
           </section>
         ) : (
           <section className={styles.description}>
@@ -71,34 +82,6 @@ export default function CreateTrainingProgramPlan() {
           </section>
         )}
       </main>
-      {/* {isOpen && (
-          <div className={styles.modalOverlay}>
-            <div className={styles.modalContent}>
-              <h2>Lägg till YouTube-länk</h2>
-              <form onSubmit={handleSubmit}>
-                <input
-                  type="text"
-                  value={youtubeUrl}
-                  onChange={(e) => setYoutubeUrl(e.target.value)}
-                  placeholder="Klistra in YouTube-länk"
-                  className={styles.input}
-                />
-                <div className={styles.modalButtons}>
-                  <button type="submit" className={styles.saveBtn}>
-                    Spara
-                  </button>
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className={styles.cancelBtn}
-                  >
-                    Avbryt
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )} */}
     </div>
   );
 }

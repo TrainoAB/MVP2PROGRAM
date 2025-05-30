@@ -118,6 +118,10 @@
                 width: 100%;
                 padding: .8rem;
                 gap: 1rem;
+            
+                descriptionItem:hover .exerciseNameLink {
+                    background-color: var(--hoverbg);
+                }
 
                 .item {
                     font-size: 1rem;

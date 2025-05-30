@@ -37,7 +37,7 @@ export default function CreateTrainingProgram() {
       <header className={styles.header}>
         <button
           className={styles.backBtn}
-          onClick={() => router.push('/trainer/create-training-calendar')}
+          onClick={() => router.back()}
         ></button>
         <h1 className={styles.title}>Skapa träningsprogram</h1>
       </header>

@@ -10,7 +10,7 @@ import styles from "./page.module.css";
 
 export default function TrainingProgramPage() {
   const params = useParams();
-  const day = params.day;
+  const { month, day } = params;
   const router = useRouter();
   const [completed, setCompleted] = useState(false);
   const [completedTask, setCompletedTask] = useState(
@@ -84,45 +84,53 @@ export default function TrainingProgramPage() {
           <section className={styles.descriptionContainer}>
             <h4 className={styles.titleCompleted}>1/2 Avklarade</h4>
             {workouts.exercises.map((exercise, index) => (
-              <div key={exercise.name} className={styles.descriptionItem}>
-                <div className={styles.iconContainer}>
-                  <span className={styles.chevronIcon}></span>
-                  <Link
-                    href={{
-                      pathname: "../training-program-exercise",
-                      query: {
-                        name: exercise.name,
-                        duration: exercise.duration,
-                      },
-                    }}
-                    className={styles.exerciseNameLink}
-                  >
-                    {exercise.name}
-                  </Link>
-                </div>
-                <p className={styles.descriptionText}>
-                  <span key={exercise.name} className={styles.duration}>
-                    {exercise.duration}
-                  </span>
-                  <span className={styles.properties}>
-                    {" "}
-                    {exercise.sets} sets: {exercise.reps.join(", ")} (
-                    {exercise.note})
-                  </span>
-                </p>
-                <div className={styles.checkContainer}>
-                  <button
-                    onClick={() => toggleCompleted(index)}
-                    className={styles.iconButton}
-                    aria-label={completedTask ? "Markera avklarad" : "Avklarad"}
-                  >
-                    {completedTask[index] ? (
-                      <span className={styles.checked}></span>
-                    ) : (
-                      <span className={styles.unchecked}></span>
-                    )}
-                  </button>
-                </div>
+              <div key={exercise.name}>
+                <Link
+                  href={{
+                    pathname: "./training-program/exercise",
+                    query: {
+                      name: exercise.name,
+                      duration: exercise.duration,
+                    },
+                  }}
+                  className={styles.descriptionItem}
+                >
+                  <div className={styles.iconContainer}>
+                    <span className={styles.chevronIcon}></span>
+                    <span className={styles.exerciseNameLink}>
+                      {exercise.name}
+                    </span>
+                  </div>
+                  <p className={styles.descriptionText}>
+                    <span key={exercise.name} className={styles.duration}>
+                      {exercise.duration}
+                    </span>
+                    <span className={styles.properties}>
+                      {" "}
+                      {exercise.sets} sets: {exercise.reps.join(", ")} (
+                      {exercise.note})
+                    </span>
+                  </p>
+                  <div className={styles.checkContainer}>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleCompleted(index)
+                      }}
+                      className={styles.iconButton}
+                      aria-label={
+                        completedTask ? "Markera avklarad" : "Avklarad"
+                      }
+                    >
+                      {completedTask[index] ? (
+                        <span className={styles.checked}></span>
+                      ) : (
+                        <span className={styles.unchecked}></span>
+                      )}
+                    </button>
+                  </div>
+                </Link>
               </div>
             ))}
             <div className={styles.buttonContainer}>

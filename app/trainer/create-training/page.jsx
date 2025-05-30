@@ -10,9 +10,7 @@ import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
-  const params = useParams();
-  const day = params.day;
-  const [minutes, setMinutes] = useState(30);
+  const [totalDays, setTotalDays] = useState(30);
   const [isOpen, setIsOpen] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -102,8 +100,8 @@ export default function CreateTrainingProgram() {
     e.preventDefault();
     // Här kan du lägga till logik för att spara träningsprogrammet
     console.log("Träningsprogram sparat med följande data:");
-    console.log("Dagar:", minutes);
-    router.push(`/trainer/create-training-calendar`);
+    console.log("Dagar:", totalDays);
+    router.push(`/trainer/create-training-calendar?days=${totalDays}`);
   };
 
   return (
@@ -215,7 +213,7 @@ export default function CreateTrainingProgram() {
               Välj Video
             </button>
           </div>
-          <DaysSlider />
+          <DaysSlider value={totalDays} onChange={setTotalDays} />
           <div className={styles.inputGroup}>
             <label htmlFor="price" className={styles.label}>
               Pris

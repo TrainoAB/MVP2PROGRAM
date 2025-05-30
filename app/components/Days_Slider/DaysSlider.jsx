@@ -2,15 +2,20 @@
 import { useState } from "react";
 import styles from "./DaysSlider.module.css";
 
-export default function MinuteSlider() {
-    const [value, setValue] = useState(30);
-    const min = 0;
-    const max = 90;
-    const percent = ((value - min) / (max - min)) * 100;
+export default function DaysSlider({ value, onChange }) {
+  const min = 0;
+  const max = 90;
 
-    const sliderStyle = {
-      background: `linear-gradient(to right, #8468ea 0%, #8468ea ${percent}%, #ddd ${percent}%, #ddd 100%)`,
-    };
+  const handleChange = (e) => {
+    const newValue = Number(e.target.value);
+    onChange?.(newValue);
+  };
+
+  const percent = ((value - min) / (max - min)) * 100;
+
+  const sliderStyle = {
+    background: `linear-gradient(to right, #8468ea 0%, #8468ea ${percent}%, #ddd ${percent}%, #ddd 100%)`,
+  };
 
   return (
     <div className={styles.sliderContainer}>
@@ -24,7 +29,7 @@ export default function MinuteSlider() {
         max="90"
         value={value}
         step="1"
-        onChange={(e) => setValue(Number(e.target.value))}
+        onChange={handleChange}
         className={styles.slider}
         style={sliderStyle}
       />
