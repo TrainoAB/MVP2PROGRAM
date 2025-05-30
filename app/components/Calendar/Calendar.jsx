@@ -19,7 +19,7 @@ export default function Calendar({ onDayClick, trainer = false }) {
       onDayClick(dayNumber);
     } else {
       if (trainer) {
-        router.push(`/trainer/${dayNumber}/create-training/`);
+        router.push(`/trainer/${dayNumber}/create-training-exercise/`);
       } else {
         router.push(`/user/${dayNumber}/training-program/`);
       }

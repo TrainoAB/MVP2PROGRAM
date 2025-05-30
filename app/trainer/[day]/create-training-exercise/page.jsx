@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import MinuteSlider from "@/components/Minute_Slider/MinuteSlider";
+import MinuteSlider from "@/components/Days_Slider/DaysSlider";
 import Image from "next/image";
 import styles from "./page.module.css";
 
@@ -29,7 +29,7 @@ export default function CreateTrainingProgram() {
     // Här kan du lägga till logik för att spara träningsprogrammet
     console.log("Träningsprogram sparat med följande data:");
     console.log("Dagar:", minutes);
-    router.push(`/trainer/${day}/choose-exercises`);
+    router.push(`/trainer/create-training-calendar`);
   }
 
   return (

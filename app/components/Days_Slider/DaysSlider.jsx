@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import styles from "./MinuteSlider.module.css";
+import styles from "./DaysSlider.module.css";
 
 export default function MinuteSlider() {
     const [value, setValue] = useState(30);
