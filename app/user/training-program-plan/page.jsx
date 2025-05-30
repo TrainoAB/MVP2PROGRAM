@@ -3,12 +3,26 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header_DisplayButton from "@/components/Header_DisplayButton";
-import Calendar from "@/components/Calendar/Calendar";
+// import Calendar from "@/components/Calendar/Calendar";
+import Calendar from "@/components/Calendar";
+import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function TrainingProgramPlan() {
   const router = useRouter();
   const [active, setActive] = useState("Kalender");
+
+  const exercise = {
+    name: "Träningsvideo",
+    videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    imageUrl: "/traningsprogram.png",
+  };
+
+  // const exercise = {
+  //   name: "Armhävningar",
+  //   videoUrl: "", 
+  //   imageUrl: "",
+  // };
 
   return (
     <div className={styles.traingProgramContainer}>
@@ -20,17 +34,26 @@ export default function TrainingProgramPlan() {
         <h1 className={styles.title}>Träningsprogramtitel</h1>
       </header>
       <main className={styles.main}>
-          <video className={styles.video} autoPlay muted loop playsInline>
-            <source
-              src="https://traino.nu/app/assets/bg800.mp4"
-              type="video/mp4"
+        {exercise.videoUrl &&
+        (exercise.videoUrl.includes("youtube.com") ||
+          exercise.videoUrl.includes("youtu.be")) ? (
+          <div className={styles.videoWrapper}>
+            <iframe
+              src={exercise.videoUrl}
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             />
-            <source
-              src="https://traino.nu/app/assets/bg800.webp"
-              type="video/webp"
-            />
-            Your browser does not support the video tag.
-          </video>
+          </div>
+        ) : (
+          <Image
+            src={exercise.imageUrl || "/assets/traningsprogram.png"}
+            alt="Fallback image"
+            width={500}
+            height={500}
+            className={styles.fallbackImage}
+          ></Image>
+        )}
         <div className={styles.buttonContainer}>
           <button className={styles.restartButton}>Börja om</button>
           <Header_DisplayButton
@@ -40,7 +63,7 @@ export default function TrainingProgramPlan() {
         </div>
         {active === "Kalender" ? (
           <section className={styles.calendar}>
-            <Calendar />
+            <Calendar/>
           </section>
         ) : (
           <section className={styles.description}>

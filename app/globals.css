@@ -33,12 +33,14 @@
     --weight: 700;
     --text-size: 1rem;
     --radius: 2rem;
+    --radius-input: .8rem;
     --bigradius: 1rem;
     --biggerradius: 1.5rem;
     --font-regular: 1rem;
     --font-big: 1.125rem;
     --font-small: 0.75rem;
     --button-padding: 1rem 1rem;
+    --button-small-padding: .6rem .5rem;
     --darkoverlay: rgba(0, 0, 0, .5);
     --darkoverlaybackdrop: 0rem;
     --tabOn: #ddd6f8;

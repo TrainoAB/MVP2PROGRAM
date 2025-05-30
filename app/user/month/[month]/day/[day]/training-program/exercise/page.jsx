@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 import styles from "./page.module.css";
 
@@ -11,12 +12,29 @@ export default function TrainingProgramExercise() {
   const name = searchParams.get("name");
   const duration = searchParams.get("duration");
   const router = useRouter();
-  const [completed, setCompleted] = useState(false);
+  // const [completed, setCompleted] = useState(false);
 
-  var onCompleted = (e) => {
-    e.preventDefault();
-    setCompleted(!completed);
+  // var onCompleted = (e) => {
+  //   e.preventDefault();
+  //   console.log("Completed is now:", !completed);
+  //   setCompleted(!completed);
+  // };
+  //
+    {
+      /* <span className={styles.pictureDiv}></span> */
+    }
+
+  const exercise = {
+    name: "TestVideoBilder",
+    videoUrl:  "https://www.youtube.com/embed/fjffvt_SGKY?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    imageUrl: "/traningsprogram.png",
   };
+
+  // const exercise = {
+  //   name: "Armhävningar",
+  //   videoUrl: "",
+  //   imageUrl: "",
+  // };
 
   return (
     <>
@@ -34,19 +52,28 @@ export default function TrainingProgramExercise() {
           </div>
         </header>
         <main className={styles.main}>
-          <video className={styles.video} autoPlay muted loop playsInline>
-            <source
-              src="https://traino.nu/app/assets/bg800.mp4"
-              type="video/mp4"
-            />
-            <source
-              src="https://traino.nu/app/assets/bg800.webp"
-              type="video/webp"
-            />
-            Your browser does not support the video tag.
-          </video>
+          {exercise.videoUrl &&
+          (exercise.videoUrl.includes("youtube.com") ||
+            exercise.videoUrl.includes("youtu.be")) ? (
+            <div className={styles.videoWrapper}>
+              <iframe
+                src={exercise.videoUrl}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <Image
+              src={exercise.imageUrl || "/assets/traningsprogram.png"}
+              alt="Fallback image"
+              width={500}
+              height={500}
+              className={styles.fallbackImage}
+            ></Image>
+          )}
           <section className={styles.descriptionContainer}>
-            <div className={styles.buttonContainer}>
+            {/* <div className={styles.buttonContainer}>
               <button
                 type="button"
                 onClick={onCompleted}
@@ -54,7 +81,7 @@ export default function TrainingProgramExercise() {
               >
                 {completed ? "Avklarad" : "Markera Avklarad"}
               </button>
-            </div>
+            </div> */}
             <article className={styles.descriptionItem}>
               <h4 className={styles.item}>1</h4>
               <p className={styles.descriptionText}>
