@@ -1,0 +1,47 @@
+import React, { useState } from "react";
+import Modal from "@/components/Modal";
+import styles from "./UploadYoutubeVideo.module.css";
+
+export default function UploadYoutubeVideoModal({
+  isVideoModalOpen,
+  closeModalVideo,
+  setExercise,
+}) {
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+
+  const handleSubmitVideo = (e) => {
+    e.preventDefault();
+    console.log("YouTube URL:", youtubeUrl);
+
+    setExercise((prev) => ({
+      ...prev,
+      videoUrl: youtubeUrl,
+    }));
+    closeModalVideo();
+  };
+
+  return (
+    <div className={styles.modalWrapper}>
+      <Modal isOpen={isVideoModalOpen} onClose={closeModalVideo}>
+        <div className={styles.modalContent}>
+          <h2>Lägg till YouTube-länk</h2>
+          <input
+            type="text"
+            placeholder="Klistra in YouTube URL"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            className={styles.input}
+          />
+          <div className={styles.modalButtonsWrapper}>
+            <button className={styles.modalButtons} onClick={handleSubmitVideo}>
+              Spara
+            </button>
+            <button className={styles.modalButtons} onClick={closeModalVideo}>
+              Avbryt
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}

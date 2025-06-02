@@ -4,7 +4,7 @@ import styles from "./DaysSlider.module.css";
 
 export default function DaysSlider({ value, onChange }) {
   const min = 0;
-  const max = 90;
+  const max = 84;
 
   const handleChange = (e) => {
     const newValue = Number(e.target.value);
@@ -26,7 +26,7 @@ export default function DaysSlider({ value, onChange }) {
         type="range"
         id="daysRange"
         min="0"
-        max="90"
+        max="84"
         value={value}
         step="1"
         onChange={handleChange}
@@ -35,7 +35,7 @@ export default function DaysSlider({ value, onChange }) {
       />
       <div className={styles.sliderValueContainer}>
         <span className={styles.sliderValueMin}>1</span>
-        <span className={styles.sliderValueMax}>90</span>
+        <span className={styles.sliderValueMax}>84</span>
       </div>
     </div>
   );

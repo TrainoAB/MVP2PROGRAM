@@ -2,87 +2,30 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Modal from "@/components/Modal";
 import Image from "next/image";
 import DaysSlider from "@/components/Days_Slider/DaysSlider";
-import { UploadCloud } from "lucide-react";
+import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
+import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import styles from "./page.module.css";
+
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
-  const [totalDays, setTotalDays] = useState(30);
-  const [isOpen, setIsOpen] = useState(false);
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [totalDays, setTotalDays] = useState(28);
+
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-  const [file, setFile] = useState(null);
+  const openModalImg = () => setIsImageModalOpen(true);
+  const closeModalImg = () => setIsImageModalOpen(false);
+
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const openModalVideo = () => setIsVideoModalOpen(true);
+  const closeModalVideo = () => setIsVideoModalOpen(false);
 
   const [exercise, setExercise] = useState({
     name: "Träningsvideo",
     videoUrl: "",
     imageUrl: "/traningsprogram.png",
   });
-
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-  const openModalImg = () => setIsImageModalOpen(true);
-  const closeModalImg = () => setIsImageModalOpen(false);
-
-  const handleSubmitVideo = (e) => {
-    e.preventDefault();
-    console.log("YouTube URL:", youtubeUrl);
-
-    setExercise((prev) => ({
-      ...prev,
-      videoUrl: youtubeUrl,
-    }));
-    closeModal();
-  };
-
-  const handleSubmitImage = (e) => {
-    e.preventDefault();
-    console.log("Bild URL:", imageUrl);
-
-    setExercise((prev) => ({
-      ...prev,
-      imageUrl: imageUrl,
-    }));
-    closeModalImg();
-  };
-
-  // Ladda upp bild
-  const handleFileChange = (e) => {
-    const selected = e.target.files?.[0];
-    if (selected) setFile(selected);
-  };
-
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const uploadedPath = data.path; // t.ex. "/assets/minbild.jpg"
-
-      // Spara i komponentens state
-      setExercise((prev) => ({
-        ...prev,
-        imageUrl: uploadedPath,
-      }));
-
-      alert("Uppladdad! Bildens sökväg: " + uploadedPath);
-    } else {
-      alert("Misslyckades att ladda upp bild.");
-    }
-  };
 
   // const exercise = {
   //   name: "Träningsvideo",
@@ -92,7 +35,7 @@ export default function CreateTrainingProgram() {
 
   // const exercise = {
   //   name: "Armhävningar",
-  //   videoUrl: "",
+  //   videoUrl: "https://www.youtube.com/embed/AlPMhqvfmw4?autoplay=1&mute=1",
   //   imageUrl: "",
   // };
 
@@ -113,67 +56,16 @@ export default function CreateTrainingProgram() {
         ></button>
         <h1 className={styles.title}>Skapa träningsprogram</h1>
       </header>
-      <Modal isOpen={isOpen} onClose={closeModal}>
-        <div className={styles.modalContent}>
-          <h2>Lägg till YouTube-länk</h2>
-          <input
-            type="text"
-            placeholder="Klistra in YouTube URL"
-            value={youtubeUrl}
-            onChange={(e) => setYoutubeUrl(e.target.value)}
-            className={styles.input}
-          />
-          <div className={styles.modalButtonsWrapper}>
-            <button className={styles.modalButtons} onClick={handleSubmitVideo}>
-              Spara
-            </button>
-            <button className={styles.modalButtons} onClick={closeModal}>
-              Avbryt
-            </button>
-          </div>
-        </div>
-      </Modal>
-      <Modal isOpen={isImageModalOpen} onClose={closeModalImg}>
-        <div className={styles.modalContent}>
-          <h4>Ladda upp bild</h4>
-          <form onSubmit={handleUpload} encType="multipart/form-data">
-            <div className={styles.modalImageButtonsWrapper}>
-              <label htmlFor="imageUpload" className={styles.uploadButton}>
-                <UploadCloud className={styles.uploadIcon} />
-                Välj bild
-              </label>
-              <input
-                type="file"
-                id="imageUpload"
-                name="image"
-                accept="image/*"
-                onChange={handleFileChange}
-                className={styles.hiddenInput}
-              />
-              <button className={styles.uploadImgButton} type="submit">
-                Ladda upp bild
-              </button>
-            </div>
-          </form>
-          Eller
-          <h4>Lägg till bildlnamn</h4>
-          <input
-            type="text"
-            placeholder="Lägg till bildnamn"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className={styles.input}
-          />
-          <div className={styles.modalButtonsWrapper}>
-            <button className={styles.modalButtons} onClick={handleSubmitImage}>
-              Spara
-            </button>
-            <button className={styles.modalButtons} onClick={closeModalImg}>
-              Avbryt
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <UploadYoutubeVideoModal
+        isVideoModalOpen={isVideoModalOpen}
+        closeModalVideo={closeModalVideo}
+        setExercise={setExercise}
+      ></UploadYoutubeVideoModal>
+      <UploadImageModal
+        isImageModalOpen={isImageModalOpen}
+        closeModalImg={closeModalImg}
+        setExercise={setExercise}
+      ></UploadImageModal>
       <main className={styles.main}>
         {exercise.videoUrl &&
         (exercise.videoUrl.includes("youtube.com") ||
@@ -206,7 +98,7 @@ export default function CreateTrainingProgram() {
               Välj bild
             </button>
             <button
-              onClick={openModal}
+              onClick={openModalVideo}
               type="button"
               className={styles.openBtn}
             >
