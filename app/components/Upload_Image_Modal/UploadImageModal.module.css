@@ -64,11 +64,25 @@
 .modalContent {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: space-between;
+    align-items: stretch;
     width: 100%;
     padding: 1.2rem;
-    gap: 1rem;
+    gap: .3rem;
+
+    .header {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--fgcolor);
+    }
+
+    .or{
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--fgcolor);
+        text-align: center;
+        margin: 1rem 0;
+    }
 
     .input {
         background-color: var(--bgcolor);
@@ -81,6 +95,7 @@
         line-height: 2rem;
         outline: none;
         border: .0625rem solid var(--secondary-light-grey);
+        margin-bottom: .8rem;
     }
 
     .input:focus {
@@ -128,3 +143,13 @@
         }
     }
 }
+
+.modal {
+    background-color: white;
+    z-index: 9999;
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2rem;
+    border: 2px solid red; }

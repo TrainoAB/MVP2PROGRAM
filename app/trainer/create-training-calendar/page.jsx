@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header_DisplayButton from "@/components/Header_DisplayButton";
 import Calendar from "@/components/Calendar/Calendar";
@@ -13,10 +13,24 @@ export default function CreateTrainingProgramPlan() {
   const [active, setActive] = useState("Kalender");
   const totalDays = searchParams.get("days");
 
-  const exercise = {
+  const [training, setTraining] = useState({
     name: "Träningsvideo",
-    videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    videoUrl: "",
     imageUrl: "/traningsprogram.png",
+  });
+
+  console.log(training);
+  useEffect(() => {
+    // Läs från localStorage när sidan laddas
+    const savedTraining = localStorage.getItem("training");
+    if (savedTraining) {
+      setTraining(JSON.parse(savedTraining));
+    }
+  }, []);
+
+  const isYouTubeVideo = (url) => {
+    if (!url) return false;
+    return url.includes("youtube.com") || url.includes("youtu.be");
   };
 
   // const exercise = {
@@ -35,12 +49,12 @@ export default function CreateTrainingProgramPlan() {
         <h1 className={styles.title}>Skapa träningsprogram</h1>
       </header>
       <main className={styles.main}>
-        {exercise.videoUrl &&
-        (exercise.videoUrl.includes("youtube.com") ||
-          exercise.videoUrl.includes("youtu.be")) ? (
+        {isYouTubeVideo(training.videoUrl) ? (
           <div className={styles.videoWrapper}>
             <iframe
-              src={exercise.videoUrl}
+              src={`https://www.youtube.com/embed/${extractYouTubeId(
+                training.videoUrl
+              )}`}
               title="YouTube video player"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -48,12 +62,12 @@ export default function CreateTrainingProgramPlan() {
           </div>
         ) : (
           <Image
-            src={exercise.imageUrl || "/assets/traningsprogram.png"}
+            src={training.imageUrl || "/assets/traningsprogram.png"}
             alt="Fallback image"
             width={500}
             height={500}
             className={styles.fallbackImage}
-          ></Image>
+          />
         )}
         <Header_DisplayButton
           links={["Kalender", "Beskrivning"]}
@@ -84,4 +98,10 @@ export default function CreateTrainingProgramPlan() {
       </main>
     </div>
   );
+}
+function extractYouTubeId(url) {
+  if (!url) return "";
+  const regex = /(?:v=|\/embed\/|\.be\/)([\w-]{11})/;
+  const match = url.match(regex);
+  return match ? match[1] : "";
 }

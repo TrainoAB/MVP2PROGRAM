@@ -2,21 +2,30 @@
 
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import MinuteSlider from "@/components/Days_Slider/DaysSlider";
 import Image from "next/image";
+import MinuteSlider from "@/components/Days_Slider/DaysSlider";
+import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
+import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
   const params = useParams();
   const day = params.day;
-  const [minutes, setMinutes] = useState(30);
 
-  const exercise = {
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const openModalImg = () => setIsImageModalOpen(true);
+  const closeModalImg = () => setIsImageModalOpen(false);
+
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const openModalVideo = () => setIsVideoModalOpen(true);
+  const closeModalVideo = () => setIsVideoModalOpen(false);
+
+  const [exercise, setExercise] = useState({
     name: "Träningsvideo",
-    videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
+    videoUrl: "",
     imageUrl: "/traningsprogram.png",
-  };
+  });
 
   // const exercise = {
   //   name: "Armhävningar",
@@ -24,11 +33,18 @@ export default function CreateTrainingProgram() {
   //   imageUrl: "",
   // };
 
+  const setExerciseWrapper = (newExercise) => {
+    if (newExercise.videoUrl) {
+      const videoId = extractYouTubeId(newExercise.videoUrl);
+      console.log("Extracted videoId:", videoId);
+      newExercise.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+      console.log("Embed URL:", newExercise.videoUrl);
+    }
+    setExercise(newExercise.videoUrl ? newExercise : { ...newExercise, videoUrl: "" });
+  };
+
   const GoOn = (e) => {
     e.preventDefault();
-    // Här kan du lägga till logik för att spara träningsprogrammet
-    console.log("Träningsprogram sparat med följande data:");
-    console.log("Dagar:", minutes);
     router.push(`/trainer/create-training-calendar`);
   }
 
@@ -41,21 +57,29 @@ export default function CreateTrainingProgram() {
         ></button>
         <h1 className={styles.title}>Skapa träningsprogram</h1>
       </header>
+      <UploadYoutubeVideoModal
+        isVideoModalOpen={isVideoModalOpen}
+        closeModalVideo={closeModalVideo}
+        setTraining={setExerciseWrapper}
+      ></UploadYoutubeVideoModal>
+      <UploadImageModal
+        isImageModalOpen={isImageModalOpen}
+        closeModalImg={closeModalImg}
+        setTraining={setExerciseWrapper}
+      ></UploadImageModal>
       <main className={styles.main}>
-        {exercise.videoUrl &&
-        (exercise.videoUrl.includes("youtube.com") ||
-          exercise.videoUrl.includes("youtu.be")) ? (
+        {exercise.videoUrl ? (
           <div className={styles.videoWrapper}>
             <iframe
               src={exercise.videoUrl}
               title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
         ) : (
           <Image
-            src={exercise.imageUrl || "assets/trainingsprogram.png"}
+            src={exercise.imageUrl}
             alt="Fallback image"
             width={500}
             height={500}
@@ -65,11 +89,20 @@ export default function CreateTrainingProgram() {
         <form className={styles.form}>
           <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
-            <button className={styles.chooseImageButton}>Välj bild</button>
-            {/* <button onClick={openModal} className={styles.openBtn}>
-                Välj Video
-              </button> */}
-            <button className={styles.openBtn}>Välj Video</button>
+            <button
+              type="button"
+              onClick={openModalImg}
+              className={styles.chooseImageButton}
+            >
+              Välj bild
+            </button>
+            <button
+              type="button"
+              onClick={openModalVideo}
+              className={styles.openBtn}
+            >
+              Välj Video
+            </button>
           </div>
           <MinuteSlider />
           <div className={styles.inputGroup}>
@@ -95,7 +128,7 @@ export default function CreateTrainingProgram() {
             />
           </div>
           <div className={styles.buttonContainer}>
-            <button onClick={GoOn} className={styles.goOnButton}>
+            <button type="button" onClick={GoOn} className={styles.goOnButton}>
               Fortsätt
             </button>
           </div>
@@ -103,4 +136,10 @@ export default function CreateTrainingProgram() {
       </main>
     </div>
   );
+}
+
+function extractYouTubeId(url) {
+  if (!url) return "";
+  const match = url.match(/(?:v=|\/embed\/|\.be\/)([\w-]{11})/);
+  return match ? match[1] : "";
 }

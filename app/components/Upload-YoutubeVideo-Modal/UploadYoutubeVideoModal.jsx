@@ -5,20 +5,21 @@ import styles from "./UploadYoutubeVideo.module.css";
 export default function UploadYoutubeVideoModal({
   isVideoModalOpen,
   closeModalVideo,
-  setExercise,
+  setTraining,
+  training
 }) {
   const [youtubeUrl, setYoutubeUrl] = useState("");
 
   const handleSubmitVideo = (e) => {
     e.preventDefault();
-    console.log("YouTube URL:", youtubeUrl);
 
-    setExercise((prev) => ({
-      ...prev,
-      videoUrl: youtubeUrl,
-    }));
+    const updatedtraining = { ...training, videoUrl: youtubeUrl, imageUrl: "" };
+    // localStorage.setItem("training", JSON.stringify(updatedtraining));
+    
+    setTraining(updatedtraining);
     closeModalVideo();
   };
+
 
   return (
     <div className={styles.modalWrapper}>
@@ -33,11 +34,11 @@ export default function UploadYoutubeVideoModal({
             className={styles.input}
           />
           <div className={styles.modalButtonsWrapper}>
-            <button className={styles.modalButtons} onClick={handleSubmitVideo}>
-              Spara
-            </button>
             <button className={styles.modalButtons} onClick={closeModalVideo}>
               Avbryt
+            </button>
+            <button className={styles.modalButtons} onClick={handleSubmitVideo}>
+              Spara
             </button>
           </div>
         </div>

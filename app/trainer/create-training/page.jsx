@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import DaysSlider from "@/components/Days_Slider/DaysSlider";
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import styles from "./page.module.css";
-
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
@@ -21,11 +20,42 @@ export default function CreateTrainingProgram() {
   const openModalVideo = () => setIsVideoModalOpen(true);
   const closeModalVideo = () => setIsVideoModalOpen(false);
 
-  const [exercise, setExercise] = useState({
-    name: "Träningsvideo",
-    videoUrl: "",
-    imageUrl: "/traningsprogram.png",
+  const [training, setTraining] = useState(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("training");
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    }
+    return {
+      name: "Träningsvideo",
+      videoUrl: "",
+      imageUrl: "/traningsprogram.png",
+    };
   });
+
+  useEffect(() => {
+    // Om training.videoUrl är tom, försök läsa från localStorage
+    if (!training.videoUrl) {
+      const stored = localStorage.getItem("training");
+      if (stored) {
+        setTraining(JSON.parse(stored));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("training");
+    if (stored) {
+      setTraining(JSON.parse(stored));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("training", JSON.stringify(training));
+    }
+  }, [training]);
 
   // const exercise = {
   //   name: "Träningsvideo",
@@ -59,20 +89,23 @@ export default function CreateTrainingProgram() {
       <UploadYoutubeVideoModal
         isVideoModalOpen={isVideoModalOpen}
         closeModalVideo={closeModalVideo}
-        setExercise={setExercise}
+        setTraining={setTraining}
+        training={training}
       ></UploadYoutubeVideoModal>
       <UploadImageModal
         isImageModalOpen={isImageModalOpen}
         closeModalImg={closeModalImg}
-        setExercise={setExercise}
+        setTraining={setTraining}
       ></UploadImageModal>
       <main className={styles.main}>
-        {exercise.videoUrl &&
-        (exercise.videoUrl.includes("youtube.com") ||
-          exercise.videoUrl.includes("youtu.be")) ? (
+        {training.videoUrl &&
+        (training.videoUrl.includes("youtube.com") ||
+          training.videoUrl.includes("youtu.be")) ? (
           <div className={styles.videoWrapper}>
             <iframe
-              src={exercise.videoUrl}
+              src={`https://www.youtube.com/embed/${extractYouTubeId(
+                training.videoUrl
+              )}?autoplay=1&mute=1`}
               title="YouTube video player"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -80,8 +113,8 @@ export default function CreateTrainingProgram() {
           </div>
         ) : (
           <Image
-            src={exercise.imageUrl || "/assets/trainingsprogram.png"}
-            alt="Fallback image"
+            src={training.imageUrl || "/assets/trainingsprogram.png"}
+            alt="Träningsbild"
             width={500}
             height={500}
             className={styles.fallbackImage}
@@ -137,4 +170,10 @@ export default function CreateTrainingProgram() {
       </main>
     </div>
   );
+}
+
+function extractYouTubeId(url) {
+  if (!url) return "";
+  const match = url.match(/(?:v=|\/embed\/|\.be\/)([\w-]{11})/);
+  return match ? match[1] : "";
 }
