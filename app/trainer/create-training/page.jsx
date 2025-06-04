@@ -30,7 +30,7 @@ export default function CreateTrainingProgram() {
     return {
       name: "Träningsvideo",
       videoUrl: "",
-      imageUrl: "/traningsprogram.png",
+      imageUrl: "assets/traningsprogram.png",
     };
   });
 

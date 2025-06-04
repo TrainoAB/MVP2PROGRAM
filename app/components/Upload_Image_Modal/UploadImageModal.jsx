@@ -44,14 +44,9 @@ export default function UploadImageModal({ isImageModalOpen, closeModalImg, setT
       const data = await res.json();
       const uploadedPath = data.path;
 
-      setTraining((prev) => {
-        const updated = {
-          ...prev,
-          imageUrl: uploadedPath,
-          videoUrl: "",
-        };
-        localStorage.setItem("training", JSON.stringify(updated));
-        return updated;
+      setTraining({
+        imageUrl: uploadedPath,
+        videoUrl: "",
       });
 
       alert("Uppladdad! Bildens sökväg: " + uploadedPath);

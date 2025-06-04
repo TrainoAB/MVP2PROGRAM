@@ -11,7 +11,7 @@ import styles from "./page.module.css";
 export default function CreateTrainingProgram() {
   const router = useRouter();
   const params = useParams();
-  const day = params.day;
+  const { month, day } = params;
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -22,16 +22,11 @@ export default function CreateTrainingProgram() {
   const closeModalVideo = () => setIsVideoModalOpen(false);
 
   const [exercise, setExercise] = useState({
-    name: "Träningsvideo",
-    videoUrl: "",
-    imageUrl: "/traningsprogram.png",
+    name: "Barbell Bent Over Row",
+    videoUrl: "https://www.youtube.com/embed/cGzm1NRkDig?autoplay=1&mute=1",
+    imageUrl: "/assets/trainingsprogram.png",
   });
-
-  // const exercise = {
-  //   name: "Armhävningar",
-  //   videoUrl: "",
-  //   imageUrl: "",
-  // };
+  // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
 
   const setExerciseWrapper = (newExercise) => {
     if (newExercise.videoUrl) {
@@ -40,13 +35,15 @@ export default function CreateTrainingProgram() {
       newExercise.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
       console.log("Embed URL:", newExercise.videoUrl);
     }
-    setExercise(newExercise.videoUrl ? newExercise : { ...newExercise, videoUrl: "" });
+    setExercise(
+      newExercise.videoUrl ? newExercise : { ...newExercise, videoUrl: "" }
+    );
   };
 
   const GoOn = (e) => {
     e.preventDefault();
     router.push(`/trainer/create-training-calendar`);
-  }
+  };
 
   return (
     <div className={styles.traingProgramContainer}>
@@ -56,6 +53,9 @@ export default function CreateTrainingProgram() {
           onClick={() => router.back()}
         ></button>
         <h1 className={styles.title}>Skapa träningsprogram</h1>
+        <h3 className={styles.mounthDay}>
+          Månad {month} / Dag {day}
+        </h3>
       </header>
       <UploadYoutubeVideoModal
         isVideoModalOpen={isVideoModalOpen}
@@ -65,7 +65,7 @@ export default function CreateTrainingProgram() {
       <UploadImageModal
         isImageModalOpen={isImageModalOpen}
         closeModalImg={closeModalImg}
-        setTraining={setExerciseWrapper}
+        setTraining={setExercise}
       ></UploadImageModal>
       <main className={styles.main}>
         {exercise.videoUrl ? (
@@ -104,16 +104,25 @@ export default function CreateTrainingProgram() {
               Välj Video
             </button>
           </div>
-          <MinuteSlider />
           <div className={styles.inputGroup}>
-            <label htmlFor="price" className={styles.label}>
-              Pris
+            <label htmlFor="duration" className={styles.label}>
+              Välj passets längd
             </label>
             <input
               type="text"
-              id="price"
-              placeholder="Kr"
-              className={styles.input}
+              id="duration"
+              placeholder="min"
+              className={styles.inputTime}
+            />
+            <label htmlFor="title" className={styles.label}>
+              Ange titel på övningen.
+            </label>
+            <input
+              type="text"
+              id="title"
+              placeholder="min"
+              className={styles.inputProgramTitle}
+              value={exercise.name}
             />
           </div>
           <div className={styles.inputGroup}>
@@ -123,7 +132,8 @@ export default function CreateTrainingProgram() {
             <textarea
               type="text"
               id="description"
-              placeholder="Skriv minst 10 bokstäver."
+              placeholder="4 sets: 15, 12, 8, 4 reps (Dropset to 50% of weight and go till failure on last set.)"
+              value={exercise.description || ""}
               className={styles.inputField}
             />
           </div>

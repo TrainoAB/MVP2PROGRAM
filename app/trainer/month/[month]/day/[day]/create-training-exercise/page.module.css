@@ -10,9 +10,11 @@
 
     .header {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         position: relative;
+        gap: 2rem;
         width: 100%;
         padding: 0;
         margin: 0;
@@ -93,7 +95,7 @@
         max-height: 16rem;
         aspect-ratio: auto;
         aspect-ratio: 1/1;
-        background-image: url('/assets/traningsprogram.png');
+        background-image: url('/assets/trainingprogram.png');
         background-size: cover;
         background-repeat: no-repeat;
         background-size: 100%;
@@ -124,7 +126,7 @@
             gap: .5rem;
 
             .label {
-                font-size: 1.1rem;
+                font-size: .9rem;
                 font-weight: var(--weight);
                 color: var(--fgcolor);
                 margin: 0 0 0 .5rem;
@@ -171,12 +173,81 @@
                 border-color: transparent;
             }
 
+            .heading {
+                font-size: 1.2rem;
+                font-weight: var(--weight);
+                color: var(--fgcolor);
+                margin-left: .5rem;
+            }
+
+            .inputTime {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                background-color: var(--bgcolor);
+                color: var(--fgcolor);
+                width: 20%;
+                height: 2rem;
+                font-family: inherit;
+                font-size: var(--font-regular);
+                padding: .5rem 1rem;
+                border-radius: var(--radius-input);
+                line-height: 2rem;
+                outline: none;
+                border: .0625rem solid var(--secondary-light-grey);
+            }
+
+            .inputTime:focus-visible {
+                outline: .1875rem solid var(--maincolor);
+                border-color: transparent;
+            }
+
+            .inputProgramTitle {
+                background-color: var(--bgcolor);
+                color: var(--fgcolor);
+                width: 100%;
+                font-family: inherit;
+                font-size: var(--font-regular);
+                padding: .5rem 1rem;
+                border-radius: var(--radius-input);
+                line-height: 2rem;
+                outline: none;
+                border: .0625rem solid var(--secondary-light-grey);
+            }
+
+            .main {
+                display: flex;
+            }
+
+            .inputTime {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                background-color: var(--bgcolor);
+                color: var(--fgcolor);
+                width: 20%;
+                height: 2rem;
+                font-family: inherit;
+                font-size: var(--font-regular);
+                padding: .5rem 1rem;
+                border-radius: var(--radius-input);
+                line-height: 2rem;
+                outline: none;
+                border: .0625rem solid var(--secondary-light-grey);
+            }
+
+            .inputTime:focus-visible {
+                outline: .1875rem solid var(--maincolor);
+                border-color: transparent;
+            }
 
         }
     }
 
     .imageLoadTitle {
-        font-size: 1.1rem;
+        font-size: .9rem;
         font-weight: var(--weight);
         color: var(--fgcolor);
         margin-left: 1.2rem;
@@ -224,7 +295,7 @@
         }
 
         .imageLoadTitle {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: var(--weight);
             color: var(--fgcolor);
             margin-left: .5rem;

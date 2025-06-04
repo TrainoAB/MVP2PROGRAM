@@ -58,7 +58,7 @@ export default function TrainingProgramPage() {
             onClick={() => router.push("/user/training-program-plan")}
           ></button>
           <h1 className={styles.title}>Träningsprogramtitel</h1>
-          <h3 className={styles.mounthDay}>Månad 1 / Dag {day}</h3>
+          <h3 className={styles.mounthDay}>Månad {month} / Dag {day}</h3>
         </header>
         <main className={styles.main}>
           {exercise.videoUrl &&
