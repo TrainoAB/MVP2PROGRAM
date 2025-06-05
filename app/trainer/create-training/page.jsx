@@ -144,7 +144,7 @@ export default function CreateTrainingProgram() {
               Pris
             </label>
             <input
-              type="text"
+              type="number"
               id="price"
               placeholder="Kr"
               className={styles.input}

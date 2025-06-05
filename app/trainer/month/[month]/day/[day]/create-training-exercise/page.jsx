@@ -28,6 +28,8 @@ export default function CreateTrainingProgram() {
   });
   // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
 
+  const [price, setPrice] = useState(0);
+
   const setExerciseWrapper = (newExercise) => {
     if (newExercise.videoUrl) {
       const videoId = extractYouTubeId(newExercise.videoUrl);
@@ -42,7 +44,7 @@ export default function CreateTrainingProgram() {
 
   const GoOn = (e) => {
     e.preventDefault();
-    router.push(`/trainer/create-training-calendar`);
+    router.push(`/trainer/create-training-details`);
   };
 
   return (
@@ -109,9 +111,10 @@ export default function CreateTrainingProgram() {
               Välj passets längd
             </label>
             <input
-              type="text"
+              type="number"
               id="duration"
-              placeholder="min"
+              onChange ={(e) => setPrice({ duration: e.target.value })}
+              placeholder="minuter / timmar"
               className={styles.inputTime}
             />
             <label htmlFor="title" className={styles.label}>
