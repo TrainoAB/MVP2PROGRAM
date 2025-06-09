@@ -20,34 +20,23 @@ export default function CreateTrainingProgram() {
   const openModalVideo = () => setIsVideoModalOpen(true);
   const closeModalVideo = () => setIsVideoModalOpen(false);
 
-  const [training, setTraining] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("training");
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    }
-    return {
-      name: "Träningsvideo",
-      videoUrl: "",
-      imageUrl: "assets/traningsprogram.png",
-    };
+  const [hydrated, setHydrated] = useState(false);
+
+  const [training, setTraining] = useState({
+    name: "Träningsvideo",
+    videoUrl: "",
+    imageUrl: "/assets/traningsprogram.png",
   });
+
 
   useEffect(() => {
     // Om training.videoUrl är tom, försök läsa från localStorage
-    if (!training.videoUrl) {
+    if (typeof window !== "undefined") {
       const stored = localStorage.getItem("training");
       if (stored) {
         setTraining(JSON.parse(stored));
       }
-    }
-  }, []);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("training");
-    if (stored) {
-      setTraining(JSON.parse(stored));
+      setHydrated(true);
     }
   }, []);
 
@@ -76,6 +65,8 @@ export default function CreateTrainingProgram() {
     console.log("Dagar:", totalDays);
     router.push(`/trainer/create-training-calendar?days=${totalDays}`);
   };
+
+  if (!hydrated) return null;
 
   return (
     <div className={styles.traingProgramContainer}>

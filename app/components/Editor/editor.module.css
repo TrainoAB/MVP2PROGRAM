@@ -1,0 +1,107 @@
+.editorWrapper {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: auto;
+}
+
+.editorContainer {
+    position: relative;
+    min-height: 250px;
+    background: white;
+    margin-top: 1rem;
+}
+
+.editorInput {
+    min-height: 250px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 1.2rem
+}
+
+.editorPlaceholder {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: #999;
+    pointer-events: none;
+    user-select: none;
+}
+
+.saveButton {
+    margin-top: 1rem;
+    background-color: #0070f3;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.saveButton:hover {
+    background-color: #0059c1;
+}
+
+
+.button {
+    background: #eee;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background: #ddd;
+}
+
+
+.activeButton {
+    background-color: #ddd;
+}
+
+.toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.toolbarButton {
+    padding: 10px 16px;
+    min-width: 50px;
+    text-align: center;
+    border: 1px solid #aaa;
+    background: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.toolbarButton:hover {
+    background: #eee;
+}
+
+.toolbarButton.active {
+    background-color: #e0e0e0;
+    font-weight: bold;
+}
+
+.activeButton {
+    background: #cce5ff;
+    border-color: #66b2ff;
+}
+
+
+.textBold {
+    font-weight: bold;
+}
+
+.textItalic {
+    font-style: italic;
+}
+
+.textUnderline {
+    text-decoration: underline;
+}

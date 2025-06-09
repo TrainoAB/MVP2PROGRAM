@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
-import MinuteSlider from "@/components/Days_Slider/DaysSlider";
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import styles from "./page.module.css";
@@ -12,6 +11,7 @@ export default function CreateTrainingProgram() {
   const router = useRouter();
   const params = useParams();
   const { month, day } = params;
+  console.log("params", params); 
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -44,7 +44,7 @@ export default function CreateTrainingProgram() {
 
   const GoOn = (e) => {
     e.preventDefault();
-    router.push(`/trainer/create-training-details`);
+    router.push(`/trainer/month/${month}/day/${day}/create-training-details`);
   };
 
   return (
@@ -114,7 +114,7 @@ export default function CreateTrainingProgram() {
               type="number"
               id="duration"
               onChange ={(e) => setPrice({ duration: e.target.value })}
-              placeholder="minuter / timmar"
+              placeholder="minuter"
               className={styles.inputTime}
             />
             <label htmlFor="title" className={styles.label}>
