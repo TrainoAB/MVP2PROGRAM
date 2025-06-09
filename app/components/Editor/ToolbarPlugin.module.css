@@ -1,0 +1,18 @@
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 30rem;
+}
+
+.toolbarButton{
+    padding: 5px 10px;
+        width: 50px;
+        text-align: center;
+        border: 1px solid #aaa;
+        background: white;
+        /* cursor: pointer; */
+        border-radius: 6px;
+        font-size: 16px;
+}

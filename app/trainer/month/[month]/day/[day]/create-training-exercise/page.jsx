@@ -113,7 +113,7 @@ export default function CreateTrainingProgram() {
             <input
               type="number"
               id="duration"
-              onChange ={(e) => setPrice({ duration: e.target.value })}
+              onChange={(e) => setPrice({ duration: e.target.value })}
               placeholder="minuter"
               className={styles.inputTime}
             />
@@ -126,6 +126,9 @@ export default function CreateTrainingProgram() {
               placeholder="min"
               className={styles.inputProgramTitle}
               value={exercise.name}
+              onChange={(e) =>
+                setExercise({ ...exercise, name: e.target.value })
+              }
             />
           </div>
           <div className={styles.inputGroup}>
@@ -137,6 +140,9 @@ export default function CreateTrainingProgram() {
               id="description"
               placeholder="4 sets: 15, 12, 8, 4 reps (Dropset to 50% of weight and go till failure on last set.)"
               value={exercise.description || ""}
+              onChange={(e) =>
+                setExercise({ ...exercise, description: e.target.value })
+              }
               className={styles.inputField}
             />
           </div>

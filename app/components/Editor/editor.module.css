@@ -64,13 +64,18 @@
 
 .toolbar {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
-.toolbarButton {
-    padding: 10px 16px;
-    min-width: 50px;
+.underline {
+    text-decoration: underline; 
+}
+
+.toolbarButton, .toolbarFatButton, .toolbarButtonHeader1, .toolbarButtonHeader2 {
+    padding: 5px 10px;
+    width: auto;
     text-align: center;
     border: 1px solid #aaa;
     background: white;
@@ -79,7 +84,20 @@
     font-size: 16px;
 }
 
-.toolbarButton:hover {
+.toolbarFatButton{
+    font-weight: 600;
+}
+
+.toolbarButtonHeader1{
+    font-size: xx-large;
+}
+
+.toolbarButtonHeader2
+{
+    font-size: x-large;
+}
+
+.toolbarButton:hover, .toolbarFatButton:hover {
     background: #eee;
 }
 

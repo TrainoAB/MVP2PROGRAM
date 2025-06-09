@@ -24,6 +24,11 @@ export default function UploadYoutubeVideoModal({
   return (
     <div className={styles.modalWrapper}>
       <Modal isOpen={isVideoModalOpen} onClose={closeModalVideo}>
+        <div className={styles.closeButtonsWrapper}>
+          <button onClick={closeModalVideo} className={styles.closeButton}>
+            ×
+          </button>
+        </div>
         <div className={styles.modalContent}>
           <h2>Lägg till YouTube-länk</h2>
           <input
@@ -34,9 +39,6 @@ export default function UploadYoutubeVideoModal({
             className={styles.input}
           />
           <div className={styles.modalButtonsWrapper}>
-            <button className={styles.modalButtons} onClick={closeModalVideo}>
-              Avbryt
-            </button>
             <button className={styles.modalButtons} onClick={handleSubmitVideo}>
               Spara
             </button>

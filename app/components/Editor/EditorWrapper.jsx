@@ -11,7 +11,7 @@ const editorConfig = {
     text: {
       bold: "textBold",
       italic: "textItalic",
-      underline: "textUnderline",
+      underline: "underline",
     },
   },
   onError(error) {

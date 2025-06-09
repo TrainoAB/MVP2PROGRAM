@@ -65,6 +65,11 @@ export default function UploadImageModal({ isImageModalOpen, closeModalImg, setT
       onClose={closeModalImg}
       className={styles.modal}
     >
+      <div className={styles.closeButtonsWrapper}>
+        <button onClick={closeModalImg} className={styles.closeButton}>
+          ×
+        </button>
+      </div>
       <div className={styles.modalContent}>
         <h4 className={styles.header}>Ladda upp bild</h4>
         <form onSubmit={handleUpload} encType="multipart/form-data">
@@ -99,9 +104,6 @@ export default function UploadImageModal({ isImageModalOpen, closeModalImg, setT
             className={styles.input}
           />
           <div className={styles.modalButtonsWrapper}>
-            <button type="button" className={styles.modalButtons} onClick={closeModalImg}>
-              Avbryt
-            </button>
             <button type="submit" className={styles.modalButtons}>
               Spara
             </button>

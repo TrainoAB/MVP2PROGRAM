@@ -5,7 +5,6 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { $getRoot } from "lexical";
@@ -65,7 +64,11 @@ export default function LexicalEditor({ onContentSave }) {
           <HistoryPlugin />
           <OnChangePlugin onChange={onChange} />
         </div>
-        <button className={styles.saveButton} onClick={handleSave}>
+        <button
+          type="button"
+          className={styles.saveButton}
+          onClick={handleSave}
+        >
           Spara
         </button>
       </div>
