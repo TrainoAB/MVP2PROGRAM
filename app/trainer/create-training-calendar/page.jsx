@@ -62,7 +62,7 @@ export default function CreateTrainingProgramPlan() {
           </div>
         ) : (
           <Image
-            src={training.imageUrl || "/assets/traningsprogram.png"}
+            src={training.imageUrl || "/assets/tranngsprogram.png"}
             alt="Fallback image"
             width={500}
             height={500}

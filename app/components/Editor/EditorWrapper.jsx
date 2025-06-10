@@ -1,17 +1,20 @@
-import React from "react";
+import react from "react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
 import LexicalEditor from "./LexicalEditor";
+import styles from "./editor.module.css"
 
 const editorConfig = {
   namespace: "MyEditor",
+  editable: true,
+  editorState: null, // eller initial JSON vid behov
   theme: {
-    paragraph: "editorParagraph",
+    paragraph: styles.editorParagraph,
     text: {
-      bold: "textBold",
-      italic: "textItalic",
-      underline: "underline",
+      bold: styles.textBold,
+      italic: styles.textItalic,
+      underline: styles.underline,
     },
   },
   onError(error) {
@@ -20,10 +23,15 @@ const editorConfig = {
   nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode],
 };
 
-export default function EditorWrapper({ onContentSave }) {
+console.log("Nodes:", editorConfig.nodes);
 
+Object.entries(editorConfig).forEach(([key, value]) => {
+  console.log(`${key}:`, value);
+});
+
+export default function EditorWrapper({ onContentSave }) {
   return (
-    <LexicalComposer initialConfig={editorConfig}>
+    <LexicalComposer initialConfig={editorConfig || {}}>
       <LexicalEditor onContentSave={onContentSave} />
     </LexicalComposer>
   );

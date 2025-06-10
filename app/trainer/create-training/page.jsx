@@ -25,7 +25,7 @@ export default function CreateTrainingProgram() {
   const [training, setTraining] = useState({
     name: "Träningsvideo",
     videoUrl: "",
-    imageUrl: "/assets/traningsprogram.png",
+    imageUrl: "/assets/trainingsprogram.png",
   });
 
 
@@ -104,7 +104,7 @@ export default function CreateTrainingProgram() {
           </div>
         ) : (
           <Image
-            src={training.imageUrl || "/assets/trainingsprogram.png"}
+            src={training.imageUrl || "/assets/traningsprogram.png"}
             alt="Träningsbild"
             width={500}
             height={500}

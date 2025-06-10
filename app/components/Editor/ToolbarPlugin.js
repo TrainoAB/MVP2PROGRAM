@@ -10,14 +10,14 @@ import {
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $isListNode,
-  $createListNode,
-  $createListItemNode,
   INSERT_UNORDERED_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
-import { $createHeadingNode, $isHeadingNode } from "@lexical/rich-text";
-
+import {
+  $createHeadingNode,
+  $isHeadingNode,
+} from "@lexical/rich-text";
 import { $createParagraphNode } from "lexical";
 
 import { useEffect, useState } from "react";
@@ -48,7 +48,7 @@ export default function ToolbarPlugin() {
               ol: $isListNode(parent) && parent.getListType() === "number",
               list: $isListNode(parent),
             };
-
+            console.log("Formats:", next);
             setFormats(next);
           }
         });
@@ -65,12 +65,15 @@ export default function ToolbarPlugin() {
 
       const anchor = selection.anchor.getNode();
       const parent = anchor.getParent();
+      console.log("Format typ:", formatType);
 
       switch (formatType) {
         case "bold":
         case "italic":
         case "underline":
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, formatType);
+          editor.getEditorState().read(() => {
+          });
           break;
         case "heading1":
           editor.update(() => {
@@ -98,6 +101,9 @@ export default function ToolbarPlugin() {
               selection.insertNodes([paragraphNode]);
             }
           });
+          break;
+
+        default:
           break;
       }
     });
@@ -134,14 +140,13 @@ export default function ToolbarPlugin() {
         <i>Kursiv</i>
       </button>
       <button
-          type="button"
-          className={`${styles.toolbarButton} ${
-            formats.underline ? styles.active : ""
-          }`}
-          onClick={() => toggleFormat("underline")}
-        >
-          Understuken
-        </button>
+        type="button"
+        className={`${styles.toolbarButton} ${
+          formats.underline ? styles.active : ""
+        }`}
+        onClick={() => toggleFormat("underline")}>
+        Understuken
+      </button>
       <button
         type="button"
         className={`${styles.toolbarButtonHeader1} ${

@@ -69,10 +69,6 @@
     margin-bottom: 1rem;
 }
 
-.underline {
-    text-decoration: underline; 
-}
-
 .toolbarButton, .toolbarFatButton, .toolbarButtonHeader1, .toolbarButtonHeader2 {
     padding: 5px 10px;
     width: auto;
@@ -120,6 +116,11 @@
     font-style: italic;
 }
 
-.textUnderline {
+.underline {
     text-decoration: underline;
+}
+
+.editorParagraph {
+    margin: 0;
+    padding: 0; 
 }

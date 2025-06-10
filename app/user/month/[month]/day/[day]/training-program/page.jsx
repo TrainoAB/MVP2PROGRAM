@@ -41,7 +41,7 @@ export default function TrainingProgramPage() {
     const exercise = {
       name: "Armhävningar",
       videoUrl: "https://www.youtube.com/embed/xYcxxW5f5fQ?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
-      imageUrl: "/traningsprogram.png",
+      imageUrl: "/trainingsprogram.png",
     };
 
   // const exercise = {
@@ -58,7 +58,9 @@ export default function TrainingProgramPage() {
             onClick={() => router.push("/user/training-program-plan")}
           ></button>
           <h1 className={styles.title}>Träningsprogramtitel</h1>
-          <h3 className={styles.mounthDay}>Månad {month} / Dag {day}</h3>
+          <h3 className={styles.mounthDay}>
+            Månad {month} / Dag {day}
+          </h3>
         </header>
         <main className={styles.main}>
           {exercise.videoUrl &&
@@ -74,7 +76,7 @@ export default function TrainingProgramPage() {
             </div>
           ) : (
             <Image
-              src={exercise.imageUrl || "/assets/traningsprogram.png"}
+              src={exercise.imageUrl || "/assets/trainingsprogram.png"}
               alt="Fallback image"
               width={500}
               height={500}
@@ -116,7 +118,7 @@ export default function TrainingProgramPage() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        toggleCompleted(index)
+                        toggleCompleted(index);
                       }}
                       className={styles.iconButton}
                       aria-label={
