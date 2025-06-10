@@ -7,8 +7,7 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { $getRoot } from "lexical";
-
+import { $getRoot, $generateHtmlFromNodes } from "lexical"; 
 import ToolbarPlugin from "./ToolbarPlugin";
 import styles from "./editor.module.css";
 
@@ -38,17 +37,16 @@ export default function LexicalEditor({ onContentSave }) {
     return () => unregister();
   }, [editor, onContentSave]);
 
-
   const handleSave = () => {
     editor.update(() => {
-      const root = $getRoot();
-      const content = root.getTextContent();
-      console.log("Sparar:", content);
+      const html = $generateHtmlFromNodes(editor, null);
+      console.log("HTML till DB:", html);
       if (typeof onContentSave === "function") {
-        onContentSave(content);
+        onContentSave(html); // spara till DB via prop
       }
     });
   };
+  
   return (
     <>
       <div className={styles.editorWrapper}>
@@ -64,13 +62,15 @@ export default function LexicalEditor({ onContentSave }) {
           <HistoryPlugin />
           <OnChangePlugin onChange={onChange} />
         </div>
-        <button
-          type="button"
-          className={styles.saveButton}
-          onClick={handleSave}
-        >
-          Spara
-        </button>
+        <div className={styles.buttonContainer}>
+          <button
+            type="button"
+            className={styles.saveButton}
+            onClick={handleSave}
+          >
+            Spara
+          </button>
+         </div>
       </div>
     </>
   );

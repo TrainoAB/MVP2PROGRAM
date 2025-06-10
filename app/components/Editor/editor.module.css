@@ -10,15 +10,23 @@
     position: relative;
     min-height: 250px;
     background: white;
-    margin-top: 1rem;
+    padding: .5rem;
+    box-sizing: border-box;
 }
 
 .editorInput {
+    width: 100%;
     min-height: 250px;
     padding: 10px;
-    border: 1px solid #ccc;
     outline: none;
-    font-size: 1.2rem
+    font-size: 1.2rem;
+}
+
+.editorInput ul,
+.editorInput ol {
+    padding-left: 2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .editorPlaceholder {
@@ -30,9 +38,14 @@
     user-select: none;
 }
 
+.buttonContainer{
+    display:flex;
+    justify-content: flex-end;
+}
+
 .saveButton {
     margin-top: 1rem;
-    background-color: #0070f3;
+    background-color: var(--maincolor);
     color: white;
     padding: 0.6rem 1.2rem;
     border: none;
@@ -41,9 +54,8 @@
 }
 
 .saveButton:hover {
-    background-color: #0059c1;
+    background-color: var(--maincolor-hover);
 }
-
 
 .button {
     background: #eee;
@@ -57,7 +69,6 @@
     background: #ddd;
 }
 
-
 .activeButton {
     background-color: #ddd;
 }
@@ -69,31 +80,34 @@
     margin-bottom: 1rem;
 }
 
-.toolbarButton, .toolbarFatButton, .toolbarButtonHeader1, .toolbarButtonHeader2 {
-    padding: 5px 10px;
+.toolbarButton,
+.toolbarFatButton,
+.toolbarButtonHeader1,
+.toolbarButtonHeader2 {
+    padding: .4rem 1.2rem;
     width: auto;
     text-align: center;
     border: 1px solid #aaa;
     background: white;
     cursor: pointer;
     border-radius: 6px;
-    font-size: 16px;
+    font-size: .8rem;
 }
 
-.toolbarFatButton{
+.toolbarFatButton {
     font-weight: 600;
 }
 
-.toolbarButtonHeader1{
+.toolbarButtonHeader1 {
     font-size: xx-large;
 }
 
-.toolbarButtonHeader2
-{
+.toolbarButtonHeader2 {
     font-size: x-large;
 }
 
-.toolbarButton:hover, .toolbarFatButton:hover {
+.toolbarButton:hover,
+.toolbarFatButton:hover {
     background: #eee;
 }
 
@@ -106,7 +120,6 @@
     background: #cce5ff;
     border-color: #66b2ff;
 }
-
 
 .textBold {
     font-weight: bold;
@@ -122,5 +135,5 @@
 
 .editorParagraph {
     margin: 0;
-    padding: 0; 
+    padding: 0;
 }

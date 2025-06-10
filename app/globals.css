@@ -75,10 +75,6 @@ a {
   text-decoration: none;
 }
 
-.underline {
-  text-decoration: underline;
-}
-
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

@@ -27,6 +27,28 @@ export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const [formats, setFormats] = useState({});
 
+  function updateFormats() {
+    editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const anchorNode = selection.anchor.getNode();
+        const parent = anchorNode.getParent();
+
+        setFormats({
+          bold: selection.hasFormat("bold"),
+          italic: selection.hasFormat("italic"),
+          underline: selection.hasFormat("underline"),
+          heading1: $isHeadingNode(parent) && parent.getTag() === "h1",
+          heading2: $isHeadingNode(parent) && parent.getTag() === "h2",
+          paragraph: parent.getType() === "paragraph",
+          ul: $isListNode(parent) && parent.getListType() === "bullet",
+          ol: $isListNode(parent) && parent.getListType() === "number",
+          list: $isListNode(parent),
+        });
+      }
+    });
+  }
+
   useEffect(() => {
     return editor.registerCommand(
       SELECTION_CHANGE_COMMAND,
@@ -35,21 +57,29 @@ export default function ToolbarPlugin() {
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const anchorNode = selection.anchor.getNode();
-            const parent = anchorNode.getParent();
+            const topLevelElement = anchorNode.getTopLevelElementOrThrow();
 
-            const next = {
+            const formats = {
               bold: selection.hasFormat("bold"),
               italic: selection.hasFormat("italic"),
               underline: selection.hasFormat("underline"),
-              heading1: $isHeadingNode(parent) && parent.getTag() === "h1",
-              heading2: $isHeadingNode(parent) && parent.getTag() === "h2",
-              paragraph: parent.getType() === "paragraph",
-              ul: $isListNode(parent) && parent.getListType() === "bullet",
-              ol: $isListNode(parent) && parent.getListType() === "number",
-              list: $isListNode(parent),
+              heading1:
+                $isHeadingNode(topLevelElement) &&
+                topLevelElement.getTag() === "h1",
+              heading2:
+                $isHeadingNode(topLevelElement) &&
+                topLevelElement.getTag() === "h2",
+              paragraph: topLevelElement.getType() === "paragraph",
+              ul:
+                $isListNode(topLevelElement) &&
+                topLevelElement.getListType() === "bullet",
+              ol:
+                $isListNode(topLevelElement) &&
+                topLevelElement.getListType() === "number",
+              list: $isListNode(topLevelElement),
             };
-            console.log("Formats:", next);
-            setFormats(next);
+
+            setFormats(formats);
           }
         });
         return true;
@@ -57,6 +87,7 @@ export default function ToolbarPlugin() {
       COMMAND_PRIORITY_CRITICAL
     );
   }, [editor]);
+  
 
   function toggleFormat(formatType) {
     editor.update(() => {
@@ -72,8 +103,6 @@ export default function ToolbarPlugin() {
         case "italic":
         case "underline":
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, formatType);
-          editor.getEditorState().read(() => {
-          });
           break;
         case "heading1":
           editor.update(() => {
@@ -107,6 +136,10 @@ export default function ToolbarPlugin() {
           break;
       }
     });
+
+    setTimeout(() => {
+      updateFormats();
+    }, 0);
   }
 
   const toggleList = (type) => {
@@ -165,6 +198,7 @@ export default function ToolbarPlugin() {
       >
         Rubrik 2
       </button>
+      <br/>
       <button
         type="button"
         className={`${styles.toolbarButton} ${
