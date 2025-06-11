@@ -3,6 +3,7 @@
 import {
   $getSelection,
   $isRangeSelection,
+  $createParagraphNode,
   FORMAT_TEXT_COMMAND,
   SELECTION_CHANGE_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
@@ -14,89 +15,88 @@ import {
   INSERT_ORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
-import {
-  $createHeadingNode,
-  $isHeadingNode,
-} from "@lexical/rich-text";
-import { $createParagraphNode } from "lexical";
+import { $createHeadingNode, $isHeadingNode } from "@lexical/rich-text";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./editor.module.css";
 
 export default function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
-  const [formats, setFormats] = useState({});
+  const [formats, setFormats] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    heading1: false,
+    heading2: false,
+    paragraph: false,
+    ul: false,
+    ol: false,
+    list: false,
+  });
 
-  function updateFormats() {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const anchorNode = selection.anchor.getNode();
-        const parent = anchorNode.getParent();
+  function getFormatsFromSelection() {
+    let newFormats = {
+      bold: false,
+      italic: false,
+      underline: false,
+      heading1: false,
+      heading2: false,
+      paragraph: false,
+      ul: false,
+      ol: false,
+      list: false,
+    };
 
-        setFormats({
-          bold: selection.hasFormat("bold"),
-          italic: selection.hasFormat("italic"),
-          underline: selection.hasFormat("underline"),
-          heading1: $isHeadingNode(parent) && parent.getTag() === "h1",
-          heading2: $isHeadingNode(parent) && parent.getTag() === "h2",
-          paragraph: parent.getType() === "paragraph",
-          ul: $isListNode(parent) && parent.getListType() === "bullet",
-          ol: $isListNode(parent) && parent.getListType() === "number",
-          list: $isListNode(parent),
-        });
-      }
-    });
+    const selection = $getSelection();
+    if ($isRangeSelection(selection)) {
+      const anchorNode = selection.anchor.getNode();
+      const topLevelElement = anchorNode.getTopLevelElementOrThrow();
+
+      // Kontrollera textformat på själva selection
+      newFormats.bold = selection.hasFormat("bold");
+      newFormats.italic = selection.hasFormat("italic");
+      newFormats.underline = selection.hasFormat("underline");
+
+      // Kontrollera blocktyp (rubriker, paragrafer, listor) på topLevelElement
+      newFormats.heading1 =
+        $isHeadingNode(topLevelElement) && topLevelElement.getTag() === "h1";
+      newFormats.heading2 =
+        $isHeadingNode(topLevelElement) && topLevelElement.getTag() === "h2";
+      newFormats.paragraph = topLevelElement.getType() === "paragraph";
+      newFormats.ul =
+        $isListNode(topLevelElement) &&
+        topLevelElement.getListType() === "bullet";
+      newFormats.ol =
+        $isListNode(topLevelElement) &&
+        topLevelElement.getListType() === "number";
+      newFormats.list = $isListNode(topLevelElement);
+    }
+
+    return newFormats;
   }
+
+  const updateFormats = React.useCallback(() => {
+    editor.getEditorState().read(() => {
+      const newFormats = getFormatsFromSelection();
+      setFormats(newFormats);
+    });
+  }, [editor]);
 
   useEffect(() => {
     return editor.registerCommand(
       SELECTION_CHANGE_COMMAND,
       () => {
-        editor.getEditorState().read(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            const anchorNode = selection.anchor.getNode();
-            const topLevelElement = anchorNode.getTopLevelElementOrThrow();
-
-            const formats = {
-              bold: selection.hasFormat("bold"),
-              italic: selection.hasFormat("italic"),
-              underline: selection.hasFormat("underline"),
-              heading1:
-                $isHeadingNode(topLevelElement) &&
-                topLevelElement.getTag() === "h1",
-              heading2:
-                $isHeadingNode(topLevelElement) &&
-                topLevelElement.getTag() === "h2",
-              paragraph: topLevelElement.getType() === "paragraph",
-              ul:
-                $isListNode(topLevelElement) &&
-                topLevelElement.getListType() === "bullet",
-              ol:
-                $isListNode(topLevelElement) &&
-                topLevelElement.getListType() === "number",
-              list: $isListNode(topLevelElement),
-            };
-
-            setFormats(formats);
-          }
-        });
+        updateFormats();
         return true;
       },
       COMMAND_PRIORITY_CRITICAL
     );
-  }, [editor]);
-  
+  }, [editor, updateFormats]);
 
   function toggleFormat(formatType) {
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
-
-      const anchor = selection.anchor.getNode();
-      const parent = anchor.getParent();
-      console.log("Format typ:", formatType);
 
       switch (formatType) {
         case "bold":
@@ -105,42 +105,22 @@ export default function ToolbarPlugin() {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, formatType);
           break;
         case "heading1":
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              const headingNode = $createHeadingNode("h1");
-              selection.insertNodes([headingNode]);
-            }
-          });
+          selection.insertNodes([$createHeadingNode("h1")]);
           break;
         case "heading2":
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              const headingNode = $createHeadingNode("h2");
-              selection.insertNodes([headingNode]);
-            }
-          });
+          selection.insertNodes([$createHeadingNode("h2")]);
           break;
         case "paragraph":
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              const paragraphNode = $createParagraphNode();
-              selection.insertNodes([paragraphNode]);
-            }
-          });
+          selection.insertNodes([$createParagraphNode()]);
           break;
-
         default:
           break;
       }
+    }, {
+      onUpdate: updateFormats,
     });
-
-    setTimeout(() => {
-      updateFormats();
-    }, 0);
   }
+  
 
   const toggleList = (type) => {
     const isActive = formats[type];
@@ -177,13 +157,14 @@ export default function ToolbarPlugin() {
         className={`${styles.toolbarButton} ${
           formats.underline ? styles.active : ""
         }`}
-        onClick={() => toggleFormat("underline")}>
+        onClick={() => toggleFormat("underline")}
+      >
         Understuken
       </button>
       <button
         type="button"
         className={`${styles.toolbarButtonHeader1} ${
-          formats.heading ? styles.active : ""
+          formats.heading1 ? styles.active : ""
         }`}
         onClick={() => toggleFormat("heading1")}
       >
@@ -198,7 +179,7 @@ export default function ToolbarPlugin() {
       >
         Rubrik 2
       </button>
-      <br/>
+      <br />
       <button
         type="button"
         className={`${styles.toolbarButton} ${
@@ -210,18 +191,14 @@ export default function ToolbarPlugin() {
       </button>
       <button
         type="button"
-        className={`${styles.toolbarButton} ${
-          formats.bullet ? styles.active : ""
-        }`}
+        className={`${styles.toolbarButton} ${formats.ul ? styles.active : ""}`}
         onClick={() => toggleList("bullet")}
       >
         Punktlista
       </button>
       <button
         type="button"
-        className={`${styles.toolbarButton} ${
-          formats.number ? styles.active : ""
-        }`}
+        className={`${styles.toolbarButton} ${formats.ol ? styles.active : ""}`}
         onClick={() => toggleList("number")}
       >
         Numrerad lista

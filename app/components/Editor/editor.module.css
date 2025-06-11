@@ -106,12 +106,18 @@
     font-size: x-large;
 }
 
+.toolbarButtonHeader1:hover,
+.toolbarButtonHeader2:hover,
 .toolbarButton:hover,
 .toolbarFatButton:hover {
     background: #eee;
 }
 
-.toolbarButton.active {
+.toolbarButton.active,
+.toolbarButtonHeader1:active,
+.toolbarButtonHeader2:active,
+.toolbarButton.active,
+.toolbarFatButton:active {
     background-color: #e0e0e0;
     font-weight: bold;
 }

@@ -7,7 +7,7 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { $getRoot, $generateHtmlFromNodes } from "lexical"; 
+import { $generateHtmlFromNodes } from "@lexical/html"; 
 import ToolbarPlugin from "./ToolbarPlugin";
 import styles from "./editor.module.css";
 
