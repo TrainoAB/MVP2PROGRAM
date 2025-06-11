@@ -17,7 +17,7 @@ export default function CreateTrainingProgram() {
   const [exercise, setExercise] = useState({
     name: "Barbell Bent Over Row",
     videoUrl: "https://www.youtube.com/embed/cGzm1NRkDig?autoplay=1&mute=1",
-    imageUrl: "/assets/trainingsprogram.png",
+    imageUrl: "/assets/traningsprogram.png",
   });
   // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
   const [content, setContent] = useState("");
