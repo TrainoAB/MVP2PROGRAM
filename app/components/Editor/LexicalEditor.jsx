@@ -8,6 +8,7 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { $generateHtmlFromNodes } from "@lexical/html"; 
+import { $getRoot } from "lexical";
 import ToolbarPlugin from "./ToolbarPlugin";
 import styles from "./editor.module.css";
 
@@ -39,6 +40,14 @@ export default function LexicalEditor({ onContentSave }) {
 
   const handleSave = () => {
     editor.update(() => {
+      const root = $getRoot();
+      const isEmpty = root.getTextContent().trim() === "";
+
+      if (isEmpty) {
+        // Avbryt eller visa meddelande
+        console.warn("Kan inte spara ett tomt dokument.");
+        return;
+      }
       const html = $generateHtmlFromNodes(editor, null);
       console.log("HTML till DB:", html);
       if (typeof onContentSave === "function") {
