@@ -3,9 +3,14 @@
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
+import { Plus } from "lucide-react";
+
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
+import extractYouTubeId from "@/functions/functions/";
+import AddExerciseModal from "@/components/Add_Exercise_Modal/AddExerciseModal";
 import styles from "./page.module.css";
+
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
@@ -21,6 +26,10 @@ export default function CreateTrainingProgram() {
   const openModalVideo = () => setIsVideoModalOpen(true);
   const closeModalVideo = () => setIsVideoModalOpen(false);
 
+  const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
+  const openModalExercise = () => setIsExerciseModalOpen(true);
+  const closeModalExercise= () => setIsExerciseModalOpen(false);
+
   const [exercise, setExercise] = useState({
     name: "Barbell Bent Over Row",
     videoUrl: "https://www.youtube.com/embed/cGzm1NRkDig?autoplay=1&mute=1",
@@ -28,7 +37,6 @@ export default function CreateTrainingProgram() {
   });
   // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
 
-  const [price, setPrice] = useState(0);
 
   const setExerciseWrapper = (newExercise) => {
     if (newExercise.videoUrl) {
@@ -69,6 +77,14 @@ export default function CreateTrainingProgram() {
         closeModalImg={closeModalImg}
         setTraining={setExercise}
       ></UploadImageModal>
+      {isExerciseModalOpen && (
+        <div className="modal">
+          <AddExerciseModal
+            isExerciseModalOpen={isExerciseModalOpen}
+            closeModalExercise={closeModalExercise}
+          ></AddExerciseModal>
+        </div>
+      )}
       <main className={styles.main}>
         {exercise.videoUrl ? (
           <div className={styles.videoWrapper}>
@@ -106,45 +122,21 @@ export default function CreateTrainingProgram() {
               Välj Video
             </button>
           </div>
-          <div className={styles.inputGroup}>
-            <label htmlFor="duration" className={styles.label}>
-              Välj passets längd
-            </label>
-            <input
-              type="number"
-              id="duration"
-              onChange={(e) => setPrice({ duration: e.target.value })}
-              placeholder="minuter"
-              className={styles.inputTime}
-            />
-            <label htmlFor="title" className={styles.label}>
-              Ange titel på övningen.
-            </label>
-            <input
-              type="text"
-              id="title"
-              placeholder="min"
-              className={styles.inputProgramTitle}
-              value={exercise.name}
-              onChange={(e) =>
-                setExercise({ ...exercise, name: e.target.value })
-              }
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label htmlFor="description" className={styles.label}>
-              Beskrivning
-            </label>
-            <textarea
-              type="text"
-              id="description"
-              placeholder="4 sets: 15, 12, 8, 4 reps (Dropset to 50% of weight and go till failure on last set.)"
-              value={exercise.description || ""}
-              onChange={(e) =>
-                setExercise({ ...exercise, description: e.target.value })
-              }
-              className={styles.inputField}
-            />
+          <div className={styles.buttonWrapper}>
+            <div className={styles.buttonContainerExercise}>
+              <label htmlFor="exercise-button" className={styles.buttonLabel}>
+                Lägg till övning
+              </label>
+              <button
+                id="exercise-button"
+                type="button"
+                onClick={openModalExercise}
+                className={styles.openBtnExercise}
+              >
+                {/* Lägg till övning */}
+                <Plus size={24} />
+              </button>
+            </div>
           </div>
           <div className={styles.buttonContainer}>
             <button type="button" onClick={GoOn} className={styles.goOnButton}>
@@ -157,8 +149,4 @@ export default function CreateTrainingProgram() {
   );
 }
 
-function extractYouTubeId(url) {
-  if (!url) return "";
-  const match = url.match(/(?:v=|\/embed\/|\.be\/)([\w-]{11})/);
-  return match ? match[1] : "";
-}
+
