@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
+import EditorWrapper from "@/components/Editor/EditorWrapper"
 import extractYouTubeId from "@/functions/functions/";
 import styles from "./AddExerciseModal.module.css";
 
@@ -19,6 +20,7 @@ export default function AddExerciseModal({
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const openModalVideo = () => setIsVideoModalOpen(true);
   const closeModalVideo = () => setIsVideoModalOpen(false);
+  const [showEditor, setShowEditor] = useState(false);
 
   const [exercise, setExercise] = useState({
     name: "Barbell Bent Over Row",
@@ -46,48 +48,49 @@ export default function AddExerciseModal({
 
   const GoOn = (e) => {
     e.preventDefault();
-    router.push(`/trainer/month/${month}/day/${day}/create-training-details`);
+    setShowEditor(true);
   };
 
   if (!isExerciseModalOpen) return null;
   return (
-      <div className={styles.modalOverlay}>
-        <div className={styles.modalContent}>
-          <div className={styles.closeButtonsWrapper}>
-            <button onClick={closeModalExercise} className={styles.closeBtn}>
-              ✕
-            </button>
-          </div>
-          <div className={styles.traingProgramContainer}>
-            <UploadYoutubeVideoModal
-              isVideoModalOpen={isVideoModalOpen}
-              closeModalVideo={closeModalVideo}
-              setTraining={setExerciseWrapper}
-            ></UploadYoutubeVideoModal>
-            <UploadImageModal
-              isImageModalOpen={isImageModalOpen}
-              closeModalImg={closeModalImg}
-              setTraining={setExercise}
-            ></UploadImageModal>
-            <main className={styles.main}>
-              {exercise.videoUrl ? (
-                <div className={styles.videoWrapper}>
-                  <iframe
-                    src={exercise.videoUrl}
-                    title="YouTube video player"
-                    allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              ) : (
-                <Image
-                  src={exercise.imageUrl}
-                  alt="Fallback image"
-                  width={500}
-                  height={500}
-                  className={styles.fallbackImage}
-                ></Image>
-              )}
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent}>
+        <div className={styles.closeButtonsWrapper}>
+          <button onClick={closeModalExercise} className={styles.closeBtn}>
+            ✕
+          </button>
+        </div>
+        <div className={styles.traingProgramContainer}>
+          <UploadYoutubeVideoModal
+            isVideoModalOpen={isVideoModalOpen}
+            closeModalVideo={closeModalVideo}
+            setTraining={setExerciseWrapper}
+          ></UploadYoutubeVideoModal>
+          <UploadImageModal
+            isImageModalOpen={isImageModalOpen}
+            closeModalImg={closeModalImg}
+            setTraining={setExercise}
+          ></UploadImageModal>
+          <main className={styles.main}>
+            {exercise.videoUrl ? (
+              <div className={styles.videoWrapper}>
+                <iframe
+                  src={exercise.videoUrl}
+                  title="YouTube video player"
+                  allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <Image
+                src={exercise.imageUrl}
+                alt="Fallback image"
+                width={500}
+                height={500}
+                className={styles.fallbackImage}
+              ></Image>
+            )}
+            {!showEditor ? (
               <form className={styles.form}>
                 <p className={styles.imageLoadTitle}>Omslag</p>
                 <div className={styles.buttonContainer}>
@@ -156,9 +159,17 @@ export default function AddExerciseModal({
                   </button>
                 </div>
               </form>
-            </main>
-          </div>
+            ) : (
+              <EditorWrapper
+                onContentSave={(content) => {
+                  console.log("Sparat innehåll:", content);
+                  // du kan även stänga modalen eller gå vidare här
+                }}
+              />
+            )}
+          </main>
         </div>
       </div>
+    </div>
   );
 }

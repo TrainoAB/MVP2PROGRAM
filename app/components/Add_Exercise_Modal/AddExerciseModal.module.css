@@ -3,7 +3,7 @@
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 98vh;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
@@ -14,10 +14,9 @@
 .modalContent {
     background: #fff;
     border-radius: 8px;
-    padding: .5rem 1rem;
     width: 90%;
     max-width: 500px;
-    max-height: 80vh;
+    max-height: 100vh;
     overflow-y: auto;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
     position: relative;
@@ -25,7 +24,7 @@
     .closeButtonsWrapper {
         display: flex;
         justify-content: end;
-        padding: 0 0 1rem 0;
+        padding: 0 .5rem;
 
         .closeBtn {
             background: transparent;
@@ -49,8 +48,7 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    gap: 1.5rem;
-    min-height: 92vh;
+    min-height: 82vh;
     width: 100%;
     background-color: var(--mainbg);
 
@@ -88,7 +86,7 @@
 
     .videoWrapper {
         position: relative;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
         padding-bottom: 56.25%;
         /* 16:9 */
         height: 0;
@@ -292,6 +290,7 @@
             font-weight: 700;
             font-family: inherit;
             cursor: pointer;
+            margin-bottom: 1rem;
         }
 
         .openBtn:hover,

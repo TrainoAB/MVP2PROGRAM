@@ -25,7 +25,7 @@ export default function CreateTrainingProgram() {
   const [training, setTraining] = useState({
     name: "Träningsvideo",
     videoUrl: "",
-    imageUrl: "/assets/trainingsprogram.png",
+    imageUrl: "/assets/traningsprogram.png",
   });
 
 
