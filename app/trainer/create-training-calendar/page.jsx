@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header_DisplayButton from "@/components/Header_DisplayButton";
 import Calendar from "@/components/Calendar/Calendar";
+import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/functions/functions";
 import Image from "next/image";
 import styles from "./page.module.css";
 
@@ -14,17 +15,16 @@ export default function CreateTrainingProgramPlan() {
   const totalDays = searchParams.get("days");
 
   const [training, setTraining] = useState({
-    name: "Träningsvideo",
-    videoUrl: "",
-    imageUrl: "/traningsprogram.png",
+    name: "Träningsvideo/bild",
+    videoUrl: null,
+    imageUrl: null,
+    savedDate: null
   });
 
-  console.log(training);
   useEffect(() => {
-    // Läs från localStorage när sidan laddas
-    const savedTraining = localStorage.getItem("training");
-    if (savedTraining) {
-      setTraining(JSON.parse(savedTraining));
+    const todayTraining = getImageOrVideoIfSavedToday();
+    if (todayTraining) {
+      setTraining(todayTraining);
     }
   }, []);
 
@@ -32,12 +32,6 @@ export default function CreateTrainingProgramPlan() {
     if (!url) return false;
     return url.includes("youtube.com") || url.includes("youtu.be");
   };
-
-  // const exercise = {
-  //   name: "Armhävningar",
-  //   videoUrl: "",
-  //   imageUrl: "/traningsprogram.png",
-  // };
 
   return (
     <div className={styles.traingProgramContainer}>
@@ -54,21 +48,21 @@ export default function CreateTrainingProgramPlan() {
             <iframe
               src={`https://www.youtube.com/embed/${extractYouTubeId(
                 training.videoUrl
-              )}`}
+              )}?autoplay=1&mute=1`}
               title="YouTube video player"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
-        ) : (
+        ) : training.imageUrl ? (
           <Image
-            src={training.imageUrl || "/assets/tranngsprogram.png"}
+            src={training.imageUrl}
             alt="Fallback image"
             width={500}
             height={500}
             className={styles.fallbackImage}
           />
-        )}
+        ) : null }
         <Header_DisplayButton
           links={["Kalender", "Beskrivning"]}
           onChange={(val) => setActive(val)}
@@ -98,10 +92,4 @@ export default function CreateTrainingProgramPlan() {
       </main>
     </div>
   );
-}
-function extractYouTubeId(url) {
-  if (!url) return "";
-  const regex = /(?:v=|\/embed\/|\.be\/)([\w-]{11})/;
-  const match = url.match(regex);
-  return match ? match[1] : "";
 }

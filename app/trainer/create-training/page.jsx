@@ -6,6 +6,7 @@ import Image from "next/image";
 import DaysSlider from "@/components/Days_Slider/DaysSlider";
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
+import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/functions/functions";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
@@ -24,17 +25,17 @@ export default function CreateTrainingProgram() {
 
   const [training, setTraining] = useState({
     name: "Träningsvideo",
-    videoUrl: "",
-    imageUrl: "/assets/traningsprogram.png",
+    videoUrl: null,
+    imageUrl: null,
+    savedDate: new Date().toISOString(),
   });
-
 
   useEffect(() => {
     // Om training.videoUrl är tom, försök läsa från localStorage
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("training");
-      if (stored) {
-        setTraining(JSON.parse(stored));
+      const todayTraining = getImageOrVideoIfSavedToday();
+      if (todayTraining) {
+        setTraining(todayTraining);
       }
       setHydrated(true);
     }
@@ -102,15 +103,15 @@ export default function CreateTrainingProgram() {
               allowFullScreen
             />
           </div>
-        ) : (
+        ) : training.imageUrl ? (
           <Image
-            src={training.imageUrl || "/assets/traningsprogram.png"}
+            src={training.imageUrl}
             alt="Träningsbild"
             width={500}
             height={500}
             className={styles.fallbackImage}
           ></Image>
-        )}
+        ) : null}
         <form className={styles.form}>
           <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
@@ -161,10 +162,4 @@ export default function CreateTrainingProgram() {
       </main>
     </div>
   );
-}
-
-function extractYouTubeId(url) {
-  if (!url) return "";
-  const match = url.match(/(?:v=|\/embed\/|\.be\/)([\w-]{11})/);
-  return match ? match[1] : "";
 }

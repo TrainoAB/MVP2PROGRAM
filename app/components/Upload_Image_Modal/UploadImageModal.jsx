@@ -1,25 +1,46 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
 import { UploadCloud } from "lucide-react";
-import Modal from '@/components/Modal';
-import styles from './UploadImageModal.module.css';
+import Modal from "@/components/Modal";
+import styles from "./UploadImageModal.module.css";
 
-export default function UploadImageModal({ isImageModalOpen, closeModalImg, setTraining }) {
+export default function UploadImageModal({
+  isImageModalOpen,
+  closeModalImg,
+  setTraining,
+}) {
   const [imageUrl, setImageUrl] = useState("");
   const [file, setFile] = useState(null);
+  const [status, setStatus] = useState({ type: "", message: "" });
 
   // Hantera manuell URL-inskrivning
   const handleSubmitImage = (e) => {
     e.preventDefault();
+
+    if (!imageUrl || !imageUrl.startsWith("http")) {
+      setStatus({
+        type: "error",
+        message: "❌ Misslyckades att ladda upp bild försök igen!",
+      });
+      return;
+    }
+
     const updated = {
       imageUrl: imageUrl,
       videoUrl: "",
     };
-    localStorage.setItem("training", JSON.stringify(updated));
     setTraining(updated);
     closeModalImg();
   };
+
+  useEffect(() => {
+    if (isImageModalOpen) {
+      setStatus({ type: "", message: "" });
+      setImageUrl("");
+      setFile(null);
+    }
+  }, [isImageModalOpen]);
 
   // När användaren väljer en fil
   const handleFileChange = (e) => {
@@ -30,29 +51,41 @@ export default function UploadImageModal({ isImageModalOpen, closeModalImg, setT
   // När man trycker på "Ladda upp bild"
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return;
+    if (!file) {
+      setStatus({
+        type: "error",
+        message: "❌ Ingen bild har valts.",
+      });
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
 
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const uploadedPath = data.path;
-
-      setTraining({
-        imageUrl: uploadedPath,
-        videoUrl: "",
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
       });
 
-      alert("Uppladdad! Bildens sökväg: " + uploadedPath);
-      closeModalImg();
-    } else {
-      alert("Misslyckades att ladda upp bild.");
+      if (res.ok) {
+        const data = await res.json();
+        const uploadedPath = data.path;
+
+        setTraining({
+          imageUrl: uploadedPath,
+          videoUrl: "",
+        });
+
+        setStatus({ type: "success", message: "✅ Bild uppladdad!" });
+        closeModalImg();
+      } else {
+        setStatus({
+          type: "error",
+          message: "❌ Misslyckades att ladda upp bild.",
+        });
+      }
+    } catch (err) {
+      setStatus({ type: "error", message: "❌ Något gick fel med servern." });
     }
   };
 
@@ -91,7 +124,19 @@ export default function UploadImageModal({ isImageModalOpen, closeModalImg, setT
             </button>
           </div>
         </form>
-
+        {status && (
+          <p
+            className={`${styles.statusMessage} ${
+              status.type === "success"
+                ? styles.success
+                : status.type === "error"
+                ? styles.error
+                : ""
+            }`}
+          >
+            {status.message}
+          </p>
+        )}
         <p className={styles.or}>eller</p>
 
         <h4>Lägg till bildlänk</h4>
@@ -113,4 +158,3 @@ export default function UploadImageModal({ isImageModalOpen, closeModalImg, setT
     </Modal>
   );
 }
-

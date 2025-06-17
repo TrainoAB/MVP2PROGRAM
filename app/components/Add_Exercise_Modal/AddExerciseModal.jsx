@@ -23,9 +23,9 @@ export default function AddExerciseModal({
   const [showEditor, setShowEditor] = useState(false);
 
   const [exercise, setExercise] = useState({
-    name: "Barbell Bent Over Row",
-    videoUrl: "https://www.youtube.com/embed/cGzm1NRkDig?autoplay=1&mute=1",
-    imageUrl: "/assets/trainingsprogram.png",
+    name: "Övningsbild eller video.",
+    videoUrl: null,
+    imageUrl: null,
   });
   // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
 
@@ -35,9 +35,7 @@ export default function AddExerciseModal({
         if (!rawUrl) return;
     if (rawUrl.videoUrl) {
       const videoId = extractYouTubeId(rawUrl.videoUrl);
-      console.log("Extracted videoId:", videoId);
       rawUrl.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-      console.log("Embed URL:", rawUrl.videoUrl);
     }
     setExercise((prev) => ({
       name: rawUrl.name ?? prev.name,
@@ -72,7 +70,9 @@ export default function AddExerciseModal({
             setTraining={setExercise}
           ></UploadImageModal>
           <main className={styles.main}>
-            {exercise.videoUrl ? (
+            {exercise.videoUrl &&
+            (exercise.videoUrl.includes("youtube.com") ||
+              exercise.videoUrl.includes("youtu.be")) ? (
               <div className={styles.videoWrapper}>
                 <iframe
                   src={exercise.videoUrl}
@@ -81,7 +81,7 @@ export default function AddExerciseModal({
                   allowFullScreen
                 />
               </div>
-            ) : (
+            ) : exercise.imageUrl ? (
               <Image
                 src={exercise.imageUrl}
                 alt="Fallback image"
@@ -89,7 +89,7 @@ export default function AddExerciseModal({
                 height={500}
                 className={styles.fallbackImage}
               ></Image>
-            )}
+            ): null}
             {!showEditor ? (
               <form className={styles.form}>
                 <p className={styles.imageLoadTitle}>Omslag</p>

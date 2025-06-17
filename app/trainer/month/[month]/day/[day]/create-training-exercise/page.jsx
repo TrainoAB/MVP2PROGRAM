@@ -7,8 +7,9 @@ import { Plus } from "lucide-react";
 
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
-import extractYouTubeId from "@/functions/functions/";
+import { extractYouTubeId } from "@/functions/functions/";
 import AddExerciseModal from "@/components/Add_Exercise_Modal/AddExerciseModal";
+// import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/functions/functions";
 import styles from "./page.module.css";
 
 
@@ -31,17 +32,15 @@ export default function CreateTrainingProgram() {
   const closeModalExercise= () => setIsExerciseModalOpen(false);
 
   const [exercise, setExercise] = useState({
-    name: "Barbell Bent Over Row",
-    videoUrl: "https://www.youtube.com/embed/cGzm1NRkDig?autoplay=1&mute=1",
-    imageUrl: "/assets/trainingsprogram.png",
+    name: "Övningssvideo1",
+    videoUrl: null,
+    imageUrl: null,
+    savedDate: new Date().toISOString(),
   });
-  // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
-
 
   const setExerciseWrapper = (newExercise) => {
     if (newExercise.videoUrl) {
       const videoId = extractYouTubeId(newExercise.videoUrl);
-      console.log("Extracted videoId:", videoId);
       newExercise.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
       console.log("Embed URL:", newExercise.videoUrl);
     }
@@ -50,10 +49,10 @@ export default function CreateTrainingProgram() {
     );
   };
 
-  const GoOn = (e) => {
-    e.preventDefault();
-    router.push(`/trainer/month/${month}/day/${day}/create-training-details`);
-  };
+  // const GoOn = (e) => {
+  //   e.preventDefault();
+  //   router.push(`/trainer/month/${month}/day/${day}/create-training-details`);
+  // };
 
   return (
     <div className={styles.traingProgramContainer}>
@@ -86,7 +85,9 @@ export default function CreateTrainingProgram() {
         </div>
       )}
       <main className={styles.main}>
-        {exercise.videoUrl ? (
+        {exercise.videoUrl &&
+        (exercise.videoUrl.includes("youtube.com") ||
+          exercise.videoUrl.includes("youtu.be")) ? (
           <div className={styles.videoWrapper}>
             <iframe
               src={exercise.videoUrl}
@@ -95,15 +96,15 @@ export default function CreateTrainingProgram() {
               allowFullScreen
             />
           </div>
-        ) : (
+        ) : exercise.imageUrl ? (
           <Image
             src={exercise.imageUrl}
-            alt="Fallback image"
+            alt="Tränarens bild"
             width={500}
             height={500}
             className={styles.fallbackImage}
           ></Image>
-        )}
+        ) : null }
         <form className={styles.form}>
           <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
@@ -137,11 +138,6 @@ export default function CreateTrainingProgram() {
                 <Plus size={24} />
               </button>
             </div>
-          </div>
-          <div className={styles.buttonContainer}>
-            <button type="button" onClick={GoOn} className={styles.goOnButton}>
-              Fortsätt
-            </button>
           </div>
         </form>
       </main>

@@ -93,13 +93,28 @@
     padding: 1.2rem;
     gap: .3rem;
 
+    .statusMessage {
+        margin-top: 1rem;
+        text-align: center;
+        color: #4caf50;
+        font-weight: bold;
+
+        .success {
+            color: #4caf50;
+        }
+
+        .error {
+            color: #f44336;
+        }
+    }
+
     .header {
         font-size: 1rem;
         font-weight: 700;
         color: var(--fgcolor);
     }
 
-    .or{
+    .or {
         font-size: 1rem;
         font-weight: 500;
         color: var(--fgcolor);
@@ -167,7 +182,7 @@
     }
 }
 
-.modal {
+/* .modal {
     background-color: white;
     z-index: 9999;
     position: fixed;
@@ -175,4 +190,5 @@
     left: 50%;
     transform: translateX(-50%);
     padding: 2rem;
-    border: 2px solid red; }
+    border: 2px solid red; 
+} */

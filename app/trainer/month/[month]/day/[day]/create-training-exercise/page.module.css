@@ -124,125 +124,6 @@
             flex-direction: column;
             padding: .8rem;
             gap: .5rem;
-
-            .label {
-                font-size: .9rem;
-                font-weight: var(--weight);
-                color: var(--fgcolor);
-                margin: 0 0 0 .5rem;
-            }
-
-            .input {
-                background-color: var(--bgcolor);
-                color: var(--fgcolor);
-                width: 100%;
-                font-family: inherit;
-                font-size: var(--font-regular);
-                padding: .5rem 1rem;
-                border-radius: var(--radius-input);
-                line-height: 2rem;
-                outline: none;
-                border: .0625rem solid var(--secondary-light-grey);
-            }
-
-            .input:focus-visible {
-                outline: .1875rem solid var(--maincolor);
-                border-color: transparent;
-            }
-
-            .inputField {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: flex-start;
-                background-color: var(--bgcolor);
-                color: var(--fgcolor);
-                width: 100%;
-                height: 10rem;
-                font-family: inherit;
-                font-size: var(--font-regular);
-                padding: .5rem 1rem;
-                border-radius: var(--radius-input);
-                line-height: 2rem;
-                outline: none;
-                border: .0625rem solid var(--secondary-light-grey);
-            }
-
-            .inputField:focus-visible {
-                outline: .1875rem solid var(--maincolor);
-                border-color: transparent;
-            }
-
-            .heading {
-                font-size: 1.2rem;
-                font-weight: var(--weight);
-                color: var(--fgcolor);
-                margin-left: .5rem;
-            }
-
-            .inputTime {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: flex-start;
-                background-color: var(--bgcolor);
-                color: var(--fgcolor);
-                width: 20%;
-                height: 2rem;
-                font-family: inherit;
-                font-size: var(--font-regular);
-                padding: .5rem 1rem;
-                border-radius: var(--radius-input);
-                line-height: 2rem;
-                outline: none;
-                border: .0625rem solid var(--secondary-light-grey);
-            }
-
-            .inputTime:focus-visible {
-                outline: .1875rem solid var(--maincolor);
-                border-color: transparent;
-            }
-
-            .inputProgramTitle {
-                background-color: var(--bgcolor);
-                color: var(--fgcolor);
-                width: 100%;
-                font-family: inherit;
-                font-size: var(--font-regular);
-                padding: .5rem 1rem;
-                border-radius: var(--radius-input);
-                line-height: 2rem;
-                outline: none;
-                border: .0625rem solid var(--secondary-light-grey);
-            }
-
-            .main {
-                display: flex;
-            }
-
-            .inputTime {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: flex-start;
-                background-color: var(--bgcolor);
-                color: var(--fgcolor);
-                width: 20%;
-                height: 2rem;
-                font-family: inherit;
-                font-size: var(--font-regular);
-                padding: .5rem 1rem;
-                border-radius: var(--radius-input);
-                line-height: 2rem;
-                outline: none;
-                border: .0625rem solid var(--secondary-light-grey);
-            }
-
-            .inputTime:focus-visible {
-                outline: .1875rem solid var(--maincolor);
-                border-color: transparent;
-            }
-
         }
     }
 
@@ -263,8 +144,7 @@
         gap: 1rem;
 
         .openBtn,
-        .chooseImageButton,
-        .goOnButton {
+        .chooseImageButton {
             border: none;
             outline: none;
             width: 50%;
@@ -280,8 +160,7 @@
         }
 
         .openBtn:hover,
-        .chooseImageButton:hover,
-        .goOnButton:hover {
+        .chooseImageButton:hover {
             background: var(--maincolor-hover);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.2s ease-in-out;

@@ -13,8 +13,13 @@ export default function UploadYoutubeVideoModal({
   const handleSubmitVideo = (e) => {
     e.preventDefault();
 
-    const updatedtraining = { ...training, videoUrl: youtubeUrl, imageUrl: "" };
-    // localStorage.setItem("training", JSON.stringify(updatedtraining));
+    const updatedtraining = {
+      ...training,
+      videoUrl: youtubeUrl,
+      imageUrl: "",
+      savedDate: new Date().toISOString(),
+    };
+    localStorage.setItem("training", JSON.stringify(updatedtraining));
     
     setTraining(updatedtraining);
     closeModalVideo();
