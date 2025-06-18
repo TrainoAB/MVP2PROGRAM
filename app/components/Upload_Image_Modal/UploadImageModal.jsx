@@ -18,7 +18,9 @@ export default function UploadImageModal({
   const handleSubmitImage = (e) => {
     e.preventDefault();
 
-    if (!imageUrl || !imageUrl.startsWith("http")) {
+   
+
+    if (!imageUrl || !/\.(jpg|jpeg|png|gif)$/i.test(imageUrl)) {
       setStatus({
         type: "error",
         message: "❌ Misslyckades att ladda upp bild försök igen!",
@@ -27,7 +29,7 @@ export default function UploadImageModal({
     }
 
     const updated = {
-      imageUrl: imageUrl,
+      imageUrl: `/assets/${imageUrl}`,
       videoUrl: "",
     };
     setTraining(updated);
@@ -143,7 +145,7 @@ export default function UploadImageModal({
         <form onSubmit={handleSubmitImage}>
           <input
             type="text"
-            placeholder="/assets/bildensnamn.png eller t.ex .gif, .jpg"
+            placeholder="bildensnamn.png eller t.ex .gif, .jpg"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
             className={styles.input}

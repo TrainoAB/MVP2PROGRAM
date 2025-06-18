@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
-import { extractYouTubeId } from "@/functions/functions/";
+import { extractYouTubeId } from "@/functions/functions";
 import AddExerciseModal from "@/components/Add_Exercise_Modal/AddExerciseModal";
 // import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/functions/functions";
 import styles from "./page.module.css";
@@ -48,11 +48,6 @@ export default function CreateTrainingProgram() {
       newExercise.videoUrl ? newExercise : { ...newExercise, videoUrl: "" }
     );
   };
-
-  // const GoOn = (e) => {
-  //   e.preventDefault();
-  //   router.push(`/trainer/month/${month}/day/${day}/create-training-details`);
-  // };
 
   return (
     <div className={styles.traingProgramContainer}>

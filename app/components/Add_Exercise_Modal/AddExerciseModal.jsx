@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import EditorWrapper from "@/components/Editor/EditorWrapper"
-import extractYouTubeId from "@/functions/functions/";
+import { extractYouTubeId } from "@/functions/functions";
 import styles from "./AddExerciseModal.module.css";
 
 export default function AddExerciseModal({
@@ -37,10 +36,18 @@ export default function AddExerciseModal({
       const videoId = extractYouTubeId(rawUrl.videoUrl);
       rawUrl.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
     }
-    setExercise((prev) => ({
+      setExercise((prev) => ({
+      ...prev,
       name: rawUrl.name ?? prev.name,
       videoUrl: rawUrl.videoUrl ?? "",
       imageUrl: rawUrl.imageUrl ?? prev.imageUrl,
+    }));
+  };
+
+  const handleSetTraining = (updatedFields) => {
+    setExercise((prev) => ({
+      ...prev,
+      ...updatedFields,
     }));
   };
 
@@ -67,7 +74,7 @@ export default function AddExerciseModal({
           <UploadImageModal
             isImageModalOpen={isImageModalOpen}
             closeModalImg={closeModalImg}
-            setTraining={setExercise}
+            setTraining={handleSetTraining}
           ></UploadImageModal>
           <main className={styles.main}>
             {exercise.videoUrl &&
@@ -89,7 +96,7 @@ export default function AddExerciseModal({
                 height={500}
                 className={styles.fallbackImage}
               ></Image>
-            ): null}
+            ) : null}
             {!showEditor ? (
               <form className={styles.form}>
                 <p className={styles.imageLoadTitle}>Omslag</p>
