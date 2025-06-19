@@ -17,6 +17,7 @@ const editorConfig = {
       underline: styles.underline,
     },
   },
+  
   onError(error) {
     throw error;
   },
@@ -29,10 +30,16 @@ Object.entries(editorConfig).forEach(([key, value]) => {
   console.log(`${key}:`, value);
 });
 
-export default function EditorWrapper({ onContentSave }) {
+export default function EditorWrapper({ onContentSave, onClose }) {
+
+  const handleContentSave = (content) => {
+    if (onContentSave) {
+      onContentSave(content);
+    }
+  };
   return (
-    <LexicalComposer initialConfig={editorConfig || {}}>
-      <LexicalEditor onContentSave={onContentSave} />
+    <LexicalComposer initialConfig={editorConfig}>
+      <LexicalEditor onContentSave={handleContentSave} onClose={onClose} />
     </LexicalComposer>
   );
 }

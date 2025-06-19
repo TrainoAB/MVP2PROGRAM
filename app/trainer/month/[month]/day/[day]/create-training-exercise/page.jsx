@@ -9,7 +9,6 @@ import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import { extractYouTubeId } from "@/functions/functions";
 import AddExerciseModal from "@/components/Add_Exercise_Modal/AddExerciseModal";
-// import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/functions/functions";
 import styles from "./page.module.css";
 
 

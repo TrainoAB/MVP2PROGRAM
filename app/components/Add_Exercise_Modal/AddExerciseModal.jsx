@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
-import EditorWrapper from "@/components/Editor/EditorWrapper"
+import EditorWrapper from "@/components/Editor/EditorWrapper";
 import { extractYouTubeId } from "@/functions/functions";
 import styles from "./AddExerciseModal.module.css";
 
@@ -19,24 +19,22 @@ export default function AddExerciseModal({
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const openModalVideo = () => setIsVideoModalOpen(true);
   const closeModalVideo = () => setIsVideoModalOpen(false);
-  const [showEditor, setShowEditor] = useState(false);
 
   const [exercise, setExercise] = useState({
-    name: "Övningsbild eller video.",
+    name: "",
     videoUrl: null,
     imageUrl: null,
   });
-  // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
 
-  const [price, setPrice] = useState(0);
+  const [step, setStep] = useState(1);
 
-    const setExerciseWrapper = (rawUrl) => {
-        if (!rawUrl) return;
+  const setExerciseWrapper = (rawUrl) => {
+    if (!rawUrl) return;
     if (rawUrl.videoUrl) {
       const videoId = extractYouTubeId(rawUrl.videoUrl);
       rawUrl.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
     }
-      setExercise((prev) => ({
+    setExercise((prev) => ({
       ...prev,
       name: rawUrl.name ?? prev.name,
       videoUrl: rawUrl.videoUrl ?? "",
@@ -51,9 +49,33 @@ export default function AddExerciseModal({
     }));
   };
 
-  const GoOn = (e) => {
+  const completeNotes = (e) => {
     e.preventDefault();
-    setShowEditor(true);
+    setStep(2);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    try {
+      // Här sparar du till databasen – t.ex. med fetch eller Supabase
+      const { name, duration, description, videoUrl, imageUrl } = exercise;
+  
+      // Exempel: skicka till din API-route eller Supabase
+       fetch("/api/saveExercise", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, duration, description, videoUrl, imageUrl }),
+      });
+  
+      // När sparningen är klar, stäng modalen
+      closeModalExercise();
+      console.log("Modalen STÄNGS!");
+    } catch (error) {
+      console.error("Fel vid sparning:", error);
+      // Här kan du även visa ett felmeddelande
+    }
   };
 
   if (!isExerciseModalOpen) return null;
@@ -61,9 +83,18 @@ export default function AddExerciseModal({
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
         <div className={styles.closeButtonsWrapper}>
-          <button onClick={closeModalExercise} className={styles.closeBtn}>
-            ✕
-          </button>
+          {step > 1 && (
+            <>
+              <button
+                className={styles.backBtn}
+                onClick={() => setStep(1)}
+              ></button>
+              <h4 className={styles.title}>Kompleterande anteckningar</h4>
+              <button onClick={closeModalExercise} className={styles.closeBtn}>
+                ✕
+              </button>
+            </>
+          )}
         </div>
         <div className={styles.traingProgramContainer}>
           <UploadYoutubeVideoModal
@@ -91,14 +122,20 @@ export default function AddExerciseModal({
             ) : exercise.imageUrl ? (
               <Image
                 src={exercise.imageUrl}
-                alt="Fallback image"
+                alt="Bild på övning"
                 width={500}
                 height={500}
                 className={styles.fallbackImage}
               ></Image>
             ) : null}
-            {!showEditor ? (
-              <form className={styles.form}>
+            {step === 1 ? (
+              <form
+                className={`${styles.form} ${
+                  exercise.imageUrl || exercise.videoUrl
+                    ? styles.formExpanded
+                    : styles.formCompact
+                }`}
+              >
                 <p className={styles.imageLoadTitle}>Omslag</p>
                 <div className={styles.buttonContainer}>
                   <button
@@ -123,7 +160,10 @@ export default function AddExerciseModal({
                   <input
                     type="number"
                     id="duration"
-                    onChange={(e) => setPrice({ duration: e.target.value })}
+                    onChange={(e) =>
+                      setExercise({ ...exercise, duration: e.target.value })
+                    }
+                    value={exercise.duration}
                     placeholder="minuter"
                     className={styles.inputTime}
                   />
@@ -133,7 +173,7 @@ export default function AddExerciseModal({
                   <input
                     type="text"
                     id="title"
-                    placeholder="min"
+                    placeholder="Övningen titel"
                     className={styles.inputProgramTitle}
                     value={exercise.name}
                     onChange={(e) =>
@@ -159,18 +199,27 @@ export default function AddExerciseModal({
                 <div className={styles.buttonContainer}>
                   <button
                     type="button"
-                    onClick={GoOn}
-                    className={styles.goOnButton}
+                    onClick={completeNotes}
+                    className={styles.standardButton}
                   >
-                    Fortsätt
+                    Kompletera
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className={styles.standardButton}
+                  >
+                    Spara
                   </button>
                 </div>
               </form>
             ) : (
               <EditorWrapper
                 onContentSave={(content) => {
-                  console.log("Sparat innehåll:", content);
-                  // du kan även stänga modalen eller gå vidare här
+                  console.log("EditorWrapper sparade innehåll:", content);
+                }}
+                onClose={() => {
+                  closeModalExercise(); // modal stängs först när spara är klart
                 }}
               />
             )}
