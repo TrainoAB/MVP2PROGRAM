@@ -11,7 +11,7 @@ import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
-  const [totalDays, setTotalDays] = useState(28);
+  // const [totalDays, setTotalDays] = useState(28);
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -22,6 +22,25 @@ export default function CreateTrainingProgram() {
   const closeModalVideo = () => setIsVideoModalOpen(false);
 
   const [hydrated, setHydrated] = useState(false);
+
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [days, setDays] = useState(28);
+  const [imageUrl, setImageUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [trainerId, setTrainerId] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const res = await fetch('/api/training', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description, price, days, imageUrl, videoUrl, trainerId }),
+    })
+
+    const data = await res.json()
+    alert(data.message)
+  }
 
   const [training, setTraining] = useState({
     name: "Träningsvideo",
@@ -47,17 +66,6 @@ export default function CreateTrainingProgram() {
     }
   }, [training]);
 
-  // const exercise = {
-  //   name: "Träningsvideo",
-  //   videoUrl: "https://www.youtube.com/embed/0xcutfMELrk?autoplay=1&mute=1", // Lägg till eller ta bort för att testa fallback
-  //   imageUrl: "/traningsprogram.png",
-  // };
-
-  // const exercise = {
-  //   name: "Armhävningar",
-  //   videoUrl: "https://www.youtube.com/embed/AlPMhqvfmw4?autoplay=1&mute=1",
-  //   imageUrl: "",
-  // };
 
   const GoOn = (e) => {
     e.preventDefault();
@@ -112,7 +120,7 @@ export default function CreateTrainingProgram() {
             className={styles.fallbackImage}
           ></Image>
         ) : null}
-        <form className={styles.form}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
             <button
@@ -130,7 +138,7 @@ export default function CreateTrainingProgram() {
               Välj Video
             </button>
           </div>
-          <DaysSlider value={totalDays} onChange={setTotalDays} />
+          <DaysSlider value={totalDays} onChange={setDays} />
           <div className={styles.inputGroup}>
             <label htmlFor="price" className={styles.label}>
               Pris
@@ -140,6 +148,7 @@ export default function CreateTrainingProgram() {
               id="price"
               placeholder="Kr"
               className={styles.input}
+              onChange={(e) => setPrice(e.target.value)}
             />
           </div>
           <div className={styles.inputGroup}>
@@ -151,10 +160,11 @@ export default function CreateTrainingProgram() {
               id="description"
               placeholder="Skriv minst 10 bokstäver."
               className={styles.inputField}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           <div className={styles.buttonContainer}>
-            <button onClick={GoOn} className={styles.goOnButton}>
+            <button type="submit" onClick={GoOn} className={styles.goOnButton}>
               Fortsätt
             </button>
           </div>
