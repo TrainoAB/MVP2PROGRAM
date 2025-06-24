@@ -26,31 +26,59 @@ export default function CreateTrainingProgram() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [days, setDays] = useState(28);
-  const [imageUrl, setImageUrl] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
   const [trainerId, setTrainerId] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    const res = await fetch('/api/training', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description, price, days, imageUrl, videoUrl, trainerId }),
-    })
+    e.preventDefault();
+    console.log("handleSubmit körs");
+    setLoading(true);
+    try {
+      const res = await fetch('/api/training_program', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description,
+          price: Number(price),
+          days,
+          imageUrl: training.imageUrl,
+          videoUrl: training.videoUrl,
+          trainerId: training.trainerId
+        }),
+      })
+      console.log("Response status:", res.status);
 
-    const data = await res.json()
-    alert(data.message)
-  }
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        console.error("Kunde inte parsa JSON:", err);
+        throw new Error("Servern returnerade inte giltig JSON");
+      }
+
+      if (res.ok) {
+        router.push(`/trainer/create-training-calendar?days=${days}`);
+      } else {
+        alert(data.message || "Något gick fel");
+      }
+    } catch (error) {
+      console.error("Error submitting training program:", error);
+      alert("Något gick fel, försök igen.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [training, setTraining] = useState({
     name: "Träningsvideo",
     videoUrl: null,
     imageUrl: null,
+    trainerId: "00000000-0000-0000-0000-000000000000",
     savedDate: new Date().toISOString(),
   });
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    // Om training.videoUrl är tom, försök läsa från localStorage
     if (typeof window !== "undefined") {
       const todayTraining = getImageOrVideoIfSavedToday();
       if (todayTraining) {
@@ -67,14 +95,6 @@ export default function CreateTrainingProgram() {
   }, [training]);
 
 
-  const GoOn = (e) => {
-    e.preventDefault();
-    // Här kan du lägga till logik för att spara träningsprogrammet
-    console.log("Träningsprogram sparat med följande data:");
-    console.log("Dagar:", totalDays);
-    router.push(`/trainer/create-training-calendar?days=${totalDays}`);
-  };
-
   if (!hydrated) return null;
 
   return (
@@ -90,6 +110,9 @@ export default function CreateTrainingProgram() {
         isVideoModalOpen={isVideoModalOpen}
         closeModalVideo={closeModalVideo}
         setTraining={setTraining}
+        setVideoUrl={(videoUrl) =>
+          setTraining((prev) => ({ ...prev, videoUrl }))
+        }
         training={training}
       ></UploadYoutubeVideoModal>
       <UploadImageModal
@@ -120,7 +143,7 @@ export default function CreateTrainingProgram() {
             className={styles.fallbackImage}
           ></Image>
         ) : null}
-        <form className={styles.form} onSubmit={handleSubmit}>
+        <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
             <button
@@ -138,7 +161,7 @@ export default function CreateTrainingProgram() {
               Välj Video
             </button>
           </div>
-          <DaysSlider value={totalDays} onChange={setDays} />
+          <DaysSlider value={days} onChange={setDays} />
           <div className={styles.inputGroup}>
             <label htmlFor="price" className={styles.label}>
               Pris
@@ -164,8 +187,12 @@ export default function CreateTrainingProgram() {
             />
           </div>
           <div className={styles.buttonContainer}>
-            <button type="submit" onClick={GoOn} className={styles.goOnButton}>
-              Fortsätt
+            <button
+              type="submit"
+              disabled={loading}
+              className={styles.goOnButton}
+            >
+              {loading ? "Sparar..." : "Fortsätt"}
             </button>
           </div>
         </form>
