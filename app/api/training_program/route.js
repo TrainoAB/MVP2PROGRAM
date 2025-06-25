@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/server";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
 
 export async function POST(req) {
   console.log("req.body:", req.body);
@@ -20,6 +16,8 @@ export async function POST(req) {
         { status: 400 }
       );
     }
+
+    const supabase = await createClient();
 
     const { data, error } = await supabase
       .from("training_programs")

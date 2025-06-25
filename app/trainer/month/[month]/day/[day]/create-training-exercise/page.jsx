@@ -48,8 +48,52 @@ export default function CreateTrainingProgram() {
     );
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      month_number: parseInt(month),
+      day_number: parseInt(day),
+      image_url: exercise.imageUrl,
+      video_url: exercise.videoUrl,
+    };
+
+    console.log("Skickar följande data till servern:", payload);
+
+    try {
+      const res = await fetch("http://localhost:3001/api/save-training-day", {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        const text = await res.text(); // För felsökning
+        throw new Error("Server error");
+      }
+
+      const contentType = res.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.success) {
+          alert(data.success); // Visa meddelande
+        } else {
+          console.error("Något gick fel:", data.message);
+        }
+      } else {
+        const text = await res.text();
+        console.warn("Ingen JSON i svaret:", text);
+      }
+    } catch (err) {
+      console.error("Något gick fel:", err);
+    }
+  };
+
   return (
-    <div className={styles.traingProgramContainer}>
+    <div className={styles.trainingProgramContainer}>
       <header className={styles.header}>
         <button
           className={styles.backBtn}
@@ -97,9 +141,9 @@ export default function CreateTrainingProgram() {
             width={500}
             height={500}
             className={styles.fallbackImage}
-          ></Image>
-        ) : null }
-        <form className={styles.form}>
+          />
+        ) : null}
+        <form className={styles.form} onSubmit={handleSubmit}>
           <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
             <button
@@ -125,6 +169,7 @@ export default function CreateTrainingProgram() {
               <button
                 id="exercise-button"
                 type="button"
+                aria-label="Lägg till övning"
                 onClick={openModalExercise}
                 className={styles.openBtnExercise}
               >
@@ -132,6 +177,15 @@ export default function CreateTrainingProgram() {
                 <Plus size={24} />
               </button>
             </div>
+          </div>
+          <div className={styles.buttonWrapper}>
+            <button
+              type="submit"
+              onClick={handleSubmit}
+              className={styles.saveButton}
+            >
+              Spara dag
+            </button>
           </div>
         </form>
       </main>

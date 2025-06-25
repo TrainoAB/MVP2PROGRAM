@@ -1,4 +1,4 @@
-.traingProgramContainer {
+.trainingProgramContainer {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -58,6 +58,13 @@
             font-weight: 600;
             margin-top: 2.5rem;
             align-self: center;
+        }
+
+        h3.mounthDay {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--fgcolor);
+            margin-top: .2rem;
         }
     }
 }
@@ -200,13 +207,39 @@
         padding: .5rem 1.2rem;
         gap: 1rem;
 
+        .saveButton {
+            border: none;
+            outline: none;
+            width: 45%;
+            padding: var(--button-small-padding);
+            border-radius: var(--radius);
+            background: var(--maincolor);
+            color: #fff;
+            text-align: center;
+            font-size: var(--font-regular);
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+
+            &:hover {
+                background: var(--maincolor-hover);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                transition: all 0.2s ease-in-out;
+            }
+
+            &:active {
+                background: var(--maincolor);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+        }
+
         .buttonContainerExercise {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 0.25rem;
             margin-left: auto;
-            margin-right: 1rem;  
+            margin-right: 1rem;
 
             .buttonLabel {
                 font-size: .9rem;
