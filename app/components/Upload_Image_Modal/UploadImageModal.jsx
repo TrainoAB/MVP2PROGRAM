@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { UploadCloud } from "lucide-react";
-import Modal from "@/components/Modal";
+import Modal from "@/app/components/Modal";
 import styles from "./UploadImageModal.module.css";
 
 export default function UploadImageModal({

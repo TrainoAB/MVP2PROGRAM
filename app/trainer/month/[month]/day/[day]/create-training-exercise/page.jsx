@@ -5,10 +5,10 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 
-import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
-import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
-import { extractYouTubeId } from "@/functions/functions";
-import AddExerciseModal from "@/components/Add_Exercise_Modal/AddExerciseModal";
+import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
+import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
+import { extractYouTubeId } from "@/app/functions/functions";
+import AddExerciseModal from "@/app/components/Add_Exercise_Modal/AddExerciseModal";
 import styles from "./page.module.css";
 
 

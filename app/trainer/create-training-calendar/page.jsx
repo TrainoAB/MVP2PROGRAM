@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Header_DisplayButton from "@/components/Header_DisplayButton";
-import Calendar from "@/components/Calendar/Calendar";
-import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/functions/functions";
+import Header_DisplayButton from "@/app/components/Header_DisplayButton";
+import Calendar from "@/app/components/Calendar/Calendar";
+import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/app/functions/functions";
 import Image from "next/image";
 import styles from "./page.module.css";
 

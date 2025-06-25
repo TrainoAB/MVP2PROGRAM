@@ -1,3 +1,25 @@
+.closeButtonsWrapper {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: .5rem;
+
+    .closeButton {
+        background: transparent;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        color: #333;
+        z-index: 1000;
+        transition: transform 0.2s ease;
+    }
+
+    .closeButton:hover {
+        transform: scale(1.2);
+        color: #000;
+    }
+}
+
+
 .modalOverlay {
     position: fixed;
     top: 0;

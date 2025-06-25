@@ -1,31 +1,56 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/utils/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 export async function POST(req) {
+  console.log("req.body:", req.body);
+  try {
     const body = await req.json();
+    console.log("Mottaget:", body);
+
     const { description, price, days, imageUrl, videoUrl, trainerId } = body;
 
-    const { data, error } = await supabase
-        .from("training_programs")
-        .insert([
-            {
-                description,
-                price,
-                days,
-                image_url: imageUrl,
-                video_url: videoUrl,
-                trainer_id: trainerId,
-            },
-        ])
-    
-    if (error) {
-        return NextResponse.json(
-            { error: error.message },
-            { status: 500 }
-        );
+    if (!description || !price || !days) {
+      return NextResponse.json(
+        { error: "Saknar obligatoriska fält" },
+        { status: 400 }
+      );
     }
+
+    const { data, error } = await supabase
+      .from("training_programs")
+      .insert([
+        {
+          description,
+          price,
+          days,
+          image_url: imageUrl,
+          video_url: videoUrl,
+          trainer_id: trainerId,
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Supabase insert error:", error);
+      return NextResponse.json(
+        { error: "Kunde inte skapa träningsprogram" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
-        { message: "Training program sparat", data },
-        { status: 201 }
+      { success: true, data },
+      { message: "Training program sparat" },
+      { status: 201 }
     );
+    // return NextResponse.json({ success: true, data }, { status: 201 });
+  } catch (err) {
+    console.error("API-fel:", err);
+    return NextResponse.json({ error: "Serverfel" }, { status: 500 });
+  }
 }

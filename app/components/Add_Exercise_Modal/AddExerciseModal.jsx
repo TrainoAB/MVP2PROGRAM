@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
-import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
-import EditorWrapper from "@/components/Editor/EditorWrapper";
-import { extractYouTubeId } from "@/functions/functions";
+import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
+import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
+import EditorWrapper from "@/app/components/Editor/EditorWrapper";
+import { extractYouTubeId } from "@/app/functions/functions";
 import styles from "./AddExerciseModal.module.css";
 
 export default function AddExerciseModal({
@@ -136,7 +136,15 @@ export default function AddExerciseModal({
                     : styles.formCompact
                 }`}
               >
-                <p className={styles.imageLoadTitle}>Omslag</p>
+                <div className={styles.closeButtonsWrapper}>
+                  <p className={styles.imageLoadTitle}>Omslag</p>
+                  <button
+                    onClick={closeModalVideo}
+                    className={styles.closeButton}
+                  >
+                    ×
+                  </button>
+                </div>
                 <div className={styles.buttonContainer}>
                   <button
                     type="button"

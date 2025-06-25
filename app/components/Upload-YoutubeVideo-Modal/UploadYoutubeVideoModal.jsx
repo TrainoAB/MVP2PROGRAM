@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Modal from "@/components/Modal";
+import Modal from "@/app/components/Modal";
 import styles from "./UploadYoutubeVideo.module.css";
 
 export default function UploadYoutubeVideoModal({

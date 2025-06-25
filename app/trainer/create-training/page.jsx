@@ -3,15 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import DaysSlider from "@/components/Days_Slider/DaysSlider";
-import UploadImageModal from "@/components/Upload_Image_Modal/UploadImageModal";
-import UploadYoutubeVideoModal from "@/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
-import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/functions/functions";
+import { createClient } from "@/utils/supabase/client"; 
+import DaysSlider from "@/app/components/Days_Slider/DaysSlider";
+import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
+import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
+import {
+  extractYouTubeId,
+  getImageOrVideoIfSavedToday,
+} from "@/app/functions/functions";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
-  // const [totalDays, setTotalDays] = useState(28);
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -28,53 +31,100 @@ export default function CreateTrainingProgram() {
   const [days, setDays] = useState(28);
   const [trainerId, setTrainerId] = useState("");
 
+  const [training, setTraining] = useState({
+    name: "Träningsvideo",
+    videoUrl: null,
+    imageUrl: null,
+    trainerId:null,
+    savedDate: new Date().toISOString(),
+  });
+
+  // useEffect(() => {
+  //   const getTrainerId = async () => {
+  //     const supabase = createClient();
+
+  //     const {
+  //       data: { user },
+  //       error,
+  //     } = await supabase.auth.getUser();
+
+  //     if (error) {
+  //       console.error("Kunde inte hämta användare:", error.message);
+  //     }
+
+  //     if (user) {
+  //       console.log("Inloggad användare:", user);
+  //       setTraining((prev) => ({
+  //         ...prev,
+  //         trainerId: user.id,
+  //       }));
+  //     }
+  //   };
+  //   getTrainerId();
+  // }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("handleSubmit körs");
     setLoading(true);
+
+    console.log("Beskrivning:", description);
+    console.log("Pris:", price, "->", Number(price));
+    console.log("Dagar:", days);
+    console.log("Bild-URL:", training.imageUrl);
+    console.log("Video-URL:", training.videoUrl);
+    // console.log("Trainer ID:", training.trainerId);
+
+    if (!description) return console.error("Beskrivning saknas!");
+    if (!price || Number(price) <= 0)
+      return console.error("Pris saknas eller ogiltigt!");
+    if (!days) return console.error("Antal dagar saknas!");
+    // if (
+    //   !training.trainerId ||
+    //   training.trainerId === "00000000-0000-0000-0000-000000000000"
+    // )
+    //   return console.error("Trainer ID saknas eller är placeholder!");
+
+  
     try {
-      const res = await fetch('/api/training_program', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/training_program", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           description,
           price: Number(price),
           days,
           imageUrl: training.imageUrl,
           videoUrl: training.videoUrl,
-          trainerId: training.trainerId
+          trainerId: training.trainerId,
         }),
-      })
+      });
       console.log("Response status:", res.status);
 
-      let data;
-      try {
-        data = await res.json();
-      } catch (err) {
-        console.error("Kunde inte parsa JSON:", err);
-        throw new Error("Servern returnerade inte giltig JSON");
+      const contentType = res.headers.get("content-type");
+
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Servern returnerade inte JSON:", text);
+        throw new Error("Ogiltigt svar från servern (ej JSON)");
       }
 
+      let data;
+      data = await res.json();
+      console.log("Response data:", data);
       if (res.ok) {
         router.push(`/trainer/create-training-calendar?days=${days}`);
       } else {
         alert(data.message || "Något gick fel");
       }
-    } catch (error) {
-      console.error("Error submitting training program:", error);
-      alert("Något gick fel, försök igen.");
+    } catch (err) {
+      console.error("Kunde inte parsa JSON:", err);
+      throw new Error("Servern returnerade inte giltig JSON");
     } finally {
       setLoading(false);
     }
   };
 
-  const [training, setTraining] = useState({
-    name: "Träningsvideo",
-    videoUrl: null,
-    imageUrl: null,
-    trainerId: "00000000-0000-0000-0000-000000000000",
-    savedDate: new Date().toISOString(),
-  });
 
   const [loading, setLoading] = useState(false);
 
@@ -93,7 +143,6 @@ export default function CreateTrainingProgram() {
       localStorage.setItem("training", JSON.stringify(training));
     }
   }, [training]);
-
 
   if (!hydrated) return null;
 
