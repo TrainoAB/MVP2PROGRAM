@@ -11,6 +11,8 @@ import styles from "./AddExerciseModal.module.css";
 export default function AddExerciseModal({
   isExerciseModalOpen,
   closeModalExercise,
+  month,
+  day,
 }) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -20,27 +22,48 @@ export default function AddExerciseModal({
   const openModalVideo = () => setIsVideoModalOpen(true);
   const closeModalVideo = () => setIsVideoModalOpen(false);
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const [exercise, setExercise] = useState({
-    name: "",
     videoUrl: null,
     imageUrl: null,
+    duration: "",
+    title: "",
+    description: "",
+    index_order: 0,
   });
+
+  console.log("exercise", exercise);
 
   const [step, setStep] = useState(1);
 
+
   const setExerciseWrapper = (rawUrl) => {
     if (!rawUrl) return;
-    if (rawUrl.videoUrl) {
-      const videoId = extractYouTubeId(rawUrl.videoUrl);
-      rawUrl.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+
+    const videoUrl = rawUrl.videoUrl || rawUrl.video_url;
+    const imageUrl = rawUrl.imageUrl || rawUrl.image_url;
+
+    // let updatedVideoUrl = videoUrl;
+
+    if (videoUrl) {
+      const videoId = extractYouTubeId(videoUrl);
+      updatedVideoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
     }
+
     setExercise((prev) => ({
       ...prev,
-      name: rawUrl.name ?? prev.name,
-      videoUrl: rawUrl.videoUrl ?? "",
-      imageUrl: rawUrl.imageUrl ?? prev.imageUrl,
+      videoUrl: updatedVideoUrl ?? prev.videoUrl,
+      imageUrl: imageUrl ?? prev.imageUrl,
+      duration: rawUrl.duration ?? prev.duration,
+      title: rawUrl.title ?? prev.title,
+      description: rawUrl.description ?? prev.description,
+      index_order: rawUrl.index_order ?? prev.index_order,
     }));
   };
+
+  // If you need this upload logic, move it inside an async function, or remove it if not used.
+  // Example: Remove these lines if not used, as they cause a syntax error.
 
   const handleSetTraining = (updatedFields) => {
     setExercise((prev) => ({
@@ -54,21 +77,60 @@ export default function AddExerciseModal({
     setStep(2);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Formulär skickas!");
     try {
       // Här sparar du till databasen – t.ex. med fetch eller Supabase
-      const { name, duration, description, videoUrl, imageUrl } = exercise;
+      setIsSaving(true);
+      const {
+        videoUrl,
+        imageUrl,
+        title,
+        duration,
+        description,
+        index_order,
+      } = exercise;
+
+      const month_number = parseInt(month);
+      const day_number = parseInt(day);
   
       // Exempel: skicka till din API-route eller Supabase
-       fetch("/api/saveExercise", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, duration, description, videoUrl, imageUrl }),
-      });
+       const response = await fetch("http://localhost:3001/api/save-exercise", {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json",
+         },
+         body: JSON.stringify({
+           title,
+           duration,
+           description,
+           video_url: videoUrl,
+           image_url: imageUrl,
+           index_order,
+           month_number,
+           day_number,
+         }),
+       });
+      
+      // console.log("Data som skickas:", {
+      //   month_number,
+      //   day_number,
+      //   title,
+      //   duration,
+      //   description,
+      //   video_url: videoUrl,
+      //   image_url: imageUrl,
+      //   index_order,
+      // });
   
+       if (!response.ok) {
+         const responseText = await response.text();
+         console.error("Felstatus:", response.status, "Svar:", responseText);
+         throw new Error("Sparningen misslyckades");
+      }
+      setIsSaving(false);
+      console.log("Sparning lyckades!");
       // När sparningen är klar, stäng modalen
       closeModalExercise();
       console.log("Modalen STÄNGS!");
@@ -90,7 +152,11 @@ export default function AddExerciseModal({
                 onClick={() => setStep(1)}
               ></button>
               <h4 className={styles.title}>Kompleterande anteckningar</h4>
-              <button onClick={closeModalExercise} className={styles.closeBtn}>
+              <button
+                type="button"
+                onClick={closeModalExercise}
+                className={styles.closeBtn}
+              >
                 ✕
               </button>
             </>
@@ -108,7 +174,7 @@ export default function AddExerciseModal({
             setTraining={handleSetTraining}
           ></UploadImageModal>
           <main className={styles.main}>
-            {exercise.videoUrl &&
+            {typeof exercise.videoUrl === "string" &&
             (exercise.videoUrl.includes("youtube.com") ||
               exercise.videoUrl.includes("youtu.be")) ? (
               <div className={styles.videoWrapper}>
@@ -130,6 +196,7 @@ export default function AddExerciseModal({
             ) : null}
             {step === 1 ? (
               <form
+                onSubmit={handleSubmit}
                 className={`${styles.form} ${
                   exercise.imageUrl || exercise.videoUrl
                     ? styles.formExpanded
@@ -168,9 +235,17 @@ export default function AddExerciseModal({
                   <input
                     type="number"
                     id="duration"
-                    onChange={(e) =>
-                      setExercise({ ...exercise, duration: e.target.value })
-                    }
+                    min="1"
+                    step="1"
+                    inputMode="numeric"
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      if (!isNaN(value) && value > 0) {
+                        setExercise({ ...exercise, duration: value });
+                      } else if (e.target.value === "") {
+                        setExercise({ ...exercise, duration: "" });
+                      }
+                    }}
                     value={exercise.duration}
                     placeholder="minuter"
                     className={styles.inputTime}
@@ -183,9 +258,9 @@ export default function AddExerciseModal({
                     id="title"
                     placeholder="Övningen titel"
                     className={styles.inputProgramTitle}
-                    value={exercise.name}
+                    value={exercise.title}
                     onChange={(e) =>
-                      setExercise({ ...exercise, name: e.target.value })
+                      setExercise({ ...exercise, title: e.target.value })
                     }
                   />
                 </div>
@@ -213,11 +288,11 @@ export default function AddExerciseModal({
                     Kompletera
                   </button>
                   <button
-                    type="button"
-                    onClick={handleSubmit}
+                    type="submit"
                     className={styles.standardButton}
+                    disabled={isSaving}
                   >
-                    Spara
+                    {isSaving ? "Sparar..." : "Spara"}
                   </button>
                 </div>
               </form>
@@ -227,7 +302,7 @@ export default function AddExerciseModal({
                   console.log("EditorWrapper sparade innehåll:", content);
                 }}
                 onClose={() => {
-                  closeModalExercise(); // modal stängs först när spara är klart
+                  closeModalExercise();
                 }}
               />
             )}

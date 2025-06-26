@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { Plus } from "lucide-react";
@@ -10,7 +10,6 @@ import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/
 import { extractYouTubeId } from "@/app/functions/functions";
 import AddExerciseModal from "@/app/components/Add_Exercise_Modal/AddExerciseModal";
 import styles from "./page.module.css";
-
 
 export default function CreateTrainingProgram() {
   const router = useRouter();
@@ -37,6 +36,24 @@ export default function CreateTrainingProgram() {
     savedDate: new Date().toISOString(),
   });
 
+  const [exercises, setExercises] = useState([]);
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const res = await fetch(`/api/get-exercises?month=${month}&day=${day}`);
+        const data = await res.json();
+        if (data.success) {
+          setExercises(data.data); // du får tillbaka en array med övningar
+        }
+      } catch (err) {
+        console.error("Fel vid hämtning av övningar:", err);
+      }
+    };
+
+    fetchExercises();
+  }, [month, day]);
+
   const setExerciseWrapper = (newExercise) => {
     if (newExercise.videoUrl) {
       const videoId = extractYouTubeId(newExercise.videoUrl);
@@ -61,7 +78,7 @@ export default function CreateTrainingProgram() {
     console.log("Skickar följande data till servern:", payload);
 
     try {
-      const res = await fetch("http://localhost:3001/api/save-training-day", {
+      const res = await fetch("/api/save-training-day", {
         method: "POST",
         body: JSON.stringify(payload),
         headers: {
@@ -119,6 +136,8 @@ export default function CreateTrainingProgram() {
           <AddExerciseModal
             isExerciseModalOpen={isExerciseModalOpen}
             closeModalExercise={closeModalExercise}
+            month={month}
+            day={day}
           ></AddExerciseModal>
         </div>
       )}
@@ -162,6 +181,11 @@ export default function CreateTrainingProgram() {
             </button>
           </div>
           <div className={styles.buttonWrapper}>
+            <button type="submit" className={styles.saveButton}>
+              Spara dag
+            </button>
+          </div>
+          <div className={styles.buttonWrapper}>
             <div className={styles.buttonContainerExercise}>
               <label htmlFor="exercise-button" className={styles.buttonLabel}>
                 Lägg till övning
@@ -178,16 +202,8 @@ export default function CreateTrainingProgram() {
               </button>
             </div>
           </div>
-          <div className={styles.buttonWrapper}>
-            <button
-              type="submit"
-              onClick={handleSubmit}
-              className={styles.saveButton}
-            >
-              Spara dag
-            </button>
-          </div>
         </form>
+
       </main>
     </div>
   );
