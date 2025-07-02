@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
 import styles from "./calendar.module.css";
 
 
@@ -14,6 +15,8 @@ export default function Calendar({
 }) {
   const [activeDays, setActiveDays] = useState([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const programId = searchParams.get("programId");
 
   const toggleDay = (dayNumber) => {
     console.log("Click:", dayNumber);
@@ -23,7 +26,7 @@ export default function Calendar({
       onDayClick(dayNumber);
     } else {
       if (trainer) {
-        router.push(`/trainer/month/${month}/day/${dayNumber}/create-training-exercise/`
+        router.push(`/trainer/month/${month}/day/${dayNumber}/create-training-exercise?programId=${programId}`
         );
       } else {
         router.push(`/user/month/${month}/day/${dayNumber}/training-program/`);

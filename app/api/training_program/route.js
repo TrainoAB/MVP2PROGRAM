@@ -31,7 +31,8 @@ export async function POST(req) {
           trainer_id: trainerId,
         },
       ])
-      .select();
+      .select()
+      .single();
 
     if (error) {
       console.error("Supabase insert error:", error);

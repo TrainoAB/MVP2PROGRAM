@@ -209,6 +209,17 @@
                 margin: 0 0 0 .5rem;
             }
 
+            .inputTimeContainer {
+                display: flex;
+                align-items: center;
+                justify-content: flex-start; 
+                padding-bottom: .5rem;
+                font-size: .9rem;
+                font-weight: var(--weight);
+                color: var(--fgcolor);
+                margin: 0 0 0 .5rem;
+            }
+
             .input {
                 background-color: var(--bgcolor);
                 color: var(--fgcolor);
@@ -248,6 +259,17 @@
             .inputField:focus-visible {
                 outline: .1875rem solid var(--maincolor);
                 border-color: transparent;
+            }
+
+            .timeSuffix {
+                color: var(--fgcolor);
+                width: 20%;
+                height: 2rem;
+                font-family: inherit;
+                font-size: var(--font-regular);
+                padding: .5rem 1rem;
+                border-radius: var(--radius-input);
+                line-height: 2rem;
             }
 
             .heading {

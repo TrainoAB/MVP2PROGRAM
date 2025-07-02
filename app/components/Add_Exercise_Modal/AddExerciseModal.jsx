@@ -37,7 +37,6 @@ export default function AddExerciseModal({
 
   const [step, setStep] = useState(1);
 
-
   const setExerciseWrapper = (rawUrl) => {
     if (!rawUrl) return;
 
@@ -48,7 +47,7 @@ export default function AddExerciseModal({
 
     if (videoUrl) {
       const videoId = extractYouTubeId(videoUrl);
-      updatedVideoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+      videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
     }
 
     setExercise((prev) => ({
@@ -83,36 +82,30 @@ export default function AddExerciseModal({
     try {
       // Här sparar du till databasen – t.ex. med fetch eller Supabase
       setIsSaving(true);
-      const {
-        videoUrl,
-        imageUrl,
-        title,
-        duration,
-        description,
-        index_order,
-      } = exercise;
+      const { videoUrl, imageUrl, title, duration, description, index_order } =
+        exercise;
 
       const month_number = parseInt(month);
       const day_number = parseInt(day);
-  
+
       // Exempel: skicka till din API-route eller Supabase
-       const response = await fetch("http://localhost:3001/api/save-exercise", {
-         method: "POST",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify({
-           title,
-           duration,
-           description,
-           video_url: videoUrl,
-           image_url: imageUrl,
-           index_order,
-           month_number,
-           day_number,
-         }),
-       });
-      
+      const response = await fetch("/api/save-exercise", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          duration,
+          description,
+          video_url: videoUrl,
+          image_url: imageUrl,
+          index_order,
+          month_number,
+          day_number,
+        }),
+      });
+
       // console.log("Data som skickas:", {
       //   month_number,
       //   day_number,
@@ -123,11 +116,11 @@ export default function AddExerciseModal({
       //   image_url: imageUrl,
       //   index_order,
       // });
-  
-       if (!response.ok) {
-         const responseText = await response.text();
-         console.error("Felstatus:", response.status, "Svar:", responseText);
-         throw new Error("Sparningen misslyckades");
+
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error("Felstatus:", response.status, "Svar:", responseText);
+        throw new Error("Sparningen misslyckades");
       }
       setIsSaving(false);
       console.log("Sparning lyckades!");
@@ -232,24 +225,27 @@ export default function AddExerciseModal({
                   <label htmlFor="duration" className={styles.label}>
                     Välj passets längd
                   </label>
-                  <input
-                    type="number"
-                    id="duration"
-                    min="1"
-                    step="1"
-                    inputMode="numeric"
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value, 10);
-                      if (!isNaN(value) && value > 0) {
-                        setExercise({ ...exercise, duration: value });
-                      } else if (e.target.value === "") {
-                        setExercise({ ...exercise, duration: "" });
-                      }
-                    }}
-                    value={exercise.duration}
-                    placeholder="minuter"
-                    className={styles.inputTime}
-                  />
+                  <div className={styles.inputTimeContainer}>
+                    <input
+                      type="number"
+                      id="duration"
+                      min="1"
+                      step="1"
+                      inputMode="numeric"
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value, 10);
+                        if (!isNaN(value) && value > 0) {
+                          setExercise({ ...exercise, duration: value });
+                        } else if (e.target.value === "") {
+                          setExercise({ ...exercise, duration: "" });
+                        }
+                      }}
+                      value={exercise.duration}
+                      placeholder="minuter"
+                      className={styles.inputTime}
+                    />
+                    <span className={styles.timeSuffix}>min</span>
+                  </div>
                   <label htmlFor="title" className={styles.label}>
                     Ange titel på övningen.
                   </label>
@@ -264,6 +260,7 @@ export default function AddExerciseModal({
                     }
                   />
                 </div>
+
                 <div className={styles.inputGroup}>
                   <label htmlFor="description" className={styles.label}>
                     Beskrivning

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { supabase } from "@/utils/supabase/supabase"; 
 
 export async function POST(req) {
   console.log("Request body:", req.body);
@@ -14,22 +14,18 @@ export async function POST(req) {
       );
     }
 
-    const supabase = await createClient();
-    console.log("Supabase:", supabase);
-    console.log("from är funktion?:", typeof supabase?.from);
-
     const { data: program, error: programError } = await supabase
       .from("training_programs")
       .select("id")
       .order("inserted_at", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (programError) {
       console.error("Insert error:", programError);
       return NextResponse.json(
         { error: "Kunde inte spara", details: programError.message },
-        { status: 500 }
+        { status: 404}
       );
     }
 
@@ -47,6 +43,7 @@ export async function POST(req) {
       .select();
 
     if (dayError) {
+      console.error("Error inserting training day:", dayError);
       return NextResponse.json(
         { error: "Kunde inte spara", details: dayError.message },
         { status: 500 }
@@ -56,6 +53,9 @@ export async function POST(req) {
     return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
     console.error("SERVER ERROR:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error", details: error.message },
+      { status: 500 }
+    );
   }
 }

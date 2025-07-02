@@ -7,10 +7,8 @@ import { createClient } from "@/utils/supabase/client";
 import DaysSlider from "@/app/components/Days_Slider/DaysSlider";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
-import {
-  extractYouTubeId,
-  getImageOrVideoIfSavedToday,
-} from "@/app/functions/functions";
+import { saveTrainingProgram } from "@/app/lib/actions";
+import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/app/functions/functions";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
@@ -75,56 +73,44 @@ export default function CreateTrainingProgram() {
     console.log("Video-URL:", training.videoUrl);
     // console.log("Trainer ID:", training.trainerId);
 
-    if (!description) return console.error("Beskrivning saknas!");
+    if (!description) throw new Error("Beskrivning saknas!");
     if (!price || Number(price) <= 0)
-      return console.error("Pris saknas eller ogiltigt!");
-    if (!days) return console.error("Antal dagar saknas!");
-    // if (
-    //   !training.trainerId ||
-    //   training.trainerId === "00000000-0000-0000-0000-000000000000"
-    // )
-    //   return console.error("Trainer ID saknas eller är placeholder!");
-
-  
+      throw new Error("Pris saknas eller ogiltigt!");
+    if (!days) throw new Error("Antal dagar saknas!");
     try {
-      const res = await fetch("/api/training_program", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          description,
-          price: Number(price),
-          days,
-          imageUrl: training.imageUrl,
-          videoUrl: training.videoUrl,
-          trainerId: training.trainerId,
-        }),
-      });
-      console.log("Response status:", res.status);
+      const program = await saveTrainingProgram({
+        description,
+        price: Number(price),
+        days,
+        training,
+      })
 
-      const contentType = res.headers.get("content-type");
-
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await res.text();
-        console.error("Servern returnerade inte JSON:", text);
-        throw new Error("Ogiltigt svar från servern (ej JSON)");
+      if (
+        !program.success ||
+        !program.data ||
+        !program.data.id
+      ) {
+        throw new Error("Kunde inte spara träningsprogrammet korrekt.");
       }
-
-      let data;
-      data = await res.json();
-      console.log("Response data:", data);
-      if (res.ok) {
-        router.push(`/trainer/create-training-calendar?days=${days}`);
-      } else {
-        alert(data.message || "Något gick fel");
+      const programId = program.data.id;
+      if (!programId) {
+        throw new Error("Kunde inte hämta programId efter sparning.");
       }
-    } catch (err) {
-      console.error("Kunde inte parsa JSON:", err);
-      throw new Error("Servern returnerade inte giltig JSON");
-    } finally {
-      setLoading(false);
+      console.log("Träningsprogram sparat:", program);
+      console.log("Träningsprogram sparat, id:", programId);
+
+      router.push(
+        `/trainer/create-training-calendar?days=${days}&programId=${programId}`
+      );
     }
-  };
-
+    catch (error) {
+      console.error("Fel vid sparning:", error.message);
+      alert(error.message || "Något gick fel vid sparning av träningsprogrammet.");
+    }
+    finally {
+          setLoading(false);
+      }
+    };
 
   const [loading, setLoading] = useState(false);
 
@@ -219,6 +205,9 @@ export default function CreateTrainingProgram() {
               type="number"
               id="price"
               placeholder="Kr"
+              min="1"
+              step="1"
+              inputMode="numeric"
               className={styles.input}
               onChange={(e) => setPrice(e.target.value)}
             />
@@ -249,3 +238,4 @@ export default function CreateTrainingProgram() {
     </div>
   );
 }
+

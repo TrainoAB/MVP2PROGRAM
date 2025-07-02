@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 
@@ -14,8 +14,11 @@ import styles from "./page.module.css";
 export default function CreateTrainingProgram() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const { month, day } = params;
   console.log("params", params); 
+  const programId = searchParams.get("programId");
+  console.log("programId", programId); 
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -27,7 +30,9 @@ export default function CreateTrainingProgram() {
 
   const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
   const openModalExercise = () => setIsExerciseModalOpen(true);
-  const closeModalExercise= () => setIsExerciseModalOpen(false);
+  const closeModalExercise = () => setIsExerciseModalOpen(false);
+  
+  const [trainingDaySaved, setTrainingDaySaved] = useState(false);
 
   const [exercise, setExercise] = useState({
     name: "Övningssvideo1",
@@ -36,23 +41,32 @@ export default function CreateTrainingProgram() {
     savedDate: new Date().toISOString(),
   });
 
-  const [exercises, setExercises] = useState([]);
-
   useEffect(() => {
+    if (!trainingDaySaved) return;
     const fetchExercises = async () => {
       try {
-        const res = await fetch(`/api/get-exercises?month=${month}&day=${day}`);
-        const data = await res.json();
-        if (data.success) {
-          setExercises(data.data); // du får tillbaka en array med övningar
+        const res = await fetch(
+          `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`
+        );
+        const contentType = res.headers.get("content-type");
+        if (!res.ok) {
+          const text = await res.text();
+          console.error("Fel från API:", res.status, text);
+          throw new Error(`API-fel: ${res.status}`);
         }
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await res.text();
+          console.error("Ogiltigt innehåll från API:", text);
+          throw new Error("API returnerade inte JSON");
+        }
+        const data = await res.json();
       } catch (err) {
         console.error("Fel vid hämtning av övningar:", err);
       }
     };
 
     fetchExercises();
-  }, [month, day]);
+  }, [trainingDaySaved]);
 
   const setExerciseWrapper = (newExercise) => {
     if (newExercise.videoUrl) {
@@ -87,7 +101,7 @@ export default function CreateTrainingProgram() {
       });
 
       if (!res.ok) {
-        const text = await res.text(); // För felsökning
+        console.error("Fel från API:", res.status);
         throw new Error("Server error");
       }
 
@@ -97,6 +111,7 @@ export default function CreateTrainingProgram() {
         const data = await res.json();
         if (data.success) {
           alert(data.success); // Visa meddelande
+          setTrainingDaySaved(true);
         } else {
           console.error("Något gick fel:", data.message);
         }

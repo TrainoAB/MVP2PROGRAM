@@ -13,6 +13,7 @@ export default function CreateTrainingProgramPlan() {
   const router = useRouter();
   const [active, setActive] = useState("Kalender");
   const totalDays = searchParams.get("days");
+  const programId = searchParams.get("programId");
 
   const [training, setTraining] = useState({
     name: "Träningsvideo/bild",

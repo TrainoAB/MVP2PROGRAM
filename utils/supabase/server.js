@@ -1,26 +1,34 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+"use server";
 
-export async function createClient() {
-  const cookieStore = await cookies() 
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+
+export const createClient = async () => {
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
     {
+      db: {
+        schema: "traino",
+      },
       cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (cookiesToSet) => {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
           } catch {
-            // Okej i route handlers där cookies ibland är read-only
+            // The `set` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
           }
         },
       },
     }
-  )
-}
-
+  );
+};
