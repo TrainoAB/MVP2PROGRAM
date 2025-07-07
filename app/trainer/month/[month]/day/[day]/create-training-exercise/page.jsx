@@ -16,9 +16,9 @@ export default function CreateTrainingProgram() {
   const params = useParams();
   const searchParams = useSearchParams();
   const { month, day } = params;
-  console.log("params", params); 
+  console.log("params", params);
   const programId = searchParams.get("programId");
-  console.log("programId", programId); 
+  console.log("programId", programId);
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -31,8 +31,8 @@ export default function CreateTrainingProgram() {
   const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
   const openModalExercise = () => setIsExerciseModalOpen(true);
   const closeModalExercise = () => setIsExerciseModalOpen(false);
-  
-  const [trainingDaySaved, setTrainingDaySaved] = useState(false);
+
+  // const [trainingDaySaved, setTrainingDaySaved] = useState(false);
 
   const [exercise, setExercise] = useState({
     name: "Övningssvideo1",
@@ -41,8 +41,11 @@ export default function CreateTrainingProgram() {
     savedDate: new Date().toISOString(),
   });
 
+  const [exercises, setExercises] = useState([]);
+  console.log("Params som skickas:", { programId, month, day });
+
   useEffect(() => {
-    if (!trainingDaySaved) return;
+    // if (!trainingDaySaved) return;
     const fetchExercises = async () => {
       try {
         const res = await fetch(
@@ -59,14 +62,24 @@ export default function CreateTrainingProgram() {
           console.error("Ogiltigt innehåll från API:", text);
           throw new Error("API returnerade inte JSON");
         }
-        const data = await res.json();
+
+        const { success, data, message } = await res.json();
+
+        if (!success) {
+          console.error("API svarade med success=false:", message);
+          throw new Error(message || "Okänt API-fel");
+        }
+        // 👇 Här kan du hantera övningarna
+        console.log("Övningar hämtade:", data);
+        console.log("month", month, "day", day, "programId", programId);
+        setExercises(data); // exempelvis, om du har en useState
       } catch (err) {
         console.error("Fel vid hämtning av övningar:", err);
       }
     };
 
     fetchExercises();
-  }, [trainingDaySaved]);
+  }, [month, day, programId]);
 
   const setExerciseWrapper = (newExercise) => {
     if (newExercise.videoUrl) {
@@ -111,7 +124,7 @@ export default function CreateTrainingProgram() {
         const data = await res.json();
         if (data.success) {
           alert(data.success); // Visa meddelande
-          setTrainingDaySaved(true);
+          // setTrainingDaySaved(true);
         } else {
           console.error("Något gick fel:", data.message);
         }
@@ -218,10 +231,40 @@ export default function CreateTrainingProgram() {
             </div>
           </div>
         </form>
-
+        <div className={styles.wrapper}>
+          <h2 className={styles.heading}>Dagens övningar</h2>
+          {exercises.length === 0 ? (
+            <p className={styles.noExercises}>Inga övningar tillagda än.</p>
+          ) : (
+            <ul className={styles.exerciseList}>
+                {exercises.map((exercise, index) => (
+                <li key={exercise.id ?? index} className={styles.exerciseCard}>
+                  <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
+                  <p className={styles.exerciseDescription}>
+                    {exercise.description}
+                  </p>
+                  <p className={styles.exerciseDuration}>
+                    Varaktighet: {exercise.duration} sekunder
+                  </p>
+                  {exercise.image_url && (
+                    <img
+                      src={exercise.image_url}
+                      alt={exercise.title}
+                      className={styles.exerciseImage}
+                    />
+                  )}
+                  {exercise.video_url && (
+                    <video controls className={styles.exerciseVideo}>
+                      <source src={exercise.video_url} type="video/mp4" />
+                      Din webbläsare stöder inte videouppspelning.
+                    </video>
+                  )}
+                </li>
+              ))}   
+            </ul>
+          )}
+        </div>
       </main>
     </div>
   );
 }
-
-

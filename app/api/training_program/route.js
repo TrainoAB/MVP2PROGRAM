@@ -3,7 +3,6 @@ import { createClient } from "@/utils/supabase/server";
 
 
 export async function POST(req) {
-  console.log("req.body:", req.body);
   try {
     const body = await req.json();
     console.log("Mottaget:", body);

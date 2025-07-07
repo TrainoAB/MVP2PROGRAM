@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/utils/supabase/supabase";
+import { createClient } from "@/utils/supabase/server";
 
 export async function GET(req) {
+  const supabase = await createClient();
   console.log("Method:", req.method);
   const searchParams = req.nextUrl.searchParams;
 
@@ -23,8 +24,8 @@ export async function GET(req) {
       .from("training_days")
       .select("id")
       .eq("training_program_id", programId)
-      .eq("day_number", Number(day))
       .eq("month_number", Number(month))
+      .eq("day_number", Number(day));
 
       if (error) throw error;
       if (!trainingDays || trainingDays.length === 0) {
@@ -34,11 +35,6 @@ export async function GET(req) {
         );
     }
 
-    if (res.status === 404) {
-      console.log("Training day finns inte ännu. Väntar.");
-      return;
-    }
-
     const trainingDay = trainingDays[0];
 
     const { data: exercises, error: exercisesError } = await supabase
@@ -46,15 +42,24 @@ export async function GET(req) {
       .select("*")
       .eq("training_day_id", trainingDay.id)
       .order("index_order", { ascending: true });
-    
-      if (exercisesError) throw exercisesError;
-    
+      console.log("Exercises found:", exercises);
+      if (exercisesError) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Fel vid hämtning av exercises",
+            details: exercisesError.message,
+          },
+          { status: 500 }
+        );
+      }
+      // { success: true, trainingDay: day[0], data: exercises },
     return NextResponse.json(
       { success: true, data: exercises },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Supabase error:", error.message);
+    console.error("Supabase error:", error);
     return NextResponse.json(
       { success: false, message: error.message },
       { status: 500 }

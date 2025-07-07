@@ -35,13 +35,12 @@ export async function POST(req) {
     const supabase = await createClient();
     console.log("Supabase:", supabase);
 
-    const { data: day, error: selectDayError } = await supabase
+    let { data: day, error: selectDayError } = await supabase
       .from("training_days")
       .select("id")
       .eq("month_number", month_number)
       .eq("day_number", day_number)
-      .maybeSingle();
-    
+  
     console.log("training_day found:", day);
     
     if (selectDayError) {
@@ -61,6 +60,48 @@ export async function POST(req) {
       description,
       index_order,
     });
+
+    if (!day || day.length === 0) {
+      // Skapa ny training_day här
+    } else if (day.length > 1) {
+      return NextResponse.json(
+        { error: "Flera training_days hittades – förväntade en." },
+        { status: 500 }
+      );
+    } else {
+      day = day[0];
+      // Använd day.id vidare här
+    }
+
+    if (!day) {
+      console.log("Ingen training_day hittades – skapar ny...");
+      const { data: newDay, error: insertDayError } = await supabase
+        .from("training_days")
+        .insert([{ month_number, day_number, image_url, video_url }])
+        .select()
+        .single();
+
+      if (insertDayError || !newDay) {
+        console.error("Fel vid skapande av training_day:", insertDayError);
+        return NextResponse.json(
+          {
+            error: "Kunde inte skapa ny träningsdag",
+            details: insertDayError?.message,
+          },
+          { status: 500 }
+        );
+      }
+
+      day = newDay; // uppdatera med den nyss skapade raden
+      console.log("Ny training_day skapad:", day);
+    }
+
+    if (!day) {
+      return NextResponse.json(
+        { error: "Ingen training_day hittades för angiven månad och dag" },
+        { status: 404 }
+      );
+    }
 
     const { data, error: insertExerciseError } = await supabase
       .from("exercises")
@@ -88,6 +129,9 @@ export async function POST(req) {
     return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
     console.error("SERVER ERROR:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { error: "Serverkrasch", details: error.message },
+      { status: 500 }
+    );
   }
 }

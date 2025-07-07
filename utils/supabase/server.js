@@ -10,9 +10,6 @@ export const createClient = async () => {
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
     {
-      db: {
-        schema: "traino",
-      },
       cookies: {
         getAll() {
           return cookieStore.getAll();

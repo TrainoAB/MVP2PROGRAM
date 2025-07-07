@@ -43,11 +43,11 @@ export default function AddExerciseModal({
     const videoUrl = rawUrl.videoUrl || rawUrl.video_url;
     const imageUrl = rawUrl.imageUrl || rawUrl.image_url;
 
-    // let updatedVideoUrl = videoUrl;
+    let updatedVideoUrl = videoUrl;
 
     if (videoUrl) {
       const videoId = extractYouTubeId(videoUrl);
-      videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+      updatedVideoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
     }
 
     setExercise((prev) => ({
