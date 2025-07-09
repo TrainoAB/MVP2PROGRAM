@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import EditorWrapper from "@/app/components/Editor/EditorWrapper";
+import {
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Pencil,
+} from "lucide-react";
 
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
@@ -38,8 +45,8 @@ export default function CreateTrainingProgram() {
     savedDate: new Date().toISOString(),
   });
 
+  const [step, setStep] = useState(1);
   const [exercises, setExercises] = useState([]);
-  console.log("Params som skickas:", { programId, month, day });
 
   const fetchDay = async () => {
     try {
@@ -71,7 +78,6 @@ export default function CreateTrainingProgram() {
       console.error("Fel vid hämtning av dag:", err);
     }
   };
-
 
   const fetchExercises = async () => {
     try {
@@ -114,11 +120,16 @@ export default function CreateTrainingProgram() {
     fetchExercises();
   }, [month, day, programId]);
 
+  const completeNotes = (e) => {
+    e.preventDefault();
+    setStep(2);
+  };
+
   const setDayMediaWrapper = (newMedia) => {
     const media = newMedia["0"] ? newMedia["0"] : newMedia;
-    
+
     let videoUrl = "";
-    
+
     if (newMedia.video_url) {
       const videoId = extractYouTubeId(media.videoUrl);
       newMedia.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
@@ -136,16 +147,18 @@ export default function CreateTrainingProgram() {
 
   return (
     <div className={styles.trainingProgramContainer}>
-      <header className={styles.header}>
-        <button
-          className={styles.backBtn}
-          onClick={() => router.back()}
-        ></button>
-        <h1 className={styles.title}>Skapa träningsprogram</h1>
-        <h3 className={styles.mounthDay}>
-          Månad {month} / Dag {day}
-        </h3>
-      </header>
+      {step > 1 && (
+        <header className={styles.header}>
+          <button
+            className={styles.backBtn}
+            onClick={() => router.back()}
+          ></button>
+          <h1 className={styles.title}>Skapa träningsprogram</h1>
+          <h3 className={styles.mounthDay}>
+            Månad {month} / Dag {day}
+          </h3>
+        </header>
+      )}
       <UploadYoutubeVideoModal
         isVideoModalOpen={isVideoModalOpen}
         closeModalVideo={closeModalVideo}
@@ -223,56 +236,88 @@ export default function CreateTrainingProgram() {
             </button>
           </div>
         </div>
-        <div className={styles.wrapper}>
-          <h2 className={styles.heading}>Dagens övningar</h2>
-          {exercises.length === 0 ? (
-            <p className={styles.noExercises}>Inga övningar tillagda än.</p>
-          ) : (
-            <ul className={styles.exerciseList}>
-              {exercises.map((exercise, index) => (
-                <li key={exercise.id ?? index} className={styles.exerciseCard}>
-                  <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
-                  <p className={styles.exerciseDescription}>
-                    {exercise.description}
-                  </p>
-                  <p className={styles.exerciseDuration}>
-                    Varaktighet: {exercise.duration} minuter
-                  </p>
-                  {exercise.image_url && (
-                    <img
-                      src={exercise.image_url}
-                      alt={exercise.title}
-                      className={styles.exerciseImage}
-                    />
-                  )}
-                  {exercise.video_url &&
-                  (exercise.video_url.includes("youtube.com") ||
-                    exercise.video_url.includes("youtu.be")) ? (
-                    <div className={styles.videoWrapper}>
-                      <iframe
-                        src={exercise.video_url}
-                        title="YouTube video player"
-                        allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
+        {step === 1 ? (
+          <div className={styles.wrapper}>
+            <h2 className={styles.heading}>Dagens övningar</h2>
+            {exercises.length === 0 ? (
+              <p className={styles.noExercises}>Inga övningar tillagda än.</p>
+            ) : (
+              <ul className={styles.exerciseList}>
+                {exercises.map((exercise, index) => (
+                  <li key={exercise.id ?? index} className={styles.exerciseCard}>
+                    <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
+                    <p className={styles.exerciseDescription}>
+                      {exercise.description}
+                    </p>
+                    <p className={styles.exerciseDuration}>
+                      Varaktighet: {exercise.duration} minuter
+                    </p>
+                    {exercise.image_url && (
+                      <img
+                        src={exercise.image_url}
+                        alt={exercise.title}
+                        className={styles.exerciseImage}
                       />
+                    )}
+                    {exercise.video_url &&
+                      (exercise.video_url.includes("youtube.com") ||
+                        exercise.video_url.includes("youtu.be")) ? (
+                      <div className={styles.videoWrapper}>
+                        <iframe
+                          src={exercise.video_url}
+                          title="YouTube video player"
+                          allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : null}
+                    <div className={styles.buttonWrapperExercise}>
+                      <div className={styles.sortGroup}>
+                        <button onClick={() => sortCards("asc")}>
+                          <ArrowUp size={20} />
+                        </button>
+                        <button onClick={() => sortCards("desc")}>
+                          <ArrowDown size={20} />
+                        </button>
+                      </div>
+                      <div className={styles.sortGroup}>
+                        <button
+                          className={styles.deleteButton}
+                          onClick={() => { }}
+                        >
+                          <Trash2 size={20} />
+                        </button>
+
+                        <button
+                          className={styles.editButton}
+                          // onClick={onClick}
+                          title="Redigera"
+                        >
+                          <Pencil size={18} className={styles.icon} />
+                        </button>
+                      </div>
+                      <button
+                        className={styles.completeButton}
+                        onClick={completeNotes}
+                      >
+                        Kompletera
+                      </button>
                     </div>
-                  ) : null}
-                  <div className={styles.buttonWrapper}>
-                    <button className={styles.deleteButton} onClick={() => {}}>
-                      Ta bort
-                    </button>
-                    <button
-                      className={styles.completeButton}
-                      onClick={() => {}}
-                    >
-                      Kompletera
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <EditorWrapper
+            onContentSave={(content) => {
+              console.log("EditorWrapper sparade innehåll:", content);
+            }}
+            onClose={() => {
+              closeModalExercise();
+            }}
+          />
+        )}
       </main>
     </div>
   );

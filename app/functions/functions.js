@@ -29,10 +29,3 @@ export function getImageOrVideoIfSavedToday() {
     return null;
   }
 }
-
-export function getYoutubeEmbedUrl(url) {
-  if (!url) return null;
-  const regex = /(?:youtu\.be\/|youtube\.com\/watch\?v=)([^&?/]+)/;
-  const match = url.match(regex);
-  return match ? `https://www.youtube.com/embed/${match[1]}` : url;
-}

@@ -41,6 +41,7 @@
     --font-small: 0.75rem;
     --button-padding: 1rem 1rem;
     --button-small-padding: .6rem .5rem;
+    --button-xsmall-padding: .3rem .25rem;
     --darkoverlay: rgba(0, 0, 0, .5);
     --darkoverlaybackdrop: 0rem;
     --tabOn: #ddd6f8;
