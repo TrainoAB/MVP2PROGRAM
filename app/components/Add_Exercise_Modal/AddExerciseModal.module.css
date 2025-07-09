@@ -267,7 +267,7 @@
                 height: 2rem;
                 font-family: inherit;
                 font-size: var(--font-regular);
-                padding: .5rem 1rem;
+                padding: .5rem;
                 border-radius: var(--radius-input);
                 line-height: 2rem;
             }

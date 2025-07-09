@@ -11,6 +11,10 @@ import styles from "./AddExerciseModal.module.css";
 export default function AddExerciseModal({
   isExerciseModalOpen,
   closeModalExercise,
+  onExerciseAdded, 
+  trainingProgramId,
+  dayImageUrl,
+  dayVideoUrl,
   month,
   day,
 }) {
@@ -32,6 +36,8 @@ export default function AddExerciseModal({
     description: "",
     index_order: 0,
   });
+
+  const training_program_id = trainingProgramId || null;
 
   console.log("exercise", exercise);
 
@@ -60,9 +66,6 @@ export default function AddExerciseModal({
       index_order: rawUrl.index_order ?? prev.index_order,
     }));
   };
-
-  // If you need this upload logic, move it inside an async function, or remove it if not used.
-  // Example: Remove these lines if not used, as they cause a syntax error.
 
   const handleSetTraining = (updatedFields) => {
     setExercise((prev) => ({
@@ -95,11 +98,14 @@ export default function AddExerciseModal({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          training_program_id,
           title,
           duration,
           description,
-          video_url: videoUrl,
-          image_url: imageUrl,
+          day_image_url : dayImageUrl,
+          day_video_url: dayVideoUrl,
+          exercise_image_url: imageUrl,
+          exercise_video_url: videoUrl,
           index_order,
           month_number,
           day_number,
@@ -126,6 +132,7 @@ export default function AddExerciseModal({
       console.log("Sparning lyckades!");
       // När sparningen är klar, stäng modalen
       closeModalExercise();
+      onExerciseAdded?.(); 
       console.log("Modalen STÄNGS!");
     } catch (error) {
       console.error("Fel vid sparning:", error);
@@ -199,7 +206,9 @@ export default function AddExerciseModal({
                 <div className={styles.closeButtonsWrapper}>
                   <p className={styles.imageLoadTitle}>Omslag</p>
                   <button
-                    onClick={closeModalVideo}
+                    type="button"
+                    onClick={closeModalExercise}
+                    aria-label="Stäng modal"
                     className={styles.closeButton}
                   >
                     ×
@@ -241,7 +250,6 @@ export default function AddExerciseModal({
                         }
                       }}
                       value={exercise.duration}
-                      placeholder="minuter"
                       className={styles.inputTime}
                     />
                     <span className={styles.timeSuffix}>min</span>
