@@ -41,6 +41,37 @@ export default function CreateTrainingProgram() {
   const [exercises, setExercises] = useState([]);
   console.log("Params som skickas:", { programId, month, day });
 
+  const fetchDay = async () => {
+    try {
+      const res = await fetch(
+        `/api/get_day_image_or_video?month=${month}&day=${day}&programId=${programId}`
+      );
+      const contentType = res.headers.get("content-type");
+      if (!res.ok) {
+        const error = await res.json(); // eller await res.text();
+        console.error("Fel från API:", res.status, error);
+        throw new Error(`API-fel: ${res.status}`);
+      }
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Ogiltigt innehåll från API:", text);
+        throw new Error("API returnerade inte JSON");
+      }
+
+      const { success, data, message } = await res.json();
+
+      if (!success) {
+        console.error("API svarade med success=false:", message);
+        throw new Error(message || "Okänt API-fel");
+      }
+      console.log("dag hämtad:", data);
+      console.log("month", month, "day", day, "programId", programId);
+      setDayMediaWrapper(data);
+    } catch (err) {
+      console.error("Fel vid hämtning av dag:", err);
+    }
+  };
+
 
   const fetchExercises = async () => {
     try {
@@ -75,19 +106,33 @@ export default function CreateTrainingProgram() {
 
   useEffect(() => {
     if (!programId || !day || !month) return;
+    fetchDay();
+  }, [month, day, programId]);
+
+  useEffect(() => {
+    if (!programId || !day || !month) return;
     fetchExercises();
   }, [month, day, programId]);
 
   const setDayMediaWrapper = (newMedia) => {
-    if (newMedia.videoUrl) {
-      const videoId = extractYouTubeId(newMedia.videoUrl);
+    const media = newMedia["0"] ? newMedia["0"] : newMedia;
+    
+    let videoUrl = "";
+    
+    if (newMedia.video_url) {
+      const videoId = extractYouTubeId(media.videoUrl);
       newMedia.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
       console.log("Embed URL:", newMedia.videoUrl);
+    } else {
+      media.videoUrl = "";
     }
-    setDayMedia(
-      newMedia.videoUrl ? newMedia : { ...newMedia, videoUrl: "" }
-    );
+    setDayMedia({
+      ...media,
+      imageUrl: media.image_url || "",
+      videoUrl,
+    });
   };
+  console.log(JSON.stringify(dayMedia, null, 2));
 
   return (
     <div className={styles.trainingProgramContainer}>
@@ -126,9 +171,7 @@ export default function CreateTrainingProgram() {
         </div>
       )}
       <main className={styles.main}>
-        {dayMedia.videoUrl &&
-        (dayMedia.videoUrl.includes("youtube.com") ||
-          dayMedia.videoUrl.includes("youtu.be")) ? (
+        {dayMedia.videoUrl ? (
           <div className={styles.videoWrapper}>
             <iframe
               src={dayMedia.videoUrl}
@@ -204,7 +247,7 @@ export default function CreateTrainingProgram() {
                   )}
                   {exercise.video_url &&
                   (exercise.video_url.includes("youtube.com") ||
-                    exercise.video_Url.includes("youtu.be")) ? (
+                    exercise.video_url.includes("youtu.be")) ? (
                     <div className={styles.videoWrapper}>
                       <iframe
                         src={exercise.video_url}
