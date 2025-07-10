@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
+import { moveExercises } from "@/app/functions/functions";
+import { supabase } from "@/utils/supabase/client";
 import {
   Plus,
   Trash2,
@@ -47,6 +49,7 @@ export default function CreateTrainingProgram() {
 
   const [step, setStep] = useState(1);
   const [exercises, setExercises] = useState([]);
+  const [selectedExercise, setSelectedExercise] = useState(null);
 
   const fetchDay = async () => {
     try {
@@ -120,9 +123,10 @@ export default function CreateTrainingProgram() {
     fetchExercises();
   }, [month, day, programId]);
 
-  const completeNotes = (e) => {
+  const completeNotes = (e, exercise) => {
     e.preventDefault();
     setStep(2);
+    setSelectedExercise(exercise);
   };
 
   const setDayMediaWrapper = (newMedia) => {
@@ -231,7 +235,6 @@ export default function CreateTrainingProgram() {
               onClick={openModalExercise}
               className={styles.openBtnExercise}
             >
-              {/* Lägg till övning */}
               <Plus size={24} />
             </button>
           </div>
@@ -243,74 +246,95 @@ export default function CreateTrainingProgram() {
               <p className={styles.noExercises}>Inga övningar tillagda än.</p>
             ) : (
               <ul className={styles.exerciseList}>
-                {exercises.map((exercise, index) => (
-                  <li key={exercise.id ?? index} className={styles.exerciseCard}>
-                    <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
-                    <p className={styles.exerciseDescription}>
-                      {exercise.description}
-                    </p>
-                    <p className={styles.exerciseDuration}>
-                      Varaktighet: {exercise.duration} minuter
-                    </p>
-                    {exercise.image_url && (
-                      <img
-                        src={exercise.image_url}
-                        alt={exercise.title}
-                        className={styles.exerciseImage}
-                      />
-                    )}
-                    {exercise.video_url &&
+                {[...exercises]
+                  .sort((a, b) => a.index_order - b.index_order)
+                  .map((exercise, index) => (
+                    <li
+                      key={exercise.id ?? index}
+                      className={styles.exerciseCard}
+                    >
+                      <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
+                      <p className={styles.exerciseDescription}>
+                        {exercise.description}
+                      </p>
+                      <p className={styles.exerciseDuration}>
+                        Varaktighet: {exercise.duration} minuter
+                      </p>
+                      {exercise.image_url && (
+                        <img
+                          src={exercise.image_url}
+                          alt={exercise.title}
+                          className={styles.exerciseImage}
+                        />
+                      )}
+                      {exercise.video_url &&
                       (exercise.video_url.includes("youtube.com") ||
                         exercise.video_url.includes("youtu.be")) ? (
-                      <div className={styles.videoWrapper}>
-                        <iframe
-                          src={exercise.video_url}
-                          title="YouTube video player"
-                          allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                    ) : null}
-                    <div className={styles.buttonWrapperExercise}>
-                      <div className={styles.sortGroup}>
-                        <button onClick={() => sortCards("asc")}>
-                          <ArrowUp size={20} />
-                        </button>
-                        <button onClick={() => sortCards("desc")}>
-                          <ArrowDown size={20} />
-                        </button>
-                      </div>
-                      <div className={styles.sortGroup}>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={() => { }}
-                        >
-                          <Trash2 size={20} />
-                        </button>
+                        <div className={styles.videoWrapper}>
+                          <iframe
+                            src={exercise.video_url}
+                            title="YouTube video player"
+                            allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      ) : null}
+                      <div className={styles.buttonWrapperExercise}>
+                        <div className={styles.sortGroup}>
+                          <button
+                            onClick={() =>
+                              moveExercises(
+                                "asc",
+                                exercises,
+                                setExercises,
+                                supabase
+                              )
+                            }
+                          >
+                            <ArrowUp size={20} />
+                          </button>
+                          <button
+                            onClick={
+                              (() =>
+                                moveExercises("desc", exercises, setExercises, supabase)
+                            )}
+                          >
+                            <ArrowDown size={20} />
+                          </button>
+                        </div>
+                        <div className={styles.sortGroup}>
+                          <button
+                            className={styles.deleteButton}
+                            onClick={() => {}}
+                          >
+                            <Trash2 size={20} />
+                          </button>
 
+                          <button
+                            className={styles.editButton}
+                            // onClick={onClick}
+                            title="Redigera"
+                          >
+                            <Pencil size={18} className={styles.icon} />
+                          </button>
+                        </div>
                         <button
-                          className={styles.editButton}
-                          // onClick={onClick}
-                          title="Redigera"
+                          className={styles.completeButton}
+                          onClick={(e) => completeNotes(e, exercise)}
                         >
-                          <Pencil size={18} className={styles.icon} />
+                          {" "}
+                          Kompletera
                         </button>
                       </div>
-                      <button
-                        className={styles.completeButton}
-                        onClick={completeNotes}
-                      >
-                        Kompletera
-                      </button>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  ))}
               </ul>
             )}
           </div>
         ) : (
           <EditorWrapper
             onContentSave={(content) => {
+              // exercise = { selectedExercise };
               console.log("EditorWrapper sparade innehåll:", content);
             }}
             onClose={() => {

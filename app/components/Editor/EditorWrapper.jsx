@@ -30,7 +30,9 @@ Object.entries(editorConfig).forEach(([key, value]) => {
   console.log(`${key}:`, value);
 });
 
-export default function EditorWrapper({ onContentSave, onClose }) {
+export default function EditorWrapper({
+  onContentSave,
+  onClose }) {
 
   const handleContentSave = (content) => {
     if (onContentSave) {

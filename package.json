@@ -14,7 +14,7 @@
     "@lexical/react": "^0.32.1",
     "@lexical/rich-text": "^0.32.1",
     "@supabase/ssr": "^0.6.1",
-    "@supabase/supabase-js": "^2.50.0",
+    "@supabase/supabase-js": "^2.50.4",
     "@tinymce/tinymce-react": "^6.2.1",
     "lexical": "^0.32.1",
     "lucide-react": "^0.511.0",
