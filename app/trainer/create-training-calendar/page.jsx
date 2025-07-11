@@ -7,6 +7,7 @@ import Calendar from "@/app/components/Calendar/Calendar";
 import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/app/functions/functions";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { getDescription } from "@/app/lib/actions";
 
 export default function CreateTrainingProgramPlan() {
   const searchParams = useSearchParams();
@@ -14,20 +15,40 @@ export default function CreateTrainingProgramPlan() {
   const [active, setActive] = useState("Kalender");
   const totalDays = searchParams.get("days");
   const programId = searchParams.get("programId");
-
+  console.log("programId:", programId);
   const [training, setTraining] = useState({
-    name: "Träningsvideo/bild",
     videoUrl: null,
     imageUrl: null,
     savedDate: null
   });
+  const [description, setDescription] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
-    const todayTraining = getImageOrVideoIfSavedToday();
-    if (todayTraining) {
-      setTraining(todayTraining);
+    if (!programId) return;
+    async function fetchData() {
+      try {
+        const result = await getDescription(programId);
+        setDescription(result.description || "");
+        setImageUrl(result.image_url || "");
+        setVideoUrl(result.video_url || "");
+        console.log("Träningsprogram beskrivning:", result.description);
+        console.log("Träningsprogram video URL:", result.video_url);
+        console.log("Träningsprogram bild URL:", result.image_url);
+      } catch (err) {
+        console.error("Fel vid hämtning:", err.message);
+      }
     }
-  }, []);
+    fetchData();
+  }, [programId]);
+
+  // useEffect(() => {
+  //   const todayTraining = getImageOrVideoIfSavedToday();
+  //   if (todayTraining) {
+  //     setTraining(todayTraining);
+  //   }
+  // }, []);
 
   const isYouTubeVideo = (url) => {
     if (!url) return false;
@@ -44,26 +65,26 @@ export default function CreateTrainingProgramPlan() {
         <h1 className={styles.title}>Skapa träningsprogram</h1>
       </header>
       <main className={styles.main}>
-        {isYouTubeVideo(training.videoUrl) ? (
+        {videoUrl && !isYouTubeVideo(videoUrl) ? (
           <div className={styles.videoWrapper}>
             <iframe
               src={`https://www.youtube.com/embed/${extractYouTubeId(
-                training.videoUrl
+                videoUrl
               )}?autoplay=1&mute=1`}
               title="YouTube video player"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
-        ) : training.imageUrl ? (
+        ) : imageUrl ? (
           <Image
-            src={training.imageUrl}
+            src={imageUrl}
             alt="Fallback image"
             width={500}
             height={500}
             className={styles.fallbackImage}
           />
-        ) : null }
+        ) : null}
         <Header_DisplayButton
           links={["Kalender", "Beskrivning"]}
           onChange={(val) => setActive(val)}
@@ -83,11 +104,8 @@ export default function CreateTrainingProgramPlan() {
           </section>
         ) : (
           <section className={styles.description}>
-            <h4 className={styles.title}>Title or description</h4>
-            <p>
-              Free text that works according to MD? So we can write both titles
-              and text and ul lists whatever the user wants.
-            </p>
+            {/* <h4 className={styles.title}>Beskrivning</h4> */}
+            <p className={styles.descriptionText}>{description}</p>
           </section>
         )}
       </main>

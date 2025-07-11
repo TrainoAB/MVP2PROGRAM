@@ -7,7 +7,7 @@ import DaysSlider from "@/app/components/Days_Slider/DaysSlider";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import { saveTrainingProgram } from "@/app/lib/actions";
-import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/app/functions/functions";
+import { extractYouTubeId } from "@/app/functions/functions";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
@@ -29,7 +29,6 @@ export default function CreateTrainingProgram() {
   const [trainerId, setTrainerId] = useState("");
 
   const [training, setTraining] = useState({
-    name: "Träningsvideo",
     videoUrl: null,
     imageUrl: null,
     trainerId:null,
@@ -70,7 +69,7 @@ export default function CreateTrainingProgram() {
     console.log("Dagar:", days);
     console.log("Bild-URL:", training.imageUrl);
     console.log("Video-URL:", training.videoUrl);
-    // console.log("Trainer ID:", training.trainerId);
+    console.log("Tränar-ID:", training.trainerId);
 
     if (!description) throw new Error("Beskrivning saknas!");
     if (!price || Number(price) <= 0)
@@ -112,24 +111,6 @@ export default function CreateTrainingProgram() {
     };
 
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const todayTraining = getImageOrVideoIfSavedToday();
-      if (todayTraining) {
-        setTraining(todayTraining);
-      }
-      setHydrated(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("training", JSON.stringify(training));
-    }
-  }, [training]);
-
-  if (!hydrated) return null;
 
   return (
     <div className={styles.traingProgramContainer}>

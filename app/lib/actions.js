@@ -116,3 +116,55 @@ export async function updateExerciseOrder(exercises) {
 
   return await response.text();
 }
+
+export async function getDescription(programId) {
+  const res = await fetch(
+    `/api/get_description_img_video?programId=${programId}`
+  );
+  let json;
+  try {
+    json = await res.json();
+  }
+  catch (error) {
+    console.error("Fel vid tolkning av JSON:", error);
+    throw new Error("Kunde inte parsa JSON från API-svaret");
+  }
+
+  if (!res.ok) {
+    throw new Error(json?.message || "Kunde inte hämta data");
+  }
+  
+  return json;
+}
+
+export async function fetchExercises({ month, day, programId }) {
+    try {
+      const res = await fetch(
+        `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`
+      );
+      const contentType = res.headers.get("content-type");
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Fel från API:", res.status, text);
+        throw new Error(`API-fel: ${res.status}`);
+      }
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Ogiltigt innehåll från API:", text);
+        throw new Error("API returnerade inte JSON");
+      }
+
+      const { success, data, message } = await res.json();
+      
+
+      if (!success) {
+        console.error("API svarade med success=false:", message);
+        throw new Error(message || "Okänt API-fel");
+      }
+      console.log("Övningar hämtade:", data);
+      console.log("month", month, "day", day, "programId", programId);
+      return data;
+    } catch (err) {
+      console.error("Fel vid hämtning av övningar:", err);
+    }
+  };

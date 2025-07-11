@@ -1,47 +1,40 @@
+// app/api/get_day_image_or_video/route.ts
+import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
 
-import { fetchTrainingDay } from "@/utils/supabase/api";
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
 export async function GET(request) {
-  console.log("🔍 In API: /api/get_day_image_or_video");
   const { searchParams } = new URL(request.url);
+  const programId = searchParams.get("programId");
   const month = searchParams.get("month");
   const day = searchParams.get("day");
-  const programId = searchParams.get("programId");
 
-  if (!month || !day || !programId) {
+  if (!programId || !month || !day) {
     return NextResponse.json(
-      { success: false, message: "Month, day och programId krävs." },
+      { success: false, message: "programId, month och day krävs." },
       { status: 400 }
     );
   }
 
-  try {
-    const data = await fetchTrainingDay();
+  const { data, error } = await supabase
+    .from("training_days")
+    .select("image_url, video_url, inserted_at")
+    .eq("training_program_id", programId)
+    .eq("month_number", month)
+    .eq("day_number", day)
 
-    // const { data, error } = await supabase
-    //   .from("training_days")
-    //   .select("image_url, video_url, saved_date")
-    //   .eq("program_id", programId)
-    //   .eq("month", month)
-    //   .eq("day", day)
-    //   .single();
-
-    // if (error) {
-    //   console.error("Fel vid databashämtning:", error.message);
-    //   return NextResponse.json(
-    //     { success: false, message: "Kunde inte hämta data för dagen." },
-    //     { status: 500 }
-    //   );
-    // }
-
-    return new Response(JSON.stringify({ success: true, data }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ success: false, message: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+  if (error) {
+    console.error("Fel vid hämtning:", error.message);
+    return NextResponse.json(
+      { success: false, message: "Kunde inte hämta training day." },
+      { status: 500 }
     );
   }
+
+  return NextResponse.json({ success: true, data }, { status: 200 });
 }
+

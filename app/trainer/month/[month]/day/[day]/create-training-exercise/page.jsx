@@ -6,14 +6,8 @@ import Image from "next/image";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
 import { moveExercises } from "@/app/functions/functions";
 import { supabase } from "@/utils/supabase/client";
-import {
-  Plus,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  Pencil,
-} from "lucide-react";
-
+import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react";
+import { fetchExercises } from "@/app/lib/actions";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import { extractYouTubeId } from "@/app/functions/functions";
@@ -81,47 +75,58 @@ export default function CreateTrainingProgram() {
       console.error("Fel vid hämtning av dag:", err);
     }
   };
+  console.log("👉 Parametrar som skickas till fetchExercises:", {
+    month,
+    day,
+    programId,
+  });
 
-  const fetchExercises = async () => {
+useEffect(() => {
+  if (!month || !day || !programId) return;
+
+  const fetchExercisesData = async () => {
     try {
-      const res = await fetch(
-        `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`
-      );
-      const contentType = res.headers.get("content-type");
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Fel från API:", res.status, text);
-        throw new Error(`API-fel: ${res.status}`);
-      }
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await res.text();
-        console.error("Ogiltigt innehåll från API:", text);
-        throw new Error("API returnerade inte JSON");
+      const result = await fetchExercises({
+        month,
+        day,
+        programId,
+      });
+
+      console.log("Program:", result);
+
+      if (!result.success) {
+        console.error("Fel från API:", result.message || result.error);
+        throw new Error("API-svaret innehåller ett fel.");
       }
 
-      const { success, data, message } = await res.json();
-
-      if (!success) {
-        console.error("API svarade med success=false:", message);
-        throw new Error(message || "Okänt API-fel");
+      if (!result.data || result.data.length === 0) {
+        console.warn("Inga övningar hittades för dagen.");
+        setExercises([]); // Tom array om inget hittades
+        return;
       }
-      console.log("Övningar hämtade:", data);
-      console.log("month", month, "day", day, "programId", programId);
-      setExercises(data);
-    } catch (err) {
-      console.error("Fel vid hämtning av övningar:", err);
+
+      const exerciseId = result.data[0]?.id;
+      console.log("Första övningens ID:", exerciseId);
+      
+      if (!programId) {
+        throw new Error("Kunde inte hämta programId.");
+      }
+      console.log("Träningsprogram hämtat:", result);
+      console.log("Träningsprogram hämtat, id:", exerciseId);
+      setExercises(result.data);
+    } catch (error) {
+      console.error("Fel vid hämtning:", error.message);
     }
   };
+  fetchExercisesData();
+}, [month, day, programId]);
+  
 
-  useEffect(() => {
-    if (!programId || !day || !month) return;
-    fetchDay();
-  }, [month, day, programId]);
+    useEffect(() => {
+      if (!programId || !day || !month) return;
+      fetchDay();
+    }, [month, day, programId]);
 
-  useEffect(() => {
-    if (!programId || !day || !month) return;
-    fetchExercises();
-  }, [month, day, programId]);
 
   const completeNotes = (e, exercise) => {
     e.preventDefault();
@@ -283,21 +288,15 @@ export default function CreateTrainingProgram() {
                         <div className={styles.sortGroup}>
                           <button
                             onClick={() =>
-                              moveExercises(
-                                "asc",
-                                exercises,
-                                setExercises,
-                                supabase
-                              )
+                              moveExercises("asc", exercises, setExercises)
                             }
                           >
                             <ArrowUp size={20} />
                           </button>
                           <button
-                            onClick={
-                              (() =>
-                                moveExercises("desc", exercises, setExercises, supabase)
-                            )}
+                            onClick={() =>
+                              moveExercises("desc", exercises, setExercises)
+                            }
                           >
                             <ArrowDown size={20} />
                           </button>

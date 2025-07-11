@@ -148,14 +148,24 @@
     .description {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         gap: .8rem;
         font-family: 'Inter', sans-serif;
         margin: 1rem 1.2rem;
+        width: 100%;
 
         .title {
             font-size: var(--text-size);
             font-weight: var(--weight);
+            text-align: center;
+        }
+
+        .descriptionText {
+            font-size: var(--text-size);
+            color: var(--fgcolor);
+            line-height: 1.5;
+            margin-top: 0.5rem;
+            text-align: left;
         }
     }
 }
