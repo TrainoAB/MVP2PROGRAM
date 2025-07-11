@@ -31,7 +31,7 @@ export async function GET(req) {
 
     if (error) throw error;
     if (!trainingDays || trainingDays.length === 0) {
-      return NextResponse.json({ success: true, data: [] }, { status: 202 });
+      return NextResponse.json({ success: true, data: [] }, { status: 200 });
     }
 
     const trainingDay = trainingDays[0];

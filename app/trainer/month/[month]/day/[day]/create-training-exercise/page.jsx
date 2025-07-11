@@ -70,63 +70,85 @@ export default function CreateTrainingProgram() {
       }
       console.log("dag hämtad:", data);
       console.log("month", month, "day", day, "programId", programId);
+
+      // setDayMedia({
+      //   imageUrl: data.image_url || "",
+      //   videoUrl: data.video_url || "",
+      //   savedDate: data.inserted_at || new Date().toISOString(),
       setDayMediaWrapper(data);
+      // });
     } catch (err) {
       console.error("Fel vid hämtning av dag:", err);
     }
   };
+
   console.log("👉 Parametrar som skickas till fetchExercises:", {
     month,
     day,
     programId,
   });
 
-useEffect(() => {
-  if (!month || !day || !programId) return;
-
-  const fetchExercisesData = async () => {
-    try {
-      const result = await fetchExercises({
-        month,
-        day,
-        programId,
-      });
-
-      console.log("Program:", result);
-
-      if (!result.success) {
-        console.error("Fel från API:", result.message || result.error);
-        throw new Error("API-svaret innehåller ett fel.");
+  useEffect(() => {
+    const testFetch = async () => {
+      try {
+        const res = await fetchExercises({
+          month: "1",
+          day: "11",
+          programId: "17d571da-7c00-48a8-9cac-884bbc985a58",
+        });
+        console.log("Test fetchExercises result:", res);
+      } catch (e) {
+        console.error("Test fetchExercises error:", e);
       }
+    };
 
-      if (!result.data || result.data.length === 0) {
-        console.warn("Inga övningar hittades för dagen.");
-        setExercises([]); // Tom array om inget hittades
-        return;
+    testFetch();
+  }, []);
+
+  useEffect(() => {
+     console.log("useEffect triggered with:", { month, day, programId });
+  //  if (!month || !day || !programId) {
+  //    console.warn("Saknar parametrar:", { month, day, programId });
+  //    return;
+  //  }
+
+    const fetchExercisesData = async () => {
+      try {
+        const result = await fetchExercises({
+          month,
+          day,
+          programId,
+        });
+
+        console.log("Program:", result);
+   
+
+        if (!result.success) {
+          console.error("Fel från API:", result.message || result.error);
+          throw new Error("API-svaret innehåller ett fel.");
+        }
+
+        if (!result.data || result.data.length === 0) {
+          console.warn("Inga övningar hittades för dagen.");
+          setExercises([]); // Tom array om inget hittades
+          return;
+        }
+
+        const exerciseId = result.data[0]?.id;
+        console.log("Första övningens ID:", exerciseId);
+        console.log("Träningsprogram hämtat, id:", exerciseId);
+        setExercises(data); // [] eller [ ... ] funkar båda
+      } catch (error) {
+        console.error("Fel vid hämtning:", error.message);
       }
+    };
+    fetchExercisesData();
+  }, [month, day, programId]);
 
-      const exerciseId = result.data[0]?.id;
-      console.log("Första övningens ID:", exerciseId);
-      
-      if (!programId) {
-        throw new Error("Kunde inte hämta programId.");
-      }
-      console.log("Träningsprogram hämtat:", result);
-      console.log("Träningsprogram hämtat, id:", exerciseId);
-      setExercises(result.data);
-    } catch (error) {
-      console.error("Fel vid hämtning:", error.message);
-    }
-  };
-  fetchExercisesData();
-}, [month, day, programId]);
-  
-
-    useEffect(() => {
-      if (!programId || !day || !month) return;
-      fetchDay();
-    }, [month, day, programId]);
-
+  useEffect(() => {
+    if (!programId || !day || !month) return;
+    fetchDay();
+  }, [month, day, programId]);
 
   const completeNotes = (e, exercise) => {
     e.preventDefault();
