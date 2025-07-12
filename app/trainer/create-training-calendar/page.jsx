@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header_DisplayButton from "@/app/components/Header_DisplayButton";
 import Calendar from "@/app/components/Calendar/Calendar";
-import { extractYouTubeId, getImageOrVideoIfSavedToday } from "@/app/functions/functions";
+import { extractYouTubeId } from "@/app/functions/functions";
 import Image from "next/image";
 import styles from "./page.module.css";
 import { getDescription } from "@/app/lib/actions";
@@ -16,44 +16,35 @@ export default function CreateTrainingProgramPlan() {
   const totalDays = searchParams.get("days");
   const programId = searchParams.get("programId");
   console.log("programId:", programId);
-  const [training, setTraining] = useState({
-    videoUrl: null,
-    imageUrl: null,
-    savedDate: null
-  });
+  // const [training, setTraining] = useState({
+  //   videoUrl: null,
+  //   imageUrl: null,
+  //   savedDate: null
+  // });
   const [description, setDescription] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
 
   useEffect(() => {
     if (!programId) return;
-    async function fetchData() {
-      try {
-        const result = await getDescription(programId);
-        setDescription(result.description || "");
-        setImageUrl(result.image_url || "");
-        setVideoUrl(result.video_url || "");
-        console.log("Träningsprogram beskrivning:", result.description);
-        console.log("Träningsprogram video URL:", result.video_url);
-        console.log("Träningsprogram bild URL:", result.image_url);
-      } catch (err) {
-        console.error("Fel vid hämtning:", err.message);
-      }
-    }
-    fetchData();
-  }, [programId]);
 
-  // useEffect(() => {
-  //   const todayTraining = getImageOrVideoIfSavedToday();
-  //   if (todayTraining) {
-  //     setTraining(todayTraining);
-  //   }
-  // }, []);
+    getDescription(programId)
+      .then(({ image_url, video_url, description }) => {
+        setImageUrl(image_url);
+        setVideoUrl(video_url);
+        setDescription(description);
+      })
+      .catch(err => {
+        console.error("Error fetching description:", err.message);
+      });
+    }, [programId]);
 
   const isYouTubeVideo = (url) => {
     if (!url) return false;
     return url.includes("youtube.com") || url.includes("youtu.be");
   };
+
+  console.log("Fetching description for programId:", description);
 
   return (
     <div className={styles.traingProgramContainer}>
@@ -65,7 +56,7 @@ export default function CreateTrainingProgramPlan() {
         <h1 className={styles.title}>Skapa träningsprogram</h1>
       </header>
       <main className={styles.main}>
-        {videoUrl && !isYouTubeVideo(videoUrl) ? (
+        {videoUrl && isYouTubeVideo(videoUrl) ? (
           <div className={styles.videoWrapper}>
             <iframe
               src={`https://www.youtube.com/embed/${extractYouTubeId(

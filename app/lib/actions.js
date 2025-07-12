@@ -29,7 +29,6 @@ export async function saveTrainingProgram({
   });
 
   console.log("Response status:", res.status);
-
   const contentType = res.headers.get("content-type");
 
   if (!contentType || !contentType.includes("application/json")) {
@@ -117,22 +116,35 @@ export async function updateExerciseOrder(exercises) {
 }
 
 export async function getDescription(programId) {
-  const res = await fetch(
-    `/api/get_description_img_video?programId=${programId}`
-  );
+  const res = await fetch(`/api/get_description?programId=${programId}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+
   let json;
   try {
     json = await res.json();
+
+    if (!json.success) {
+      throw new Error(json.message || "Okänt API-fel");
+    }
+
+    if (!json.success) {
+      throw new Error(json.message || "Unknown error");
+    }
+
+    return {
+      description: json.description,
+      image_url: json.image_url,
+      video_url: json.video_url,
+    };
   } catch (error) {
     console.error("Fel vid tolkning av JSON:", error);
     throw new Error("Kunde inte parsa JSON från API-svaret");
-  }
-
-  if (!res.ok) {
-    throw new Error(json?.message || "Kunde inte hämta data");
-  }
-
-  return json;
+  };
 }
 
 export async function fetchExercises(param) {
@@ -142,6 +154,7 @@ export async function fetchExercises(param) {
   }
 
   const { month, day, programId } = param;
+  console.log("Hämtar övningar för:", { month, day, programId });
 
   if (!month || !day || !programId) {
     throw new Error("Alla parametrar (month, day, programId) krävs");
@@ -152,11 +165,12 @@ export async function fetchExercises(param) {
       `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`
     );
     const contentType = res.headers.get("content-type");
+
     if (!res.ok) {
-      const text = await res.text();
-      console.error("Fel från API:", res.status, text);
-      throw new Error(`API-fel: ${res.status}`);
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.message || `HTTP ${res.status}`);
     }
+
     if (!contentType || !contentType.includes("application/json")) {
       const text = await res.text();
       console.error("Ogiltigt innehåll från API:", text);

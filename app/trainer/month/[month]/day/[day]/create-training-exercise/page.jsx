@@ -51,18 +51,30 @@ export default function CreateTrainingProgram() {
         `/api/get_day_image_or_video?month=${month}&day=${day}&programId=${programId}`
       );
       const contentType = res.headers.get("content-type");
+      const body = await res.json();
+      // const body = contentType?.includes("application/json")
+      //   ? await res.json()
+      //   : null;
+
       if (!res.ok) {
-        const error = await res.json(); // eller await res.text();
-        console.error("Fel från API:", res.status, error);
-        throw new Error(`API-fel: ${res.status}`);
+        const fallback = contentType?.includes("application/json")
+          ? await res.json()
+          : await res.text(); 
+
+        throw new Error(
+          typeof fallback === "string"
+            ? `HTML error: ${fallback.slice(0, 100)}...`
+            : fallback.message
+        );
       }
-      if (!contentType || !contentType.includes("application/json")) {
+
+      if (!body) {
         const text = await res.text();
         console.error("Ogiltigt innehåll från API:", text);
         throw new Error("API returnerade inte JSON");
       }
 
-      const { success, data, message } = await res.json();
+      const { success, data, message } = body;
 
       if (!success) {
         console.error("API svarade med success=false:", message);
@@ -76,6 +88,7 @@ export default function CreateTrainingProgram() {
       //   videoUrl: data.video_url || "",
       //   savedDate: data.inserted_at || new Date().toISOString(),
       setDayMediaWrapper(data);
+      return { success: true, data };
       // });
     } catch (err) {
       console.error("Fel vid hämtning av dag:", err);
@@ -88,29 +101,13 @@ export default function CreateTrainingProgram() {
     programId,
   });
 
-  useEffect(() => {
-    const testFetch = async () => {
-      try {
-        const res = await fetchExercises({
-          month: "1",
-          day: "11",
-          programId: "17d571da-7c00-48a8-9cac-884bbc985a58",
-        });
-        console.log("Test fetchExercises result:", res);
-      } catch (e) {
-        console.error("Test fetchExercises error:", e);
-      }
-    };
-
-    testFetch();
-  }, []);
 
   useEffect(() => {
-     console.log("useEffect triggered with:", { month, day, programId });
-  //  if (!month || !day || !programId) {
-  //    console.warn("Saknar parametrar:", { month, day, programId });
-  //    return;
-  //  }
+    console.log("useEffect triggered with:", { month, day, programId });
+    //  if (!month || !day || !programId) {
+    //    console.warn("Saknar parametrar:", { month, day, programId });
+    //    return;
+    //  }
 
     const fetchExercisesData = async () => {
       try {
@@ -121,7 +118,6 @@ export default function CreateTrainingProgram() {
         });
 
         console.log("Program:", result);
-   
 
         if (!result.success) {
           console.error("Fel från API:", result.message || result.error);

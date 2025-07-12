@@ -12,6 +12,7 @@ export async function GET(request) {
   const programId = searchParams.get("programId");
   const month = searchParams.get("month");
   const day = searchParams.get("day");
+  console.log("Parsed params:", { programId, month, day });
 
   if (!programId || !month || !day) {
     return NextResponse.json(
