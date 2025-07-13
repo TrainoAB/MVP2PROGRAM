@@ -18,8 +18,6 @@ export default function CreateTrainingProgram() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  // const month = searchParams.get("month");
-  // const day = searchParams.get("day");
   const { month, day } = params;
   console.log("params", params);
   const programId = searchParams.get("programId");
@@ -100,32 +98,6 @@ export default function CreateTrainingProgram() {
   };
 
   useEffect(() => {
-    // if (!month || !day || !programId) {
-    //   console.warn("⛔️ Hoppar över fetchExercises – saknar parametrar:", {
-    //     month,
-    //     day,
-    //     programId,
-    //   });
-    // }
-
-//     console.log(
-//       "Fetching with:",
-//       `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`
-//     );
-
-//       const url = `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`;
-//     console.log("🌍 Skickar GET till:", url);
-
-//      fetch(url)
-//     .then((res) => res.json())
-//     .then((data) => {
-//       console.log("✅ Fick svar från API:", data);
-//     })
-//     .catch((err) => {
-//       console.error("❌ Fel i fetch:", err);
-//     });
-   
-// }, [month, day, programId]);
     
     const fetchExercisesData = async () => {
       try {
