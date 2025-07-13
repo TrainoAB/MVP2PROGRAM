@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+
 export async function GET(req) {
   const supabase = await createClient();
   console.log("🔍 In API: /api/get-exercises");

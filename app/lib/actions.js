@@ -132,10 +132,6 @@ export async function getDescription(programId) {
       throw new Error(json.message || "Okänt API-fel");
     }
 
-    if (!json.success) {
-      throw new Error(json.message || "Unknown error");
-    }
-
     return {
       description: json.description,
       image_url: json.image_url,
@@ -144,49 +140,41 @@ export async function getDescription(programId) {
   } catch (error) {
     console.error("Fel vid tolkning av JSON:", error);
     throw new Error("Kunde inte parsa JSON från API-svaret");
-  };
+  }
 }
 
-export async function fetchExercises(param) {
-  if (!param) {
-    console.error("fetchExercises anropades utan parameter");
-    throw new Error("fetchExercises requires { month, day, programId }");
-  }
+export async function fetchExercises({ month, day, programId }) {
 
-  const { month, day, programId } = param;
-  console.log("Hämtar övningar för:", { month, day, programId });
-
+  console.log("📦 fetchExercises kallad med:", { month, day, programId });
   if (!month || !day || !programId) {
-    throw new Error("Alla parametrar (month, day, programId) krävs");
+    console.error("❌ fetchExercises: saknar parametrar", {
+      month,
+      day,
+      programId,
+    });
+    return {
+      success: false,
+      message: "Alla parametrar (month, day, programId) krävs",
+      data: [],
+    };
   }
 
   try {
-    const res = await fetch(
-      `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`
-    );
-    const contentType = res.headers.get("content-type");
+    const url = `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`;
+    console.log("🌍 Hämtar från URL:", url);
 
-    if (!res.ok) {
-      const err = await res.json().catch(() => null);
-      throw new Error(err?.message || `HTTP ${res.status}`);
-    }
+    const res = await fetch(url);
+    const data = await res.json();
 
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await res.text();
-      console.error("Ogiltigt innehåll från API:", text);
-      throw new Error("API returnerade inte JSON");
-    }
+    console.log("📥 fetchExercises fick svar:", data);
 
-    const { success, data, message } = await res.json();
-
-    if (!success) {
-      console.error("API svarade med success=false:", message);
-      throw new Error(message || "Okänt API-fel");
-    }
-    console.log("Övningar hämtade:", data);
-    console.log("month", month, "day", day, "programId", programId);
-    return { success: true, data };
+    return data;
   } catch (err) {
-    return { success: false, data: null, message: err.message };
+    console.error("❌ fetchExercises: fel vid fetch:", err);
+    return {
+      success: false,
+      message: err.message || "Något gick fel vid hämtning",
+      data: [],
+    };
   }
 }

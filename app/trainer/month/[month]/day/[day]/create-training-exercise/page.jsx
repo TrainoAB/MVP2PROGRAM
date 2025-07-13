@@ -18,6 +18,8 @@ export default function CreateTrainingProgram() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
+  // const month = searchParams.get("month");
+  // const day = searchParams.get("day");
   const { month, day } = params;
   console.log("params", params);
   const programId = searchParams.get("programId");
@@ -48,7 +50,7 @@ export default function CreateTrainingProgram() {
   const fetchDay = async () => {
     try {
       const res = await fetch(
-        `/api/get_day_image_or_video?month=${month}&day=${day}&programId=${programId}`
+        `/api/get_day_image_video?month=${month}&day=${day}&programId=${programId}`
       );
       const contentType = res.headers.get("content-type");
       const body = await res.json();
@@ -83,10 +85,12 @@ export default function CreateTrainingProgram() {
       console.log("dag hämtad:", data);
       console.log("month", month, "day", day, "programId", programId);
 
-      // setDayMedia({
-      //   imageUrl: data.image_url || "",
-      //   videoUrl: data.video_url || "",
-      //   savedDate: data.inserted_at || new Date().toISOString(),
+      setDayMedia({
+        imageUrl: data.image_url || "",
+        videoUrl: data.video_url || "",
+        savedDate: data.inserted_at || new Date().toISOString(),
+      });
+      // Optionally call setDayMediaWrapper(data) here if needed:
       setDayMediaWrapper(data);
       return { success: true, data };
       // });
@@ -95,20 +99,34 @@ export default function CreateTrainingProgram() {
     }
   };
 
-  console.log("👉 Parametrar som skickas till fetchExercises:", {
-    month,
-    day,
-    programId,
-  });
-
-
   useEffect(() => {
-    console.log("useEffect triggered with:", { month, day, programId });
-    //  if (!month || !day || !programId) {
-    //    console.warn("Saknar parametrar:", { month, day, programId });
-    //    return;
-    //  }
+    // if (!month || !day || !programId) {
+    //   console.warn("⛔️ Hoppar över fetchExercises – saknar parametrar:", {
+    //     month,
+    //     day,
+    //     programId,
+    //   });
+    // }
 
+//     console.log(
+//       "Fetching with:",
+//       `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`
+//     );
+
+//       const url = `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`;
+//     console.log("🌍 Skickar GET till:", url);
+
+//      fetch(url)
+//     .then((res) => res.json())
+//     .then((data) => {
+//       console.log("✅ Fick svar från API:", data);
+//     })
+//     .catch((err) => {
+//       console.error("❌ Fel i fetch:", err);
+//     });
+   
+// }, [month, day, programId]);
+    
     const fetchExercisesData = async () => {
       try {
         const result = await fetchExercises({
@@ -132,8 +150,7 @@ export default function CreateTrainingProgram() {
 
         const exerciseId = result.data[0]?.id;
         console.log("Första övningens ID:", exerciseId);
-        console.log("Träningsprogram hämtat, id:", exerciseId);
-        setExercises(data); // [] eller [ ... ] funkar båda
+        setExercises(result.data); // [] eller [ ... ] funkar båda
       } catch (error) {
         console.error("Fel vid hämtning:", error.message);
       }
