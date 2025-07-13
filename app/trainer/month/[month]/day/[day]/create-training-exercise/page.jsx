@@ -218,7 +218,9 @@ export default function CreateTrainingProgram() {
           <AddExerciseModal
             isExerciseModalOpen={isExerciseModalOpen}
             closeModalExercise={closeModalExercise}
-            onExerciseAdded={fetchExercises}
+            onExerciseAdded={() => {
+              fetchExercises({ month, day, programId });
+            }}
             trainingProgramId={programId}
             dayImageUrl={dayMedia.imageUrl}
             dayVideoUrl={dayMedia.videoUrl}
