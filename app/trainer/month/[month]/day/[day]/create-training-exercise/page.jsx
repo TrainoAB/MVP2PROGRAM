@@ -51,10 +51,10 @@ export default function CreateTrainingProgram() {
         `/api/get_day_image_video?month=${month}&day=${day}&programId=${programId}`
       );
       const contentType = res.headers.get("content-type");
-      const body = await res.json();
-      // const body = contentType?.includes("application/json")
-      //   ? await res.json()
-      //   : null;
+      // const body = await res.json();
+      const body = contentType?.includes("application/json")
+        ? await res.json()
+        : null;
 
       if (!res.ok) {
         const fallback = contentType?.includes("application/json")
@@ -142,14 +142,15 @@ export default function CreateTrainingProgram() {
   };
 
   const setDayMediaWrapper = (newMedia) => {
+    console.log("newMedia:", newMedia);
     const media = newMedia["0"] ? newMedia["0"] : newMedia;
 
     let videoUrl = "";
 
-    if (newMedia.video_url) {
+    if (media.videoUrl) {
       const videoId = extractYouTubeId(media.videoUrl);
-      newMedia.videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
-      console.log("Embed URL:", newMedia.videoUrl);
+      videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+      console.log("Embed URL:", videoUrl);
     } else {
       media.videoUrl = "";
     }
@@ -204,9 +205,12 @@ export default function CreateTrainingProgram() {
       <main className={styles.main}>
         {dayMedia.videoUrl ? (
           <div className={styles.videoWrapper}>
+           {console.log("dayMedia.videoUrl:", dayMedia.videoUrl)} 
             <iframe
               src={dayMedia.videoUrl}
               title="YouTube video player"
+              width="100%"
+              height="100%"
               allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
@@ -287,6 +291,8 @@ export default function CreateTrainingProgram() {
                         <div className={styles.videoWrapper}>
                           <iframe
                             src={exercise.video_url}
+                            width="100%"
+                            height="100%"
                             title="YouTube video player"
                             allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen

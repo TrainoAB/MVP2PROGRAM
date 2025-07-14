@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "@/app/components/Modal";
 import styles from "./UploadYoutubeVideo.module.css";
 
@@ -19,11 +19,17 @@ export default function UploadYoutubeVideoModal({
       imageUrl: "",
       savedDate: new Date().toISOString(),
     };
-    localStorage.setItem("training", JSON.stringify(updatedtraining));
+    // localStorage.setItem("training", JSON.stringify(updatedtraining));
     
     setTraining(updatedtraining);
     closeModalVideo();
   };
+
+  useEffect(() => {
+    if (isVideoModalOpen) {
+      setYoutubeUrl("");
+    }
+  }, [isVideoModalOpen]);
 
 
   return (

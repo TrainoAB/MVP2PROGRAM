@@ -47,6 +47,7 @@ export async function saveTrainingProgram({
 }
 
 export async function saveExercise({
+  training_program_id,
   title,
   duration,
   description,
@@ -62,6 +63,7 @@ export async function saveExercise({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      training_program_id,
       title,
       duration,
       description,
@@ -76,9 +78,10 @@ export async function saveExercise({
   if (!response.ok) {
     const responseText = await response.text();
     console.error("Felstatus:", response.status, "Svar:", responseText);
-    throw new Error(`Fel vid sparande av övning: ${errorText}`);
+    throw new Error(`Fel vid sparande av övning: ${responseText}`);
   }
-
+  const body = await response.json();
+  console.log("🧾 Body innehåller:", body);
   return response.json();
 }
 

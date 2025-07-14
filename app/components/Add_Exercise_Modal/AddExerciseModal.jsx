@@ -11,7 +11,7 @@ import styles from "./AddExerciseModal.module.css";
 export default function AddExerciseModal({
   isExerciseModalOpen,
   closeModalExercise,
-  onExerciseAdded, 
+  onExerciseAdded,
   trainingProgramId,
   dayImageUrl,
   dayVideoUrl,
@@ -46,8 +46,8 @@ export default function AddExerciseModal({
   const setExerciseWrapper = (rawUrl) => {
     if (!rawUrl) return;
 
-    const videoUrl = rawUrl.videoUrl || rawUrl.video_url;
-    const imageUrl = rawUrl.imageUrl || rawUrl.image_url;
+const videoUrl = rawUrl.videoUrl ?? rawUrl.video_url ?? null;
+const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
 
     let updatedVideoUrl = videoUrl;
 
@@ -85,11 +85,31 @@ export default function AddExerciseModal({
     try {
       // Här sparar du till databasen – t.ex. med fetch eller Supabase
       setIsSaving(true);
-      const { videoUrl, imageUrl, title, duration, description, index_order } =
-        exercise;
+      const {
+        imageUrl,
+        videoUrl,
+        title,
+        duration,
+        description,
+        index_order,
+      } = exercise;
 
       const month_number = parseInt(month);
       const day_number = parseInt(day);
+
+      console.log("Skickar till API:", {
+        training_program_id,
+        month_number,
+        day_number,
+        title,
+        duration,
+        description,
+        day_image_url: dayImageUrl ?? null,
+        day_video_url: dayVideoUrl ?? null,
+        exercise_image_url: imageUrl ?? null,
+        exercise_video_url: videoUrl ?? null,
+        index_order,
+      });
 
       // Exempel: skicka till din API-route eller Supabase
       const response = await fetch("/api/save-exercise", {
@@ -99,29 +119,32 @@ export default function AddExerciseModal({
         },
         body: JSON.stringify({
           training_program_id,
+          month_number,
+          day_number,
           title,
           duration,
           description,
-          day_image_url : dayImageUrl,
-          day_video_url: dayVideoUrl,
-          exercise_image_url: imageUrl,
-          exercise_video_url: videoUrl,
+          day_image_url: dayImageUrl ?? null,
+          day_video_url: dayVideoUrl ?? null,
+          exercise_image_url: imageUrl ?? null,
+          exercise_video_url: videoUrl ?? null,
           index_order,
-          month_number,
-          day_number,
         }),
       });
 
-      // console.log("Data som skickas:", {
-      //   month_number,
-      //   day_number,
-      //   title,
-      //   duration,
-      //   description,
-      //   video_url: videoUrl,
-      //   image_url: imageUrl,
-      //   index_order,
-      // });
+      console.log("Data som skickas:", {
+        training_program_id,
+        month_number,
+        day_number,
+        title,
+        duration,
+        description,
+        day_image_url: dayImageUrl,
+        day_video_url: dayVideoUrl,
+        exercise_image_url: imageUrl,
+        exercise_video_url: videoUrl,
+        index_order,
+      });
 
       if (!response.ok) {
         const responseText = await response.text();
@@ -132,7 +155,7 @@ export default function AddExerciseModal({
       console.log("Sparning lyckades!");
       // När sparningen är klar, stäng modalen
       closeModalExercise();
-      onExerciseAdded?.(); 
+      onExerciseAdded?.();
       console.log("Modalen STÄNGS!");
     } catch (error) {
       console.error("Fel vid sparning:", error);

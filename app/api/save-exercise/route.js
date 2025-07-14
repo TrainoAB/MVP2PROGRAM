@@ -6,15 +6,15 @@ export async function POST(req) {
     const body = await req.json();
     const {
       training_program_id,
+      title,
+      duration,
+      description,
       month_number,
       day_number,
       day_image_url,
       day_video_url,
       exercise_image_url,
       exercise_video_url,
-      duration,
-      title,
-      description,
       index_order,
     } = body;
 
@@ -35,66 +35,46 @@ export async function POST(req) {
     const parsedIndexOrder = parseInt(index_order, 10) || 0;
     const supabase = await createClient();
 
-    // 1. Försök hitta befintlig training_day
-    let { data: dayRows, error: selectDayError } = await supabase
+   // 🔁 Steg 1: Skapa eller hitta rätt training_day
+    const { data: trainingDay, error: dayError } = await supabase
       .from("training_days")
-      .select("*")
-      .eq("month_number", month_number)
-      .eq("day_number", day_number);
+      .upsert({
+        training_program_id,
+        month_number,
+        day_number,
+        image_url: day_image_url,
+        video_url: day_video_url,
+      }, { onConflict: 'training_program_id,month_number,day_number' }) // 👈 undvik dubletter
+      .select()
+      .single();
+    
+    console.log("trainingDayData:", trainingDay);
+    console.log("dayError:", dayError);
 
-    if (selectDayError) {
+    if (dayError || !trainingDay) {
+      console.error("Fel vid sparning av training_day", dayError);
       return NextResponse.json(
-        {
-          error: "Tekniskt fel vid hämtning av training_day",
-          details: selectDayError.message,
-        },
+        { error: "Kunde inte spara training_days" },
         { status: 500 }
       );
     }
-    // Inget fel = vi fortsätter. Det är normalt om dayRows är tomt.
-    let trainingDay;
 
-    // 2. Om ingen finns, skapa ny
-    if (!dayRows || dayRows.length === 0) {
-      const { data: newDay, error: insertDayError } = await supabase
-        .from("training_days")
-        .insert([
-          {
-            training_program_id,
-            month_number,
-            day_number,
-            image_url: day_image_url,
-            video_url: day_video_url,
-          },
-        ])
-        .select()
-        .single();
-
-      if (insertDayError || !newDay) {
-        return NextResponse.json(
-          {
-            error: "Kunde inte skapa training_day",
-            details: insertDayError?.message,
-          },
-          { status: 500 }
-        );
+    if (!response.ok) {
+      let errorMessage = "Sparningen misslyckades";
+      try {
+        const errorData = await response.json();
+        console.error("Felstatus:", response.status, "Svar:", errorData);
+        if (errorData?.error) {
+          errorMessage = errorData.error;
+        }
+      } catch {
+        const responseText = await response.text();
+        console.error("Felstatus:", response.status, "Svar:", responseText);
       }
-
-      trainingDay = newDay;
-    } else {
-      // 3. Om en redan finns, uppdatera ev. bild/video om de skickas med
-      trainingDay = dayRows[0];
-
-      if (day_image_url || day_video_url) {
-        await supabase
-          .from("training_days")
-          .update({
-            ...(day_image_url && { image_url: day_image_url }),
-            ...(day_video_url && { video_url: day_video_url }),
-          })
-          .eq("id", trainingDay.id);
-      }
+      throw new Error(errorMessage);
     }
+
+
 
     const parsedDuration = parseInt(duration, 10);
     if (isNaN(parsedDuration) || parsedDuration <= 0) {
