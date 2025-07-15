@@ -35,46 +35,29 @@ export async function POST(req) {
     const parsedIndexOrder = parseInt(index_order, 10) || 0;
     const supabase = await createClient();
 
-   // 🔁 Steg 1: Skapa eller hitta rätt training_day
+    // 🔁 Steg 1: Skapa eller hitta rätt training_day
     const { data: trainingDay, error: dayError } = await supabase
       .from("training_days")
-      .upsert({
-        training_program_id,
-        month_number,
-        day_number,
-        image_url: day_image_url,
-        video_url: day_video_url,
-      }, { onConflict: 'training_program_id,month_number,day_number' }) // 👈 undvik dubletter
+      .upsert(
+        {
+          training_program_id,
+          month_number,
+          day_number,
+          image_url: day_image_url,
+          video_url: day_video_url,
+        },
+        { onConflict: "training_program_id,month_number,day_number" }
+      ) // 👈 undvik dubletter
       .select()
       .single();
-    
+
     console.log("trainingDayData:", trainingDay);
     console.log("dayError:", dayError);
 
-    if (dayError || !trainingDay) {
-      console.error("Fel vid sparning av training_day", dayError);
-      return NextResponse.json(
-        { error: "Kunde inte spara training_days" },
-        { status: 500 }
-      );
+    if (dayError) {
+      console.error("❌ Fel vid upsert av training_day:", dayError);
+      return res.status(500).json({ error: "Kunde inte spara training_days" });
     }
-
-    if (!response.ok) {
-      let errorMessage = "Sparningen misslyckades";
-      try {
-        const errorData = await response.json();
-        console.error("Felstatus:", response.status, "Svar:", errorData);
-        if (errorData?.error) {
-          errorMessage = errorData.error;
-        }
-      } catch {
-        const responseText = await response.text();
-        console.error("Felstatus:", response.status, "Svar:", responseText);
-      }
-      throw new Error(errorMessage);
-    }
-
-
 
     const parsedDuration = parseInt(duration, 10);
     if (isNaN(parsedDuration) || parsedDuration <= 0) {

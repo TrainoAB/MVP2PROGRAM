@@ -10,8 +10,8 @@ export async function GET(req) {
   const searchParams = url.searchParams;
 
   const programId = searchParams.get("programId");
-  const day = searchParams.get("day");
-  const month = searchParams.get("month");
+  const day = Number(searchParams.get("day"));
+  const month = Number(searchParams.get("month"));
   console.log("Parsed params:", { programId, day, month });
 
   if (!programId || !day || !month) {
@@ -27,20 +27,21 @@ export async function GET(req) {
       .from("training_days")
       .select("id")
       .eq("training_program_id", programId)
-      .eq("month_number", Number(month))
-      .eq("day_number", Number(day));
+      .eq("month_number", month)
+      .eq("day_number", day)
+      .single();
 
     if (error) throw error;
     if (!trainingDays || trainingDays.length === 0) {
       return NextResponse.json({ success: true, data: [] }, { status: 200 });
     }
 
-    const trainingDay = trainingDays[0];
+    // const trainingDay = trainingDays[0];
 
     const { data: exercises, error: exercisesError } = await supabase
       .from("exercises")
       .select("*")
-      .eq("training_day_id", trainingDay.id)
+      .eq("training_day_id", trainingDays.id)
       .order("index_order", { ascending: true });
     console.log("Exercises found:", exercises);
     if (exercisesError) {
