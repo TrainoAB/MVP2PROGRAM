@@ -167,6 +167,15 @@ export async function fetchExercises({ month, day, programId }) {
     console.log("🌍 Hämtar från URL:", url);
 
     const res = await fetch(url);
+
+    if (!res.ok) {
+      console.error("❌ API-svar var inte OK", res.status);
+      return {
+        success: false,
+        message: `API-svar: ${res.status}`,
+        data: [],
+      };
+    }
     const data = await res.json();
 
     console.log("📥 fetchExercises fick svar:", data);
