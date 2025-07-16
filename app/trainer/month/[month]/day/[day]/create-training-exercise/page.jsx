@@ -5,7 +5,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
 import { moveExercises } from "@/app/functions/functions";
-import { supabase } from "@/utils/supabase/client";
+import { rearrangeExercises } from "@/app/functions/functions";
 import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react";
 import { fetchExercises } from "@/app/lib/actions";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
@@ -44,6 +44,7 @@ export default function CreateTrainingProgram() {
   const [step, setStep] = useState(1);
   const [exercises, setExercises] = useState([]);
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [loadingExercises, setLoadingExercises] = useState(false);
 
   const fetchDay = async () => {
     try {
@@ -59,7 +60,7 @@ export default function CreateTrainingProgram() {
       if (!res.ok) {
         const fallback = contentType?.includes("application/json")
           ? await res.json()
-          : await res.text(); 
+          : await res.text();
 
         throw new Error(
           typeof fallback === "string"
@@ -97,43 +98,74 @@ export default function CreateTrainingProgram() {
     }
   };
 
-  useEffect(() => {
+  const fetchExercisesData = async () => {
+    setLoadingExercises(true);
     
-    const fetchExercisesData = async () => {
-      try {
-        const result = await fetchExercises({
-          month,
-          day,
-          programId,
-        });
+    try {
+      const result = await fetchExercises({
+        month,
+        day,
+        programId,
+      });
 
-        console.log("Program:", result);
-
-        if (!result.success) {
-          console.error("Fel från API:", result.message || result.error);
-          throw new Error("API-svaret innehåller ett fel.");
-        }
-
-        if (!result.data || result.data.length === 0) {
-          console.warn("Inga övningar hittades för dagen.");
-          setExercises([]); // Tom array om inget hittades
-          return;
-        }
-
-        const exerciseId = result.data[0]?.id;
-        console.log("Första övningens ID:", exerciseId);
-        setExercises(result.data); // [] eller [ ... ] funkar båda
-      } catch (error) {
-        console.error("Fel vid hämtning:", error.message);
+      if (!result.success) {
+        console.error("Fel från API:", result.message || result.error);
+        throw new Error("API-svaret innehåller ett fel.");
       }
-    };
+
+      if (!Array.isArray(result.data)) {
+        console.error("❌ result.data är inte en array:", result.data);
+         if (typeof setExercises === "function") {
+           setExercises([]);
+         }
+        return;
+      }
+
+      if (!result.data || result.data.length === 0) {
+        console.warn("Inga övningar hittades för dagen.");
+        setExercises([]); // Tom array om inget hittades
+        return;
+      }
+
+      const rearranged = rearrangeExercises(result.data);
+      setExercises(rearranged);
+      return result;
+
+    } catch (error) {
+      console.error("Fel vid hämtning:", error.message);
+      setExercises([]);
+      return { success: false, data: [] };
+
+    } finally {
+      setLoadingExercises(false); // Stoppa laddning (oavsett resultat)
+    }
+  };
+
+  useEffect(() => {
+    if (!programId || !day || !month) return;
+    
     fetchExercisesData();
-  }, [month, day, programId]);
+    }, [month, day, programId]);
+
 
   useEffect(() => {
     if (!programId || !day || !month) return;
     fetchDay();
   }, [month, day, programId]);
+
+  const handleMove = async (direction) => {
+  const exercisesArray = Array.isArray(exercises)
+    ? exercises
+    : Object.values(exercises);
+
+  console.log("✅ Konverterad till array:", exercisesArray);
+    await moveExercises(
+      direction,
+      exercises,
+      setExercises,
+    );
+    console.log("✅ Försöker uppdatera ordning till API…");
+  };
 
   const completeNotes = (e, exercise) => {
     e.preventDefault();
@@ -147,12 +179,12 @@ export default function CreateTrainingProgram() {
 
     let videoUrl = "";
 
-    if (media.videoUrl) {
-      const videoId = extractYouTubeId(media.videoUrl);
+    if (media.video_url) {
+      const videoId = extractYouTubeId(media.video_url);
       videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
       console.log("Embed URL:", videoUrl);
     } else {
-      media.videoUrl = "";
+      media.video_url = "";
     }
     setDayMedia({
       ...media,
@@ -191,8 +223,11 @@ export default function CreateTrainingProgram() {
           <AddExerciseModal
             isExerciseModalOpen={isExerciseModalOpen}
             closeModalExercise={closeModalExercise}
-            onExerciseAdded={() => {
-              fetchExercises({ month, day, programId });
+            onExerciseAdded={async () => {
+              const result = await fetchExercises({ month, day, programId });
+              if (result.success) {
+                setExercises(result.data);
+              }
             }}
             trainingProgramId={programId}
             dayImageUrl={dayMedia.imageUrl}
@@ -205,7 +240,7 @@ export default function CreateTrainingProgram() {
       <main className={styles.main}>
         {dayMedia.videoUrl ? (
           <div className={styles.videoWrapper}>
-           {console.log("dayMedia.videoUrl:", dayMedia.videoUrl)} 
+            {console.log("dayMedia.videoUrl:", dayMedia.videoUrl)}
             <iframe
               src={dayMedia.videoUrl}
               title="YouTube video player"
@@ -260,8 +295,11 @@ export default function CreateTrainingProgram() {
         {step === 1 ? (
           <div className={styles.wrapper}>
             <h2 className={styles.heading}>Dagens övningar</h2>
-            {exercises.length === 0 ? (
+            {/* {exercises.length === 0 ? (
               <p className={styles.noExercises}>Inga övningar tillagda än.</p>
+            ) : ( */}
+            {loadingExercises ? (
+              <p>Laddar övningar...</p>
             ) : (
               <ul className={styles.exerciseList}>
                 {[...exercises]
@@ -301,18 +339,10 @@ export default function CreateTrainingProgram() {
                       ) : null}
                       <div className={styles.buttonWrapperExercise}>
                         <div className={styles.sortGroup}>
-                          <button
-                            onClick={() =>
-                              moveExercises("asc", exercises, setExercises)
-                            }
-                          >
+                          <button onClick={() => handleMove("asc")}>
                             <ArrowUp size={20} />
                           </button>
-                          <button
-                            onClick={() =>
-                              moveExercises("desc", exercises, setExercises)
-                            }
-                          >
+                          <button onClick={() => handleMove("desc")}>
                             <ArrowDown size={20} />
                           </button>
                         </div>

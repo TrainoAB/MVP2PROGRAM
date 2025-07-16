@@ -6,52 +6,85 @@ export function extractYouTubeId(url) {
   return match ? match[1] : "";
 }
 
-// export function getImageOrVideoIfSavedToday() {
-//   const saved = localStorage.getItem("training");
-//   if (!saved) return null;
+export function rearrangeExercises(exercises) {
+  if (!Array.isArray(exercises)) {
+    console.error(
+      "❌ rearrangeExercises: 'exercises' är inte en array:",
+      exercises
+    );
+    return [];
+  }
+  return [...exercises].sort((a, b) => a.index_order - b.index_order);
+}
 
-//   try {
-//     const parsed = JSON.parse(saved);
-//     const savedDate = parsed.savedDate?.slice(0, 10);
-//     const today = new Date().toISOString().slice(0, 10);
-
-//     if (savedDate === today) {
-//       return {
-//         name: parsed.name || "Träningsvideo/bild",
-//         videoUrl: parsed.videoUrl || null,
-//         imageUrl: parsed.imageUrl || null,
-//       };
-//     } else {
-//       // localStorage.removeItem("training");
-//       return null;
-//     }
-//   } catch (e) {
-//     console.error("Kunde inte parsa training från localStorage:", e);
-//     return null;
-//   }
-// }
-
-export async function moveExercises(
-  direction,
-  exercises,
-  setExercises,
-) {
-  const sorted = [...exercises].sort((a, b) => a.index_order - b.index_order);
-
-  const newOrder =
+export function sortByIndexOrder(exercises, direction = "asc") {
+  return [...exercises].sort((a, b) =>
     direction === "asc"
-      ? sorted.sort((a, b) => a.index_order - b.index_order)
-      : sorted.sort((a, b) => b.index_order - a.index_order);
+      ? a.index_order - b.index_order
+      : b.index_order - a.index_order
+  );
+}
 
-  // Uppdatera index_order
-  const updated = newOrder.map((exercise, index) => ({
-    ...exercise,
+async function updateExerciseOrderApi(exercises) {
+  console.log("📦 Skickar denna data till API:", exercises);
+
+  const res = await fetch("/api/update-exercise-order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ exercises }),
+  });
+
+  if (!res.ok) {
+    let errorMessage = `Status: ${res.status}`;
+    try {
+      const errorData = await res.json();
+      console.error("❌ Fel från API:", errorData);
+      errorMessage += ` | ${errorData?.error || "Okänt fel"}`;
+    } catch (e) {
+      throw new Error(errorMessage);
+    }
+
+    return await res.json();
+  }
+}
+
+export async function moveExercises(direction, exercises, setExercises) {
+  console.log("📦 Skickar till API:", exercises);
+
+  if (!["asc", "desc"].includes(direction)) {
+    console.error("❌ moveExercises: Ogiltig sorteringsriktning:", direction);
+    return;
+  }
+
+  const isSetExercisesValid = typeof setExercises === "function";
+
+  if (!Array.isArray(exercises)) {
+    console.error("❌ moveExercises: 'exercises' är inte en array:", exercises);
+    if (isSetExercisesValid) setExercises([]);
+    return;
+  }
+
+  const sorted = sortByIndexOrder(exercises, direction);
+
+  const updated = sorted.map((exercise, index) => ({
+    id: exercise.id,
     index_order: index + 1,
   }));
 
-  await fetch("/api/update-exercise-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ updated }),
-  });
+console.log(
+  "📤 Skickar detta till updateExerciseOrderApi:",
+  JSON.stringify(updated, null, 2)
+);
+  try {
+    await updateExerciseOrderApi(updated);
+
+    if (isSetExercisesValid) {
+      setExercises(updated);
+    }
+  } catch (error) {
+    console.error(
+      "❌ moveExercises: Något gick fel vid API-anropet:",
+      error.message
+    );
+  }
 }

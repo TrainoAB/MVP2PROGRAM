@@ -132,20 +132,6 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
         }),
       });
 
-      console.log("Data som skickas:", {
-        training_program_id,
-        month_number,
-        day_number,
-        title,
-        duration,
-        description,
-        day_image_url: dayImageUrl,
-        day_video_url: dayVideoUrl,
-        exercise_image_url: imageUrl,
-        exercise_video_url: videoUrl,
-        index_order,
-      });
-
       if (!response.ok) {
         const responseText = await response.text();
         console.error("Felstatus:", response.status, "Svar:", responseText);
@@ -156,6 +142,7 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
       // När sparningen är klar, stäng modalen
       closeModalExercise();
       onExerciseAdded?.();
+      fetchExercisesData(); 
       console.log("Modalen STÄNGS!");
     } catch (error) {
       console.error("Fel vid sparning:", error);

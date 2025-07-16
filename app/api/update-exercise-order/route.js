@@ -1,31 +1,31 @@
-import { db } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 
 export async function POST(req) {
-    try {
-      const body = await req.json();
+  const supabase = createClient();
 
-      const exercises = body.exercises;
+  const body = await req.json();
 
-      if (!Array.isArray(exercises)) {
-        return new Response("Ogiltig data", { status: 400 });
-      }
+  const exercises = body.updatedExercises;
 
-      for (let i = 0; i < exercises.length; i++) {
-        const { id, index_order } = exercises[i];
+  if (!Array.isArray(exercises)) {
+    return new Response("Ogiltig data", { status: 400 });
+  }
 
-        if (!id || index_order === undefined) {
-          return new Response("Saknar id eller index_order", { status: 400 });
-        }
+  for (let i = 0; i < exercises.length; i++) {
+    const { id, index_order } = exercises[i];
 
-        await db.exercises.update({
-          where: { id },
-          data: { index_order },
-        });
-      }
-
-      return new Response("Ordning uppdaterad", { status: 200 });
-    } catch (error) {
-      console.error("Fel vid uppdatering:", error);
-      return new Response("Serverfel", { status: 500 });
+    if (!id || index_order === undefined) {
+      return new Response("Saknar id eller index_order", { status: 400 });
     }
+
+    const { error } = await supabase
+      .from("exercises")
+      .update({ index_order })
+      .eq("id", id);
+
+    if (error) {
+      console.error(`Uppdateringsfel för id ${id}:`, error.message);
+      return new Response("Fel vid uppdatering", { status: 500 });
+    }
+  }
 }
