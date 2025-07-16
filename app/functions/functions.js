@@ -34,19 +34,26 @@ async function updateExerciseOrderApi(exercises) {
     body: JSON.stringify({ exercises }),
   });
 
-  if (!res.ok) {
-    let errorMessage = `Status: ${res.status}`;
-    try {
-      const errorData = await res.json();
-      console.error("❌ Fel från API:", errorData);
-      errorMessage += ` | ${errorData?.error || "Okänt fel"}`;
-    } catch (e) {
-      throw new Error(errorMessage);
-    }
+  const rawText = await res.text();
+  console.log("🪵 Rått API-svar:", rawText);
 
-    return await res.json();
+  let data = null;
+  try {
+    data = JSON.parse(rawText);// ✅ Läs body EN gång
+  } catch (e) {
+    console.error("❌ Kunde inte tolka JSON från servern.", rawText);
+    throw new Error(`Felaktigt svar från servern. Status: ${rawText}`);
   }
-}
+
+  console.log("🐛 Debug response från API:", data);
+
+  if (!res.ok) {
+  const message = data?.error || data?.message || "Okänt fel";
+  throw new Error(`Fel från API. Status: ${res.status} | ${message}`);
+  }
+  return data;
+  }
+
 
 export async function moveExercises(direction, exercises, setExercises) {
   console.log("📦 Skickar till API:", exercises);
@@ -67,7 +74,7 @@ export async function moveExercises(direction, exercises, setExercises) {
   const sorted = sortByIndexOrder(exercises, direction);
 
   const updated = sorted.map((exercise, index) => ({
-    id: exercise.id,
+    ...exercise,
     index_order: index + 1,
   }));
 

@@ -3,29 +3,80 @@ import { createClient } from "@/utils/supabase/server";
 export async function POST(req) {
   const supabase = createClient();
 
-  const body = await req.json();
+  try {
+    const body = await req.json();
+    const { exercises } = body;
 
-  const exercises = body.updatedExercises;
+    console.log("✅ API mottog data:", exercises);
+    console.log("📦 Inkommande body:", body);
 
-  if (!Array.isArray(exercises)) {
-    return new Response("Ogiltig data", { status: 400 });
-  }
-
-  for (let i = 0; i < exercises.length; i++) {
-    const { id, index_order } = exercises[i];
-
-    if (!id || index_order === undefined) {
-      return new Response("Saknar id eller index_order", { status: 400 });
+    if (!Array.isArray(exercises)) {
+      return new Response(
+        JSON.stringify({
+          error: "'exercises' måste vara en array",
+          debug: body,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
-    const { error } = await supabase
-      .from("exercises")
-      .update({ index_order })
-      .eq("id", id);
+    const errors = [];
+    const successes = [];
 
-    if (error) {
-      console.error(`Uppdateringsfel för id ${id}:`, error.message);
-      return new Response("Fel vid uppdatering", { status: 500 });
+    const updates = await Promise.allSettled(
+      exercises.map(async ({ id, index_order }) => {
+        if (!id || typeof index_order !== "number") {
+          errors.push({ id, message: "Saknar giltigt id eller index_order" });
+          return;
+        }
+
+        const { error } = await supabase
+          .from("exercises")
+          .update({ index_order })
+          .eq("id", id);
+
+        if (error) {
+          console.error(`❌ Fel vid uppdatering av ${id}:`, error.message);
+          errors.push({ id, message: error.message });
+        } else {
+          successes.push(id);
+        }
+      })
+    );
+
+    console.log("🛠️ Supabase updates:", updates);
+    console.log("✅ Uppdaterade övningar:", successes);
+
+    if (errors.length > 0) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "Vissa övningar kunde inte uppdateras.",
+          errors,
+        }),
+        {
+          status: 207, // Multi-Status (blandad framgång)
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
+
+    return new Response(JSON.stringify({ success: true, updated: successes }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("❌ Serverfel vid hantering av POST:", error);
+
+    return new Response(
+      JSON.stringify({ error: "Serverfel", details: error.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }

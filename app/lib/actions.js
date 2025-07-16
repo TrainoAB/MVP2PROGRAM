@@ -101,23 +101,6 @@ export async function getExercisesByDay(programId, month, day) {
 /**
  * @param {Array<{id: string, index_order: number}>} exercises
  */
-// export async function updateExerciseOrder(exercises) {
-//   console.log("📦 exercises som skickas till API:", exercises);
-//   const response = await fetch("/api/update-exercise-order", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({ exercises }),
-//   });
-
-//   if (!response.ok) {
-//     const message = await response.text();
-//     throw new Error(`Fel vid uppdatering av ordning: ${message}`);
-//   }
-
-//   return await response.text();
-// }
 
 export async function getDescription(programId) {
   const res = await fetch(`/api/get_description?programId=${programId}`, {

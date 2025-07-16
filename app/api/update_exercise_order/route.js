@@ -4,61 +4,59 @@ export async function POST(req) {
   const supabase = createClient();
 
   try {
-    // const body = await req.json();
-    // const { exercises } = body;
-    const { exercises } = await req.json();
-    console.log("📦 Inkommande req.json(): body", body);
+    const body = await req.json();
+    const { exercises } = body;
     console.log("✅ API mottog data:", exercises);
+    console.log("📦 RAW body:", body);
+    console.log("📦 Fullständig body:", JSON.stringify(body, null, 2));
 
-    if (!Array.isArray(exercises)) {
+
+    if (!body || !Array.isArray(body.exercises)) {
+      console.error("❌ Felaktig request body:", body);
       return new Response(
-        JSON.stringify({ error: "'exercises' måste vara en array" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
+        JSON.stringify({
+          error: "'exercises' måste vara en array i ett objekt",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // const updatePromises = exercises.map(({ id, index_order }) => {
-    //   if (!id || index_order === undefined) {
-    //     throw new Error(
-    //       `Saknar id eller index_order i: ${JSON.stringify({
-    //         id,
-    //         index_order,
-    //       })}`
-    //     );
-    //   }
-    //   return supabase.from("exercises").update({ index_order }).eq("id", id);
-    // });
+    const errors = [];
+    const successes = [];
 
-    // const results = await Promise.all(updatePromises);
+    const updates = await Promise.allSettled(
+      exercises.map(async ({ id, index_order }) => {
+        if (!id || typeof index_order !== "number") {
+          errors.push({ id, message: "Saknar giltigt id eller index_order" });
+          return;
+        }
+        const { error } = await supabase
+          .from("exercises")
+          .update({ index_order })
+          .eq("id", id);
 
-    // for (let i = 0; i < results.length; i++) {
-    //   const { error } = results[i];
-    //   if (error) {
-    //     console.error(
-    //       `❌ Fel vid uppdatering av övning ${exercises[i].id}:`,
-    //       error.message
-    //     );
-    //     return new Response(`Fel vid uppdatering: ${error.message}`, {
-    //       status: 500,
-    //     });
-    //   }
-    // }
-    const updates = await Promise.all(
-      exercises.map(({ id, index_order }) =>
-        supabase.from("exercises").update({ index_order }).eq("id", id)
-      )
+        if (error) {
+          console.error(`❌ Fel vid uppdatering av ${id}:`, error.message);
+          errors.push({ id, message: error.message });
+        } else {
+          successes.push(id);
+        }
+      })
     );
 
-    for (const ex of exercises) {
-      if (!ex.id || typeof ex.index_order !== "number") {
-        return new Response(
-          JSON.stringify({ error: "Fel i ett övningsobjekt" }),
-          { status: 400 }
-        );
-      }
+    console.log("🛠️ Supabase updates:", updates);
+
+    console.log("✅ Uppdaterade övningar:", successes);
+    if (errors.length > 0) {
+      console.warn("⚠️ Fel vid vissa uppdateringar:", errors);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: "Vissa övningar kunde inte uppdateras.",
+          errors,
+        }),
+        { status: 207, headers: { "Content-Type": "application/json" } } // 207 = Multi-Status
+      );
     }
 
     return new Response(JSON.stringify({ success: true }), {
@@ -67,6 +65,27 @@ export async function POST(req) {
     });
   } catch (error) {
     console.error("❌ Serverfel vid hantering av POST:", error);
-    return new Response("Serverfel", { status: 500 });
+    return new Response(JSON.stringify({ error: "Serverfel" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
+
+  //   for (const ex of exercises) {
+  //     if (!ex.id || typeof ex.index_order !== "number") {
+  //       return new Response(
+  //         JSON.stringify({ error: "Fel i ett övningsobjekt" }),
+  //         { status: 400 }
+  //       );
+  //     }
+  //   }
+
+  //   return new Response(JSON.stringify({ success: true }), {
+  //     status: 200,
+  //     headers: { "Content-Type": "application/json" },
+  //   });
+  // } catch (error) {
+  //   console.error("❌ Serverfel vid hantering av POST:", error);
+  //   return new Response("Serverfel", { status: 500 });
+  // }
 }
