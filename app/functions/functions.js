@@ -73,20 +73,25 @@ export async function moveExercises(direction, exercises, setExercises) {
 
   const sorted = sortByIndexOrder(exercises, direction);
 
-  const updated = sorted.map((exercise, index) => ({
-    ...exercise,
-    index_order: index + 1,
+    const updatedWithFullData = sorted.map((exercise, index) => ({
+      ...exercise,
+      index_order: index + 1,
+    }));
+
+  const payloadForApi = updatedWithFullData.map(({ id, index_order }) => ({
+    id,
+    index_order,
   }));
 
 console.log(
   "📤 Skickar detta till updateExerciseOrderApi:",
-  JSON.stringify(updated, null, 2)
+  JSON.stringify(payloadForApi, null, 2)
 );
   try {
-    await updateExerciseOrderApi(updated);
+    await updateExerciseOrderApi(payloadForApi);
 
     if (isSetExercisesValid) {
-      setExercises(updated);
+      setExercises(updatedWithFullData);
     }
   } catch (error) {
     console.error(
