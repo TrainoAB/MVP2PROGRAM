@@ -44,6 +44,11 @@ export async function GET(req) {
       .eq("training_day_id", trainingDays.id)
       .order("index_order", { ascending: true });
     console.log("Exercises found:", exercises);
+
+    if (!exercises || exercises.length === 0) {
+      return Response.json({ success: true, data: [] });
+    }
+    
     if (exercisesError) {
       return NextResponse.json(
         {

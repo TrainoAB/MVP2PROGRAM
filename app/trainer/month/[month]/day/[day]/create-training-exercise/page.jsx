@@ -107,8 +107,14 @@ export default function CreateTrainingProgram() {
         programId,
       });
 
+      if (!result.success && result.message === "Inga övningar") {
+        console.warn("ℹ️ Inga övningar ännu.");
+        setExercises([]); // eller tomt initialt värde
+        return;
+      }
+
       if (!result.success) {
-        console.error("Fel från API:", result.message || result.error);
+        console.error("❌ Fel från API:", result.message || result.error);
         throw new Error("API-svaret innehåller ett fel.");
       }
 
@@ -235,7 +241,13 @@ export default function CreateTrainingProgram() {
       <header className={styles.header}>
         <button
           className={styles.backBtn}
-          onClick={() => router.back()}
+          onClick={() => {
+            if (step === 2) {
+              setStep(1);
+            } else {
+              router.back(); 
+            }
+          }}
         ></button>
         <h1 className={styles.title}>Skapa träningsprogram</h1>
         <h3 className={styles.mounthDay}>

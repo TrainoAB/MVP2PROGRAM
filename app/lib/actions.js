@@ -153,11 +153,16 @@ export async function fetchExercises({ month, day, programId }) {
     const res = await fetch(url);
 
     if (!res.ok) {
-      console.error("❌ API-svar var inte OK", res.status);
-      return {
-        success: false,
-        message: `API-svar: ${res.status}`,
-        data: [],
+       if (res.status === 500) {
+         console.warn("ℹ️  Inga övningar eller internserverfel (500).");
+         return { success: false, data: [], message: "Inga övningar" };
+       } else {
+            console.error("❌ API-svar var inte OK", res.status);
+            return {
+              success: false,
+              data: [],
+              message: `Status: ${res.status}`,
+            };
       };
     }
     const data = await res.json();
