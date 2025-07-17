@@ -329,99 +329,127 @@ export default function CreateTrainingProgram() {
                 </button>
               </div>
             </div>
-          <div className={styles.wrapper}>
-            <h2 className={styles.heading}>Dagens övningar</h2>
-            {loadingExercises ? (
-              <p>Laddar övningar...</p>
-            ) : (
-              <ul className={styles.exerciseList}>
-                {[...exercises]
-                  .sort((a, b) => a.index_order - b.index_order)
-                  .map((exercise, index) => (
-                    <li
-                      key={exercise.id ?? index}
-                      className={styles.exerciseCard}
-                    >
-                      <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
-                      <p className={styles.exerciseDescription}>
-                        {exercise.description}
-                      </p>
-                      <p className={styles.exerciseDuration}>
-                        Varaktighet: {exercise.duration} minuter
-                      </p>
-                      {exercise.image_url && (
-                        <img
-                          src={exercise.image_url}
-                          alt={exercise.title}
-                          className={styles.exerciseImage}
-                        />
-                      )}
-                      {exercise.video_url &&
-                      (exercise.video_url.includes("youtube.com") ||
-                        exercise.video_url.includes("youtu.be")) ? (
-                        <div className={styles.videoWrapper}>
-                          <iframe
-                            src={exercise.video_url}
-                            width="100%"
-                            height="100%"
-                            title="YouTube video player"
-                            allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
+            <div className={styles.wrapper}>
+              <h2 className={styles.heading}>Dagens övningar</h2>
+              {loadingExercises ? (
+                <p>Laddar övningar...</p>
+              ) : (
+                <ul className={styles.exerciseList}>
+                  {[...exercises]
+                    .sort((a, b) => a.index_order - b.index_order)
+                    .map((exercise, index) => (
+                      <li
+                        key={exercise.id ?? index}
+                        className={styles.exerciseCard}
+                      >
+                        <h3 className={styles.exerciseTitle}>
+                          {exercise.title}
+                        </h3>
+                        <p className={styles.exerciseDescription}>
+                          {exercise.description}
+                        </p>
+                        <p className={styles.exerciseDuration}>
+                          Varaktighet: {exercise.duration} minuter
+                        </p>
+                        {exercise.image_url && (
+                          <img
+                            src={exercise.image_url}
+                            alt={exercise.title}
+                            className={styles.exerciseImage}
                           />
-                        </div>
-                      ) : null}
-                      <div className={styles.buttonWrapperExercise}>
-                        <div className={styles.sortGroup}>
-                          <button
-                            onClick={() => handleMove("asc", exercise.id)}
-                          >
-                            <ArrowUp size={20} />
-                          </button>
-                          <button
-                            onClick={() => handleMove("desc", exercise.id)}
-                          >
-                            <ArrowDown size={20} />
-                          </button>
-                        </div>
-                        <div className={styles.sortGroup}>
-                          <button
-                            className={styles.deleteButton}
-                            onClick={() => {}}
-                          >
-                            <Trash2 size={20} />
-                          </button>
+                        )}
+                        {exercise.video_url &&
+                        (exercise.video_url.includes("youtube.com") ||
+                          exercise.video_url.includes("youtu.be")) ? (
+                          <div className={styles.videoWrapper}>
+                            <iframe
+                              src={exercise.video_url}
+                              width="100%"
+                              height="100%"
+                              title="YouTube video player"
+                              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : null}
+                        <div className={styles.buttonWrapperExercise}>
+                          <div className={styles.sortGroup}>
+                            <button
+                              onClick={() => handleMove("asc", exercise.id)}
+                            >
+                              <ArrowUp size={20} />
+                            </button>
+                            <button
+                              onClick={() => handleMove("desc", exercise.id)}
+                            >
+                              <ArrowDown size={20} />
+                            </button>
+                          </div>
+                          <div className={styles.sortGroup}>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => {}}
+                            >
+                              <Trash2 size={20} />
+                            </button>
 
+                            <button
+                              className={styles.editButton}
+                              // onClick={onClick}
+                              title="Redigera"
+                            >
+                              <Pencil size={18} className={styles.icon} />
+                            </button>
+                          </div>
                           <button
-                            className={styles.editButton}
-                            // onClick={onClick}
-                            title="Redigera"
+                            className={styles.completeButton}
+                            onClick={(e) => completeNotes(e, exercise)}
                           >
-                            <Pencil size={18} className={styles.icon} />
+                            {" "}
+                            Kompletera
                           </button>
                         </div>
-                        <button
-                          className={styles.completeButton}
-                          onClick={(e) => completeNotes(e, exercise)}
-                        >
-                          {" "}
-                          Kompletera
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-              </ul>
-            )}
+                      </li>
+                    ))}
+                </ul>
+              )}
             </div>
-        </>
+          </>
         ) : (
-          <EditorWrapper
-            onContentSave={(content) => {
-              console.log("EditorWrapper sparade innehåll:", content);
-            }}
-            onClose={() => {
-              closeModalExercise();
-            }}
-          />
+          <div className={styles.editorView}>
+            {selectedExercise.image_url && (
+              <img
+                src={selectedExercise.image_url}
+                alt={selectedExercise.title}
+                className={styles.exerciseImage}
+              />
+            )}
+            {selectedExercise.video_url &&
+            (selectedExercise.video_url.includes("youtube.com") ||
+              selectedExercise.video_url.includes("youtu.be")) ? (
+              <div className={styles.videoWrapper}>
+                <iframe
+                  src={selectedExercise.video_url}
+                  width="100%"
+                  height="100%"
+                  title="YouTube video player"
+                  allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : null}
+            <h4 className={styles.editorTitle}>
+              {selectedExercise ? selectedExercise.title : ""}
+            </h4>
+            <EditorWrapper
+              onContentSave={(content) => {
+                console.log("EditorWrapper sparade innehåll:", content);
+              }}
+              onClose={() => {
+                closeModalExercise();
+              }}
+            />
+          </div>
         )}
       </main>
     </div>
