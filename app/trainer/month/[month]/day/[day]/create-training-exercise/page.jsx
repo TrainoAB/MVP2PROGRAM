@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
-import { moveExercises } from "@/app/functions/functions";
 import { rearrangeExercises, updateExerciseOrderApi } from "@/app/functions/functions";
 import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react";
 import { fetchExercises } from "@/app/lib/actions";
@@ -203,18 +202,6 @@ export default function CreateTrainingProgram() {
     });
 
   }
-  // const exercisesArray = Array.isArray(exercises)
-  //   ? exercises
-  //   : Object.values(exercises);
-
-  // console.log("✅ Konverterad till array:", exercisesArray);
-  //   await moveExercises(
-  //     direction,
-  //     exercises,
-  //     setExercises,
-  //   );
-  //   console.log("✅ Försöker uppdatera ordning till API…");
-  // };
 
   const completeNotes = (e, exercise) => {
     e.preventDefault();
@@ -245,28 +232,26 @@ export default function CreateTrainingProgram() {
 
   return (
     <div className={styles.trainingProgramContainer}>
-      {step > 1 && (
-        <header className={styles.header}>
-          <button
-            className={styles.backBtn}
-            onClick={() => router.back()}
-          ></button>
-          <h1 className={styles.title}>Skapa träningsprogram</h1>
-          <h3 className={styles.mounthDay}>
-            Månad {month} / Dag {day}
-          </h3>
-        </header>
-      )}
+      <header className={styles.header}>
+        <button
+          className={styles.backBtn}
+          onClick={() => router.back()}
+        ></button>
+        <h1 className={styles.title}>Skapa träningsprogram</h1>
+        <h3 className={styles.mounthDay}>
+          Månad {month} / Dag {day}
+        </h3>
+      </header>
       <UploadYoutubeVideoModal
         isVideoModalOpen={isVideoModalOpen}
         closeModalVideo={closeModalVideo}
         setTraining={setDayMediaWrapper}
-      ></UploadYoutubeVideoModal>
+      />
       <UploadImageModal
         isImageModalOpen={isImageModalOpen}
         closeModalImg={closeModalImg}
         setTraining={setDayMedia}
-      ></UploadImageModal>
+      />
       {isExerciseModalOpen && (
         <div className="modal">
           <AddExerciseModal
@@ -286,6 +271,7 @@ export default function CreateTrainingProgram() {
           ></AddExerciseModal>
         </div>
       )}
+
       <main className={styles.main}>
         {dayMedia.videoUrl ? (
           <div className={styles.videoWrapper}>
@@ -308,45 +294,43 @@ export default function CreateTrainingProgram() {
             className={styles.fallbackImage}
           />
         ) : null}
-        <p className={styles.imageLoadTitle}>Omslag</p>
-        <div className={styles.buttonContainer}>
-          <button
-            type="button"
-            onClick={openModalImg}
-            className={styles.chooseImageButton}
-          >
-            Välj bild
-          </button>
-          <button
-            type="button"
-            onClick={openModalVideo}
-            className={styles.openBtn}
-          >
-            Välj Video
-          </button>
-        </div>
-        <div className={styles.buttonWrapper}>
-          <div className={styles.buttonContainerExercise}>
-            <label htmlFor="exercise-button" className={styles.buttonLabel}>
-              Lägg till övning
-            </label>
-            <button
-              id="exercise-button"
-              type="button"
-              aria-label="Lägg till övning"
-              onClick={openModalExercise}
-              className={styles.openBtnExercise}
-            >
-              <Plus size={24} />
-            </button>
-          </div>
-        </div>
         {step === 1 ? (
+          <>
+            <p className={styles.imageLoadTitle}>Omslag</p>
+            <div className={styles.buttonContainer}>
+              <button
+                type="button"
+                onClick={openModalImg}
+                className={styles.chooseImageButton}
+              >
+                Välj bild
+              </button>
+              <button
+                type="button"
+                onClick={openModalVideo}
+                className={styles.openBtn}
+              >
+                Välj Video
+              </button>
+            </div>
+            <div className={styles.buttonWrapper}>
+              <div className={styles.buttonContainerExercise}>
+                <label htmlFor="exercise-button" className={styles.buttonLabel}>
+                  Lägg till övning
+                </label>
+                <button
+                  id="exercise-button"
+                  type="button"
+                  aria-label="Lägg till övning"
+                  onClick={openModalExercise}
+                  className={styles.openBtnExercise}
+                >
+                  <Plus size={24} />
+                </button>
+              </div>
+            </div>
           <div className={styles.wrapper}>
             <h2 className={styles.heading}>Dagens övningar</h2>
-            {/* {exercises.length === 0 ? (
-              <p className={styles.noExercises}>Inga övningar tillagda än.</p>
-            ) : ( */}
             {loadingExercises ? (
               <p>Laddar övningar...</p>
             ) : (
@@ -388,10 +372,14 @@ export default function CreateTrainingProgram() {
                       ) : null}
                       <div className={styles.buttonWrapperExercise}>
                         <div className={styles.sortGroup}>
-                          <button onClick={() => handleMove("asc", exercise.id)}>
+                          <button
+                            onClick={() => handleMove("asc", exercise.id)}
+                          >
                             <ArrowUp size={20} />
                           </button>
-                          <button onClick={() => handleMove("desc", exercise.id)}>
+                          <button
+                            onClick={() => handleMove("desc", exercise.id)}
+                          >
                             <ArrowDown size={20} />
                           </button>
                         </div>
@@ -423,11 +411,11 @@ export default function CreateTrainingProgram() {
                   ))}
               </ul>
             )}
-          </div>
+            </div>
+        </>
         ) : (
           <EditorWrapper
             onContentSave={(content) => {
-              // exercise = { selectedExercise };
               console.log("EditorWrapper sparade innehåll:", content);
             }}
             onClose={() => {
