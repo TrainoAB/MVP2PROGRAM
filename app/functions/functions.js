@@ -25,7 +25,7 @@ export function sortByIndexOrder(exercises, direction = "asc") {
   );
 }
 
-async function updateExerciseOrderApi(exercises) {
+export async function updateExerciseOrderApi(exercises) {
   console.log("📦 Skickar denna data till API:", exercises);
 
   const res = await fetch("/api/update-exercise-order", {
@@ -52,51 +52,8 @@ async function updateExerciseOrderApi(exercises) {
   throw new Error(`Fel från API. Status: ${res.status} | ${message}`);
   }
   return data;
-  }
-
-
-export async function moveExercises(direction, exercises, setExercises) {
-  console.log("📦 Skickar till API:", exercises);
-
-  if (!["asc", "desc"].includes(direction)) {
-    console.error("❌ moveExercises: Ogiltig sorteringsriktning:", direction);
-    return;
-  }
-
-  const isSetExercisesValid = typeof setExercises === "function";
-
-  if (!Array.isArray(exercises)) {
-    console.error("❌ moveExercises: 'exercises' är inte en array:", exercises);
-    if (isSetExercisesValid) setExercises([]);
-    return;
-  }
-
-  const sorted = sortByIndexOrder(exercises, direction);
-
-    const updatedWithFullData = sorted.map((exercise, index) => ({
-      ...exercise,
-      index_order: index + 1,
-    }));
-
-  const payloadForApi = updatedWithFullData.map(({ id, index_order }) => ({
-    id,
-    index_order,
-  }));
-
-console.log(
-  "📤 Skickar detta till updateExerciseOrderApi:",
-  JSON.stringify(payloadForApi, null, 2)
-);
-  try {
-    await updateExerciseOrderApi(payloadForApi);
-
-    if (isSetExercisesValid) {
-      setExercises(updatedWithFullData);
-    }
-  } catch (error) {
-    console.error(
-      "❌ moveExercises: Något gick fel vid API-anropet:",
-      error.message
-    );
-  }
 }
+
+
+
+

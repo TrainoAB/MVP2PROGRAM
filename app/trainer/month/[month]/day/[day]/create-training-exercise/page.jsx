@@ -5,7 +5,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
 import { moveExercises } from "@/app/functions/functions";
-import { rearrangeExercises } from "@/app/functions/functions";
+import { rearrangeExercises, updateExerciseOrderApi } from "@/app/functions/functions";
 import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react";
 import { fetchExercises } from "@/app/lib/actions";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
@@ -153,19 +153,68 @@ export default function CreateTrainingProgram() {
     fetchDay();
   }, [month, day, programId]);
 
-  const handleMove = async (direction) => {
-  const exercisesArray = Array.isArray(exercises)
-    ? exercises
-    : Object.values(exercises);
+  const handleMove = async (direction, exerciseId) => {
+    setExercises((prev) => {
+      const newExercises = [...prev].sort(
+        (a, b) => a.index_order - b.index_order
+      );
+      const currentIndex = newExercises.findIndex(
+        (ex) => ex.id === exerciseId
+      );
 
-  console.log("✅ Konverterad till array:", exercisesArray);
-    await moveExercises(
-      direction,
-      exercises,
-      setExercises,
-    );
-    console.log("✅ Försöker uppdatera ordning till API…");
-  };
+      if (currentIndex === -1) return prev;
+
+      let swapIndex;
+      if (direction === "asc") {
+        // Flytta upp
+        swapIndex = currentIndex - 1;
+      } else if (direction === "desc") {
+        // Flytta ned
+        swapIndex = currentIndex + 1;
+      }
+
+      // Om out-of-bounds — rotera
+      if (swapIndex < 0) {
+        // flytta överst uppåt => till sist
+        const [moved] = newExercises.splice(currentIndex, 1);
+        newExercises.push(moved);
+      } else if (swapIndex >= newExercises.length) {
+        // flytta nederst nedåt => till först
+        const [moved] = newExercises.splice(currentIndex, 1);
+        newExercises.unshift(moved);
+      } else {
+        // normal swap
+        const temp = newExercises[swapIndex];
+        newExercises[swapIndex] = newExercises[currentIndex];
+        newExercises[currentIndex] = temp;
+      }
+
+      const reordered = newExercises.map((ex, i) => ({
+        ...ex,
+        index_order: i,
+      }));
+
+      // 🔄 Anropa API efter state-uppdatering
+      updateExerciseOrderApi(reordered).catch((err) => {
+        console.error("❌ Kunde inte uppdatera ordningen:", err.message);
+      });
+
+      return reordered;
+    });
+
+  }
+  // const exercisesArray = Array.isArray(exercises)
+  //   ? exercises
+  //   : Object.values(exercises);
+
+  // console.log("✅ Konverterad till array:", exercisesArray);
+  //   await moveExercises(
+  //     direction,
+  //     exercises,
+  //     setExercises,
+  //   );
+  //   console.log("✅ Försöker uppdatera ordning till API…");
+  // };
 
   const completeNotes = (e, exercise) => {
     e.preventDefault();
@@ -339,10 +388,10 @@ export default function CreateTrainingProgram() {
                       ) : null}
                       <div className={styles.buttonWrapperExercise}>
                         <div className={styles.sortGroup}>
-                          <button onClick={() => handleMove("asc")}>
+                          <button onClick={() => handleMove("asc", exercise.id)}>
                             <ArrowUp size={20} />
                           </button>
-                          <button onClick={() => handleMove("desc")}>
+                          <button onClick={() => handleMove("desc", exercise.id)}>
                             <ArrowDown size={20} />
                           </button>
                         </div>
