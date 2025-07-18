@@ -4,14 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
-
-
-
 import styles from "./page.module.css";
-
-// const LexicalEditor = dynamic(() => import("@/components/Editor/LexicalEditor_old"), {
-//   ssr: false,
-// });
 
 export default function CreateTrainingProgram() {
   const [exercise, setExercise] = useState({
@@ -22,8 +15,6 @@ export default function CreateTrainingProgram() {
   // videoUrl: "https://www.youtube.com/embed/KVzZG-Fxjto?autoplay=1&mute=1",
   const [content, setContent] = useState("");
   const router = useRouter();
-
-
 
   return (
     <div className={styles.traingProgramContainer}>

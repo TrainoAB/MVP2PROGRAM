@@ -1,7 +1,9 @@
-import { createServerClient } from "@/utils/supabase/supabaseClient";
+import { createClient } from "@/utils/supabase/server";
+// import { createServerClient } from "@/utils/supabase/supabaseClient";
 
 export async function POST(req) {
-  const supabase = createServerClient();
+  const supabase = await createClient();
+  // const supabase = createServerClient();
 
   try {
     const body = await req.json();

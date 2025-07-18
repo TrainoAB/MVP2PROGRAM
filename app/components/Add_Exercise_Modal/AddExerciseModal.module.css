@@ -212,7 +212,7 @@
             .inputTimeContainer {
                 display: flex;
                 align-items: center;
-                justify-content: flex-start; 
+                justify-content: flex-start;
                 padding-bottom: .5rem;
                 font-size: .9rem;
                 font-weight: var(--weight);
@@ -234,6 +234,29 @@
             }
 
             .input:focus-visible {
+                outline: .1875rem solid var(--maincolor);
+                border-color: transparent;
+            }
+
+            .inputTime {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                background-color: var(--bgcolor);
+                color: var(--fgcolor);
+                width: 20%;
+                height: 2rem;
+                font-family: inherit;
+                font-size: var(--font-regular);
+                padding: .5rem 1rem;
+                border-radius: var(--radius-input);
+                line-height: 2rem;
+                outline: none;
+                border: .0625rem solid var(--secondary-light-grey);
+            }
+
+            .inputTime:focus-visible {
                 outline: .1875rem solid var(--maincolor);
                 border-color: transparent;
             }
@@ -261,47 +284,6 @@
                 border-color: transparent;
             }
 
-            .timeSuffix {
-                color: var(--fgcolor);
-                width: 20%;
-                height: 2rem;
-                font-family: inherit;
-                font-size: var(--font-regular);
-                padding: .5rem;
-                border-radius: var(--radius-input);
-                line-height: 2rem;
-            }
-
-            .heading {
-                font-size: 1.2rem;
-                font-weight: var(--weight);
-                color: var(--fgcolor);
-                margin-left: .5rem;
-            }
-
-            .inputTime {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: flex-start;
-                background-color: var(--bgcolor);
-                color: var(--fgcolor);
-                width: 20%;
-                height: 2rem;
-                font-family: inherit;
-                font-size: var(--font-regular);
-                padding: .5rem 1rem;
-                border-radius: var(--radius-input);
-                line-height: 2rem;
-                outline: none;
-                border: .0625rem solid var(--secondary-light-grey);
-            }
-
-            .inputTime:focus-visible {
-                outline: .1875rem solid var(--maincolor);
-                border-color: transparent;
-            }
-
             .inputProgramTitle {
                 background-color: var(--bgcolor);
                 color: var(--fgcolor);
@@ -319,29 +301,35 @@
                 display: flex;
             }
 
-            .inputTime {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: flex-start;
-                background-color: var(--bgcolor);
+            .errorText {
+                color: red;
+                font-size: 0.9rem;
+                font-style: italic;
+                margin-left: .4rem;
+            }
+
+            .inputError {
+                border: 2px solid red;
+                background-color: #fff5f5;
+            }
+
+            .timeSuffix {
                 color: var(--fgcolor);
                 width: 20%;
                 height: 2rem;
                 font-family: inherit;
                 font-size: var(--font-regular);
-                padding: .5rem 1rem;
+                padding: .5rem;
                 border-radius: var(--radius-input);
                 line-height: 2rem;
-                outline: none;
-                border: .0625rem solid var(--secondary-light-grey);
             }
 
-            .inputTime:focus-visible {
-                outline: .1875rem solid var(--maincolor);
-                border-color: transparent;
+            .heading {
+                font-size: 1.2rem;
+                font-weight: var(--weight);
+                color: var(--fgcolor);
+                margin-left: .5rem;
             }
-
         }
     }
 
@@ -407,7 +395,6 @@
             color: var(--fgcolor);
             margin-left: .5rem;
         }
-
     }
 
     .buttonWrapper {

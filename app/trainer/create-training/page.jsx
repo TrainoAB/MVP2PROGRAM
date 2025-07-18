@@ -26,12 +26,16 @@ export default function CreateTrainingProgram() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [days, setDays] = useState(28);
-  const [trainerId, setTrainerId] = useState("");
+
+  const [errors, setErrors] = useState({
+    description: "",
+    price: "",
+  });
 
   const [training, setTraining] = useState({
     videoUrl: null,
     imageUrl: null,
-    trainerId:null,
+    trainerId: null,
     savedDate: new Date().toISOString(),
   });
 
@@ -62,8 +66,34 @@ export default function CreateTrainingProgram() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("handleSubmit körs");
-    setLoading(true);
 
+    const newErrors = {
+      description: "",
+      price: "",
+    };
+
+  const trimmedDescription = description.trim();
+  const trimmedPrice = price.trim();
+    
+ let hasError = false;
+
+ if (!trimmedDescription || trimmedDescription.length < 10) {
+   newErrors.description = "Beskrivning krävs (minst 10 tecken)";
+   hasError = true;
+ }
+
+if (!trimmedPrice || isNaN(trimmedPrice) || Number(trimmedPrice) <= 0) {
+  newErrors.price = "Pris krävs och måste vara större än 0";
+  hasError = true;
+}
+
+ setErrors(newErrors);
+
+  console.log("Description:",description,"Length:",description.trim().length);  
+
+  if (hasError) return;
+    setLoading(true);
+    
     console.log("Beskrivning:", description);
     console.log("Pris:", price, "->", Number(price));
     console.log("Dagar:", days);
@@ -71,23 +101,15 @@ export default function CreateTrainingProgram() {
     console.log("Video-URL:", training.videoUrl);
     console.log("Tränar-ID:", training.trainerId);
 
-    if (!description) throw new Error("Beskrivning saknas!");
-    if (!price || Number(price) <= 0)
-      throw new Error("Pris saknas eller ogiltigt!");
-    if (!days) throw new Error("Antal dagar saknas!");
     try {
       const program = await saveTrainingProgram({
-        description,
-        price: Number(price),
+        description: trimmedDescription,
+        price: Number(trimmedPrice),
         days,
         training,
-      })
+      });
 
-      if (
-        !program.success ||
-        !program.data ||
-        !program.data.id
-      ) {
+      if (!program.success || !program.data || !program.data.id) {
         throw new Error("Kunde inte spara träningsprogrammet korrekt.");
       }
       const programId = program.data.id;
@@ -100,15 +122,13 @@ export default function CreateTrainingProgram() {
       router.push(
         `/trainer/create-training-calendar?days=${days}&programId=${programId}`
       );
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Fel vid sparning:", error.message);
-      alert(error.message || "Något gick fel vid sparning av träningsprogrammet.");
+      alert( error.message || "Något gick fel vid sparning av träningsprogrammet.");
+    } finally {
+      setLoading(false);
     }
-    finally {
-          setLoading(false);
-      }
-    };
+  };
 
   const [loading, setLoading] = useState(false);
 
@@ -158,7 +178,13 @@ export default function CreateTrainingProgram() {
             className={styles.fallbackImage}
           ></Image>
         ) : null}
-        <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <form
+          className={`${styles.form} ${
+            errors.description || errors.price ? styles.formError : ""
+          }`}
+          onSubmit={handleSubmit}
+          noValidate
+        >
           <p className={styles.imageLoadTitle}>Omslag</p>
           <div className={styles.buttonContainer}>
             <button
@@ -188,9 +214,19 @@ export default function CreateTrainingProgram() {
               min="1"
               step="1"
               inputMode="numeric"
-              className={styles.input}
-              onChange={(e) => setPrice(e.target.value)}
+              className={`${styles.input} ${
+                errors.price ? styles.invalidInput : ""
+              }`}
+              onChange={(e) => {
+                const value = e.target.value;
+                setPrice(value);
+                if (value && Number(value) > 0) {
+                  setErrors((prev) => ({ ...prev, price: "" }));
+                }
+              }}
+              value={price}
             />
+            {errors.price && <p className={styles.errorText}>{errors.price}</p>}
           </div>
           <div className={styles.inputGroup}>
             <label htmlFor="description" className={styles.label}>
@@ -200,10 +236,23 @@ export default function CreateTrainingProgram() {
               type="text"
               id="description"
               placeholder="Skriv minst 10 bokstäver."
-              className={styles.inputField}
-              onChange={(e) => setDescription(e.target.value)}
+              className={`${styles.inputField} ${
+                errors.description ? styles.invalidInput : ""
+              }`}
+              onChange={(e) => {
+                const value = e.target.value;
+                setDescription(value);
+                if (value.trim().length >= 10) {
+                  setErrors((prev) => ({ ...prev, description: "" }));
+                }
+              }}
+              value={description}
             />
+            {errors.description && (
+              <p className={styles.errorText}>{errors.description}</p>
+            )}
           </div>
+
           <div className={styles.buttonContainer}>
             <button
               type="submit"
@@ -218,4 +267,3 @@ export default function CreateTrainingProgram() {
     </div>
   );
 }
-

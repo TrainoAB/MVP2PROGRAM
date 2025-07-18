@@ -1,11 +1,5 @@
-// app/api/get_day_image_or_video/route.ts
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -20,6 +14,7 @@ export async function GET(request) {
       { status: 400 }
     );
   }
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("training_days")

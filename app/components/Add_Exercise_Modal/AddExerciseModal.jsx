@@ -37,6 +37,12 @@ export default function AddExerciseModal({
     index_order: 0,
   });
 
+  const [errors, setErrors] = useState({
+    duration: "",
+    title: "",
+    description: "",
+  });
+
   const training_program_id = trainingProgramId || null;
 
   console.log("exercise", exercise);
@@ -46,8 +52,8 @@ export default function AddExerciseModal({
   const setExerciseWrapper = (rawUrl) => {
     if (!rawUrl) return;
 
-const videoUrl = rawUrl.videoUrl ?? rawUrl.video_url ?? null;
-const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
+    const videoUrl = rawUrl.videoUrl ?? rawUrl.video_url ?? null;
+    const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
 
     let updatedVideoUrl = videoUrl;
 
@@ -82,36 +88,51 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Formulär skickas!");
+
+    const { title, duration, description } = exercise;
+
+    const newErrors = {
+      duration: "",
+      title: "",
+      description: "",
+    };
+
+    let hasError = false;
+
+    if (!duration || String(duration).trim().length < 1) {
+      newErrors.duration = "* Beräknade längd krävs.";
+      hasError = true;
+    }
+
+    if (!title || String(title).trim().length < 2) {
+      newErrors.title = "* Övningens namn krävs.";
+      hasError = true;
+    }
+
+    if (!description || String(description).trim().length < 10) {
+      newErrors.description = "* Beskrivning krävs (minst 10 tecken)";
+      hasError = true;
+    }
+
+     if (hasError) {
+       setErrors(newErrors);
+       return;
+     }
+    console.log(errors);
+    // setErrors(newErrors);
+
+    console.log("duration:", duration, "Length:", duration.length);
+    console.log("title:", title, "Length:", title.length);
+    console.log("Description:", description, "Length:", description.length);
+
     try {
-      // Här sparar du till databasen – t.ex. med fetch eller Supabase
       setIsSaving(true);
-      const {
-        imageUrl,
-        videoUrl,
-        title,
-        duration,
-        description,
-        index_order,
-      } = exercise;
+      const { imageUrl, videoUrl, title, duration, description, index_order } =
+        exercise;
 
       const month_number = parseInt(month);
       const day_number = parseInt(day);
 
-      console.log("Skickar till API:", {
-        training_program_id,
-        month_number,
-        day_number,
-        title,
-        duration,
-        description,
-        day_image_url: dayImageUrl ?? null,
-        day_video_url: dayVideoUrl ?? null,
-        exercise_image_url: imageUrl ?? null,
-        exercise_video_url: videoUrl ?? null,
-        index_order,
-      });
-
-      // Exempel: skicka till din API-route eller Supabase
       const response = await fetch("/api/save-exercise", {
         method: "POST",
         headers: {
@@ -142,7 +163,6 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
       // När sparningen är klar, stäng modalen
       closeModalExercise();
       onExerciseAdded?.();
-      fetchExercisesData(); 
       console.log("Modalen STÄNGS!");
     } catch (error) {
       console.error("Fel vid sparning:", error);
@@ -207,7 +227,13 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
             {step === 1 ? (
               <form
                 onSubmit={handleSubmit}
-                className={`${styles.form} ${
+                className={`${styles.form} 
+                ${
+                  errors.duration || errors.title || errors.description
+                    ? styles.formError
+                    : ""
+                }
+                ${
                   exercise.imageUrl || exercise.videoUrl
                     ? styles.formExpanded
                     : styles.formCompact
@@ -255,15 +281,21 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
                         const value = parseInt(e.target.value, 10);
                         if (!isNaN(value) && value > 0) {
                           setExercise({ ...exercise, duration: value });
+                          setErrors((prev) => ({ ...prev, duration: "" }));
                         } else if (e.target.value === "") {
                           setExercise({ ...exercise, duration: "" });
                         }
                       }}
                       value={exercise.duration}
-                      className={styles.inputTime}
+                      className={`${styles.inputTime} ${
+                        errors.duration ? styles.inputError : ""
+                      }`}
                     />
                     <span className={styles.timeSuffix}>min</span>
                   </div>
+                  {errors.duration && (
+                    <p className={styles.errorText}>{errors.duration}</p>
+                  )}
                   <label htmlFor="title" className={styles.label}>
                     Ange titel på övningen.
                   </label>
@@ -271,12 +303,20 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
                     type="text"
                     id="title"
                     placeholder="Övningen titel"
-                    className={styles.inputProgramTitle}
+                    className={`${styles.inputProgramTitle} ${
+                      errors.title ? styles.inputError : ""
+                    }`}
                     value={exercise.title}
-                    onChange={(e) =>
-                      setExercise({ ...exercise, title: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setExercise({ ...exercise, title: e.target.value });
+                      if (e.target.value.trim().length >= 2) {
+                        setErrors((prev) => ({ ...prev, title: "" }));
+                      }
+                    }}
                   />
+                  {errors.title && (
+                    <p className={styles.errorText}>{errors.title}</p>
+                  )}
                 </div>
 
                 <div className={styles.inputGroup}>
@@ -288,11 +328,19 @@ const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
                     id="description"
                     placeholder="4 sets: 15, 12, 8, 4 reps (Dropset to 50% of weight and go till failure on last set.)"
                     value={exercise.description || ""}
-                    onChange={(e) =>
-                      setExercise({ ...exercise, description: e.target.value })
-                    }
-                    className={styles.inputField}
+                    onChange={(e) => {
+                      setExercise({ ...exercise, description: e.target.value });
+                      if (e.target.value.trim().length >= 10) {
+                        setErrors((prev) => ({ ...prev, description: "" }));
+                      }
+                    }}
+                    className={`${styles.inputField} ${
+                      errors.description ? styles.inputError : ""
+                    }`}
                   />
+                  {errors.description && (
+                    <p className={styles.errorText}>{errors.description}</p>
+                  )}
                 </div>
                 <div className={styles.buttonContainer}>
                   <button

@@ -203,10 +203,8 @@ export default function CreateTrainingProgram() {
       updateExerciseOrderApi(reordered).catch((err) => {
         console.error("❌ Kunde inte uppdatera ordningen:", err.message);
       });
-
       return reordered;
     });
-
   }
 
   const completeNotes = (e, exercise) => {
@@ -245,7 +243,7 @@ export default function CreateTrainingProgram() {
             if (step === 2) {
               setStep(1);
             } else {
-              router.back(); 
+              router.back();
             }
           }}
         ></button>
@@ -285,29 +283,30 @@ export default function CreateTrainingProgram() {
       )}
 
       <main className={styles.main}>
-        {dayMedia.videoUrl ? (
-          <div className={styles.videoWrapper}>
-            {console.log("dayMedia.videoUrl:", dayMedia.videoUrl)}
-            <iframe
-              src={dayMedia.videoUrl}
-              title="YouTube video player"
-              width="100%"
-              height="100%"
-              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        ) : dayMedia.imageUrl ? (
-          <Image
-            src={dayMedia.imageUrl}
-            alt="Tränarens bild"
-            width={500}
-            height={500}
-            className={styles.fallbackImage}
-          />
-        ) : null}
         {step === 1 ? (
           <>
+            {dayMedia.videoUrl ? (
+              <div className={styles.videoWrapper}>
+                {console.log("dayMedia.videoUrl:", dayMedia.videoUrl)}
+                <iframe
+                  src={dayMedia.videoUrl}
+                  title="YouTube video player"
+                  width="100%"
+                  height="100%"
+                  allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : dayMedia.imageUrl ? (
+              <Image
+                src={dayMedia.imageUrl}
+                alt="Tränarens bild"
+                width={500}
+                height={500}
+                className={styles.fallbackImage}
+              />
+            ) : null}
+
             <p className={styles.imageLoadTitle}>Omslag</p>
             <div className={styles.buttonContainer}>
               <button
@@ -344,7 +343,9 @@ export default function CreateTrainingProgram() {
             <div className={styles.wrapper}>
               <h2 className={styles.heading}>Dagens övningar</h2>
               {loadingExercises ? (
-                <p>Laddar övningar...</p>
+                <p className={styles.messages}>Laddar övningar...</p>
+              ) : exercises.length === 0 ? (
+                <p className={styles.messages}>Inga övningar tillagda ännu.</p>
               ) : (
                 <ul className={styles.exerciseList}>
                   {[...exercises]
@@ -357,9 +358,6 @@ export default function CreateTrainingProgram() {
                         <h3 className={styles.exerciseTitle}>
                           {exercise.title}
                         </h3>
-                        <p className={styles.exerciseDescription}>
-                          {exercise.description}
-                        </p>
                         <p className={styles.exerciseDuration}>
                           Varaktighet: {exercise.duration} minuter
                         </p>
@@ -384,6 +382,9 @@ export default function CreateTrainingProgram() {
                             />
                           </div>
                         ) : null}
+                        <p className={styles.exerciseDescription}>
+                          {exercise.description}
+                        </p>
                         <div className={styles.buttonWrapperExercise}>
                           <div className={styles.sortGroup}>
                             <button

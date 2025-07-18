@@ -422,3 +422,20 @@
     font-weight: 700;
     padding: 1.2rem;
 }
+
+.messages {
+    padding: .7rem;
+    font-style: italic;
+}
+
+.errorText {
+    color: red;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-left: .4rem;
+}
+
+.inputError {
+    border: 2px solid red;
+    background-color: #fff5f5;
+}

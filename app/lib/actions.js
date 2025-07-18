@@ -147,6 +147,7 @@ export async function fetchExercises({ month, day, programId }) {
   }
 
   try {
+    console.log(`month=${month}&day=${day}&programId=${programId}`);
     const url = `/api/get-exercises?month=${month}&day=${day}&programId=${programId}`;
     console.log("🌍 Hämtar från URL:", url);
 
@@ -179,3 +180,19 @@ export async function fetchExercises({ month, day, programId }) {
     };
   }
 }
+
+export async function fetchDayMedia({ programId, day, month, setDayMedia })
+{
+    const res = await fetch(
+      `/api/get-training-day?programId=${programId}&day=${day}&month=${month}`
+    );
+    const result = await res.json();
+
+    if (result.success) {
+      setDayMedia({
+        image: result.data.cover_image_url,
+        video: result.data.cover_video_url,
+      });
+    }
+}
+

@@ -1,4 +1,3 @@
-import { supabase } from "@/utils/supabase/client";
 
 export function extractYouTubeId(url) {
   if (!url) return "";

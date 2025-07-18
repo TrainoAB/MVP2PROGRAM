@@ -173,6 +173,22 @@
                 border-color: transparent;
             }
 
+            .invalidInput {
+                border: 2px solid red;
+                background-color: #fff5f5;
+            }
+
+            .errorText {
+                color: red;
+                font-size: 0.9rem;
+                margin-top: 0.25rem;
+            }
+
+            .formError {
+                border: 2px solid red;
+                padding: 1rem;
+                border-radius: 8px;
+            }
 
         }
     }
@@ -239,5 +255,3 @@
         }
     }
 }
-
-

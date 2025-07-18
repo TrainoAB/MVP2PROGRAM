@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-
 export async function GET(req) {
   const supabase = await createClient();
   console.log("🔍 In API: /api/get-exercises");
@@ -30,9 +29,17 @@ export async function GET(req) {
       .eq("month_number", month)
       .eq("day_number", day)
       .single();
-
     if (error) throw error;
     if (!trainingDays || trainingDays.length === 0) {
+      return NextResponse.json({ success: true, data: [] }, { status: 200 });
+    }
+
+    if (!trainingDays || !trainingDays.id) {
+      console.warn("❌ Ingen training_day hittades för dessa parametrar:", {
+        programId,
+        day,
+        month,
+      });
       return NextResponse.json({ success: true, data: [] }, { status: 200 });
     }
 
@@ -45,10 +52,10 @@ export async function GET(req) {
       .order("index_order", { ascending: true });
     console.log("Exercises found:", exercises);
 
-    if (!exercises || exercises.length === 0) {
-      return Response.json({ success: true, data: [] });
-    }
-    
+    // if (!exercises || exercises.length === 0) {
+    //   return Response.json({ success: true, data: [] });
+    // }
+
     if (exercisesError) {
       return NextResponse.json(
         {
