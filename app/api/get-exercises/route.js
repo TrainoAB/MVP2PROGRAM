@@ -13,7 +13,7 @@ export async function GET(req) {
   const month = Number(searchParams.get("month"));
   console.log("Parsed params:", { programId, day, month });
 
-  if (!programId || !day || !month) {
+  if (!programId || isNaN(day) || isNaN(month)){
     return NextResponse.json(
       { success: false, message: "Missing programId, day or month" },
       { status: 400 }
@@ -28,11 +28,8 @@ export async function GET(req) {
       .eq("training_program_id", programId)
       .eq("month_number", month)
       .eq("day_number", day)
-      .single();
+      .maybeSingle();
     if (error) throw error;
-    if (!trainingDays || trainingDays.length === 0) {
-      return NextResponse.json({ success: true, data: [] }, { status: 200 });
-    }
 
     if (!trainingDays || !trainingDays.id) {
       console.warn("❌ Ingen training_day hittades för dessa parametrar:", {
