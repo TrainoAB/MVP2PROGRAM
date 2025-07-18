@@ -6,6 +6,7 @@ import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageMod
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
 import { extractYouTubeId } from "@/app/functions/functions";
+import { saveExercise } from "@/app/lib/actions";
 import styles from "./AddExerciseModal.module.css";
 
 export default function AddExerciseModal({
@@ -119,8 +120,6 @@ export default function AddExerciseModal({
        return;
      }
     console.log(errors);
-    // setErrors(newErrors);
-
     console.log("duration:", duration, "Length:", duration.length);
     console.log("title:", title, "Length:", title.length);
     console.log("Description:", description, "Length:", description.length);
@@ -133,40 +132,31 @@ export default function AddExerciseModal({
       const month_number = parseInt(month);
       const day_number = parseInt(day);
 
-      const response = await fetch("/api/save-exercise", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          training_program_id,
-          month_number,
-          day_number,
-          title,
-          duration,
-          description,
-          day_image_url: dayImageUrl ?? null,
-          day_video_url: dayVideoUrl ?? null,
-          exercise_image_url: imageUrl ?? null,
-          exercise_video_url: videoUrl ?? null,
-          index_order,
-        }),
+      const savedExercise = await saveExercise({
+        training_program_id,
+        title,
+        duration,
+        description,
+        dayImageUrl,
+        videoUrl,
+        dayVideoUrl,
+        imageUrl,
+        index_order,
+        month_number,
+        day_number,
       });
 
-      if (!response.ok) {
-        const responseText = await response.text();
-        console.error("Felstatus:", response.status, "Svar:", responseText);
-        throw new Error("Sparningen misslyckades");
+      if (!savedExercise.success) {
+        throw new Error("Kunde inte spara träningsprogrammet korrekt.");
       }
+      console.log("Träningsprogram sparat:", savedExercise);
       setIsSaving(false);
       console.log("Sparning lyckades!");
-      // När sparningen är klar, stäng modalen
       closeModalExercise();
       onExerciseAdded?.();
       console.log("Modalen STÄNGS!");
     } catch (error) {
       console.error("Fel vid sparning:", error);
-      // Här kan du även visa ett felmeddelande
     }
   };
 

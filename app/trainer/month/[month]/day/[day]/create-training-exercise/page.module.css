@@ -80,7 +80,7 @@
 
     .videoWrapper {
         position: relative;
-        margin-bottom: .5rem;
+        margin: 1rem 0;
         padding-bottom: 56.25%;
         /* 16:9 */
         height: 0;
@@ -312,8 +312,27 @@
         margin-bottom: 0.5rem;
     }
 
+    .orderWrapper {
+        display: flex;
+        justify-content: space-between;
+
+        .exerciseOrder {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: black;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-left: 0.5rem;
+        }
+    }
+
     .exerciseImage {
-        margin-top: 0.5rem;
+        margin: 1rem 0;
         border-radius: 0.375rem;
         max-height: 12rem;
         object-fit: cover;

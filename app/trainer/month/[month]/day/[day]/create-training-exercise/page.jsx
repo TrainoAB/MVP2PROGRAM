@@ -51,7 +51,6 @@ export default function CreateTrainingProgram() {
         `/api/get_day_image_video?month=${month}&day=${day}&programId=${programId}`
       );
       const contentType = res.headers.get("content-type");
-      // const body = await res.json();
       const body = contentType?.includes("application/json")
         ? await res.json()
         : null;
@@ -355,12 +354,18 @@ export default function CreateTrainingProgram() {
                         key={exercise.id ?? index}
                         className={styles.exerciseCard}
                       >
-                        <h3 className={styles.exerciseTitle}>
-                          {exercise.title}
-                        </h3>
+                        <div className={styles.orderWrapper}>
+                          <h3 className={styles.exerciseTitle}>
+                            {exercise.title}
+                          </h3>
+                          <span className={styles.exerciseOrder}>
+                            {index + 1}
+                          </span>
+                        </div>
                         <p className={styles.exerciseDuration}>
                           Varaktighet: {exercise.duration} minuter
                         </p>
+
                         {exercise.image_url && (
                           <img
                             src={exercise.image_url}

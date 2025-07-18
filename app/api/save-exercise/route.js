@@ -35,7 +35,6 @@ export async function POST(req) {
     const parsedIndexOrder = parseInt(index_order, 10) || 0;
     const supabase = await createClient();
 
-    // 🔁 Steg 1: Skapa eller hitta rätt training_day
     const { data: trainingDay, error: dayError } = await supabase
       .from("training_days")
       .upsert(
@@ -71,7 +70,6 @@ export async function POST(req) {
       return NextResponse.json({ error: "Titel krävs" }, { status: 400 });
     }
 
-    // 4. Skapa övning kopplad till training_day
     const { data: insertedExercise, error: insertExerciseError } =
       await supabase
         .from("exercises")

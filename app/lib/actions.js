@@ -51,7 +51,9 @@ export async function saveExercise({
   title,
   duration,
   description,
+  dayImageUrl,
   videoUrl,
+  dayVideoUrl,
   imageUrl,
   index_order,
   month_number,
@@ -64,25 +66,27 @@ export async function saveExercise({
     },
     body: JSON.stringify({
       training_program_id,
+      month_number,
+      day_number,
       title,
       duration,
       description,
-      video_url: videoUrl,
-      image_url: imageUrl,
+      day_image_url: dayImageUrl ?? null,
+      day_video_url: dayVideoUrl ?? null,
+      exercise_image_url: imageUrl ?? null,
+      exercise_video_url: videoUrl ?? null,
       index_order,
-      month_number,
-      day_number,
     }),
   });
 
   if (!response.ok) {
     const responseText = await response.text();
     console.error("Felstatus:", response.status, "Svar:", responseText);
-    throw new Error(`Fel vid sparande av övning: ${responseText}`);
+    throw new Error("Sparningen misslyckades");
   }
   const body = await response.json();
   console.log("🧾 Body innehåller:", body);
-  return response.json();
+  return body;
 }
 
 export async function getExercisesByDay(programId, month, day) {
