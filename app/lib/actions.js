@@ -200,3 +200,27 @@ export async function fetchDayMedia({ programId, day, month, setDayMedia })
     }
 }
 
+
+export async function deleteExercise(exerciseId) {
+  try {
+    const response = await fetch(
+      `/api/delete_exercise?exerciseId=${exerciseId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Fel vid radering av övning:", errorText);
+      throw new Error(`Radering misslyckades: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log("Övning raderad:", result);
+    return result;
+  } catch (error) {
+    console.error("Fel vid deleteExercise:", error);
+    throw error;
+  }
+}

@@ -4,13 +4,18 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
-import { rearrangeExercises, updateExerciseOrderApi } from "@/app/functions/functions";
+import {
+  rearrangeExercises,
+  updateExerciseOrderApi,
+} from "@/app/functions/functions";
 import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react";
 import { fetchExercises } from "@/app/lib/actions";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import { extractYouTubeId } from "@/app/functions/functions";
 import AddExerciseModal from "@/app/components/Add_Exercise_Modal/AddExerciseModal";
+import { deleteExercise } from "@/app/lib/actions";
+import ConfirmDialog from "@/app/components/ConfirmDialog/ConfirmDialog";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
@@ -45,40 +50,35 @@ export default function CreateTrainingProgram() {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [loadingExercises, setLoadingExercises] = useState(false);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [exerciseToDelete, setExerciseToDelete] = useState(null);
+
   const fetchDay = async () => {
     try {
       const res = await fetch(
         `/api/get_day_image_video?month=${month}&day=${day}&programId=${programId}`
       );
       const contentType = res.headers.get("content-type");
-      const body = contentType?.includes("application/json")
-        ? await res.json()
-        : null;
+
+      let responseData;
+      if (contentType?.includes("application/json")) {
+        responseData = await res.json();
+      } else {
+        responseData = await res.text();
+      }
 
       if (!res.ok) {
-        const fallback = contentType?.includes("application/json")
-          ? await res.json()
-          : await res.text();
-
-        throw new Error(
-          typeof fallback === "string"
-            ? `HTML error: ${fallback.slice(0, 100)}...`
-            : fallback.message
-        );
+        console.error("HTTP-fel vid hämtning:", responseData);
+        throw new Error("HTTP error");
       }
 
-      if (!body) {
-        const text = await res.text();
-        console.error("Ogiltigt innehåll från API:", text);
-        throw new Error("API returnerade inte JSON");
-      }
-
-      const { success, data, message } = body;
+      const { success, message, data } = responseData;
 
       if (!success) {
         console.error("API svarade med success=false:", message);
         throw new Error(message || "Okänt API-fel");
       }
+
       console.log("dag hämtad:", data);
       console.log("month", month, "day", day, "programId", programId);
 
@@ -98,7 +98,7 @@ export default function CreateTrainingProgram() {
 
   const fetchExercisesData = async () => {
     setLoadingExercises(true);
-    
+
     try {
       const result = await fetchExercises({
         month,
@@ -119,9 +119,9 @@ export default function CreateTrainingProgram() {
 
       if (!Array.isArray(result.data)) {
         console.error("❌ result.data är inte en array:", result.data);
-         if (typeof setExercises === "function") {
-           setExercises([]);
-         }
+        if (typeof setExercises === "function") {
+          setExercises([]);
+        }
         return;
       }
 
@@ -134,12 +134,10 @@ export default function CreateTrainingProgram() {
       const rearranged = rearrangeExercises(result.data);
       setExercises(rearranged);
       return result;
-
     } catch (error) {
       console.error("Fel vid hämtning:", error.message);
       setExercises([]);
       return { success: false, data: [] };
-
     } finally {
       setLoadingExercises(false); // Stoppa laddning (oavsett resultat)
     }
@@ -147,10 +145,9 @@ export default function CreateTrainingProgram() {
 
   useEffect(() => {
     if (!programId || !day || !month) return;
-    
-    fetchExercisesData();
-    }, [month, day, programId]);
 
+    fetchExercisesData();
+  }, [month, day, programId]);
 
   useEffect(() => {
     if (!programId || !day || !month) return;
@@ -162,9 +159,7 @@ export default function CreateTrainingProgram() {
       const newExercises = [...prev].sort(
         (a, b) => a.index_order - b.index_order
       );
-      const currentIndex = newExercises.findIndex(
-        (ex) => ex.id === exerciseId
-      );
+      const currentIndex = newExercises.findIndex((ex) => ex.id === exerciseId);
 
       if (currentIndex === -1) return prev;
 
@@ -204,12 +199,45 @@ export default function CreateTrainingProgram() {
       });
       return reordered;
     });
-  }
+  };
 
   const completeNotes = (e, exercise) => {
     e.preventDefault();
     setStep(2);
     setSelectedExercise(exercise);
+  };
+
+const handleDeleteExercise = async (e, exerciseId) => {
+  e.preventDefault();
+    setExerciseToDelete(exerciseId);
+    setConfirmOpen(true);
+  try {
+    const result = await deleteExercise(exerciseId); 
+    console.log("Raderad:", result);
+
+     if (!result.success) {
+       throw new Error(result.message || "Radering misslyckades");
+     }
+     setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
+
+  } catch (error) {
+    console.error("Kunde inte radera övning:", error.message);
+  }
+  };
+  
+  const confirmDeleteExercise = async () => {
+    try {
+      const result = await deleteExercise(exerciseToDelete);
+      if (!result.success) {
+        throw new Error(result.message || "Radering misslyckades");
+      }
+      setExercises((prev) => prev.filter((ex) => ex.id !== exerciseToDelete));
+    } catch (error) {
+      console.error("Kunde inte radera övning:", error.message);
+    } finally {
+      setConfirmOpen(false);
+      setExerciseToDelete(null);
+    }
   };
 
   const setDayMediaWrapper = (newMedia) => {
@@ -406,7 +434,9 @@ export default function CreateTrainingProgram() {
                           <div className={styles.sortGroup}>
                             <button
                               className={styles.deleteButton}
-                              onClick={() => {}}
+                              onClick={(e) =>
+                                handleDeleteExercise(e, exercise.id)
+                              }
                             >
                               <Trash2 size={20} />
                             </button>
@@ -469,6 +499,12 @@ export default function CreateTrainingProgram() {
             />
           </div>
         )}
+        <ConfirmDialog
+          open={confirmOpen}
+          onConfirm={confirmDeleteExercise}
+          onCancel={() => setConfirmOpen(false)}
+          message="Vill du verkligen radera denna övning?"
+        />
       </main>
     </div>
   );
