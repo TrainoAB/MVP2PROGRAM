@@ -211,18 +211,6 @@ const handleDeleteExercise = async (e, exerciseId) => {
   e.preventDefault();
     setExerciseToDelete(exerciseId);
     setConfirmOpen(true);
-  try {
-    const result = await deleteExercise(exerciseId); 
-    console.log("Raderad:", result);
-
-     if (!result.success) {
-       throw new Error(result.message || "Radering misslyckades");
-     }
-     setExercises((prev) => prev.filter((ex) => ex.id !== exerciseId));
-
-  } catch (error) {
-    console.error("Kunde inte radera övning:", error.message);
-  }
   };
   
   const confirmDeleteExercise = async () => {
