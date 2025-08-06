@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import Image from "next/image";
-import EditorWrapper from "@/app/components/Editor/EditorWrapper";
+import ExerciseEditorView from "@/app/components/Editor/ExerciseEditorView";
 import {
   rearrangeExercises,
   updateExerciseOrderApi,
 } from "@/app/functions/functions";
-import { Plus, Trash2, ArrowUp, ArrowDown, Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
 import { fetchExercises } from "@/app/lib/actions";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
@@ -16,6 +15,8 @@ import { extractYouTubeId } from "@/app/functions/functions";
 import AddExerciseModal from "@/app/components/Add_Exercise_Modal/AddExerciseModal";
 import { deleteExercise } from "@/app/lib/actions";
 import ConfirmDialog from "@/app/components/ConfirmDialog/ConfirmDialog";
+import ExerciseCard from "@/app/components/ExerciseCard/ExerciseCard";
+import DayMedia from "@/app/components/DayMedia/DayMedia";
 import styles from "./page.module.css";
 
 export default function CreateTrainingProgram() {
@@ -23,9 +24,7 @@ export default function CreateTrainingProgram() {
   const params = useParams();
   const searchParams = useSearchParams();
   const { month, day } = params;
-  console.log("params", params);
   const programId = searchParams.get("programId");
-  console.log("programId", programId);
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -47,6 +46,7 @@ export default function CreateTrainingProgram() {
 
   const [step, setStep] = useState(1);
   const [exercises, setExercises] = useState([]);
+  const [editing, setEditing] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [loadingExercises, setLoadingExercises] = useState(false);
 
@@ -87,10 +87,8 @@ export default function CreateTrainingProgram() {
         videoUrl: data.video_url || "",
         savedDate: data.inserted_at || new Date().toISOString(),
       });
-      // Optionally call setDayMediaWrapper(data) here if needed:
       setDayMediaWrapper(data);
       return { success: true, data };
-      // });
     } catch (err) {
       console.error("Fel vid hämtning av dag:", err);
     }
@@ -127,10 +125,9 @@ export default function CreateTrainingProgram() {
 
       if (!result.data || result.data.length === 0) {
         console.warn("Inga övningar hittades för dagen.");
-        setExercises([]); // Tom array om inget hittades
+        setExercises([]);
         return;
       }
-
       const rearranged = rearrangeExercises(result.data);
       setExercises(rearranged);
       return result;
@@ -139,18 +136,13 @@ export default function CreateTrainingProgram() {
       setExercises([]);
       return { success: false, data: [] };
     } finally {
-      setLoadingExercises(false); // Stoppa laddning (oavsett resultat)
+      setLoadingExercises(false);
     }
   };
 
   useEffect(() => {
     if (!programId || !day || !month) return;
-
     fetchExercisesData();
-  }, [month, day, programId]);
-
-  useEffect(() => {
-    if (!programId || !day || !month) return;
     fetchDay();
   }, [month, day, programId]);
 
@@ -201,18 +193,35 @@ export default function CreateTrainingProgram() {
     });
   };
 
+  function validateForm() {
+    const newErrors = {};
+    if (!exercises.title || exercises.title.length < 2) {
+      newErrors.title = "Titeln måste vara minst 2 tecken.";
+    }
+    if (!exercises.duration || exercises.duration < 1) {
+      newErrors.duration = "Ange en giltig längd.";
+    }
+    if (!exercises.description || exercises.description.length < 10) {
+      newErrors.description = "Beskrivningen är för kort.";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  // complite notes
   const completeNotes = (e, exercise) => {
     e.preventDefault();
     setStep(2);
     setSelectedExercise(exercise);
   };
 
-const handleDeleteExercise = async (e, exerciseId) => {
-  e.preventDefault();
+  //Delete
+  const handleDeleteExercise = async (e, exerciseId) => {
+    e.preventDefault();
     setExerciseToDelete(exerciseId);
     setConfirmOpen(true);
   };
-  
+
   const confirmDeleteExercise = async () => {
     try {
       const result = await deleteExercise(exerciseToDelete);
@@ -300,27 +309,11 @@ const handleDeleteExercise = async (e, exerciseId) => {
       <main className={styles.main}>
         {step === 1 ? (
           <>
-            {dayMedia.videoUrl ? (
-              <div className={styles.videoWrapper}>
-                {console.log("dayMedia.videoUrl:", dayMedia.videoUrl)}
-                <iframe
-                  src={dayMedia.videoUrl}
-                  title="YouTube video player"
-                  width="100%"
-                  height="100%"
-                  allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : dayMedia.imageUrl ? (
-              <Image
-                src={dayMedia.imageUrl}
-                alt="Tränarens bild"
-                width={500}
-                height={500}
-                className={styles.fallbackImage}
-              />
-            ) : null}
+            <DayMedia
+              videoUrl={dayMedia.videoUrl}
+              imageUrl={dayMedia.imageUrl}
+              title={dayMedia.title}
+            />
 
             <p className={styles.imageLoadTitle}>Omslag</p>
             <div className={styles.buttonContainer}>
@@ -363,129 +356,48 @@ const handleDeleteExercise = async (e, exerciseId) => {
                 <p className={styles.messages}>Inga övningar tillagda ännu.</p>
               ) : (
                 <ul className={styles.exerciseList}>
+                  {console.log("exercises:", exercises)}
                   {[...exercises]
                     .sort((a, b) => a.index_order - b.index_order)
                     .map((exercise, index) => (
-                      <li
-                        key={exercise.id ?? index}
-                        className={styles.exerciseCard}
-                      >
-                        <div className={styles.orderWrapper}>
-                          <h3 className={styles.exerciseTitle}>
-                            {exercise.title}
-                          </h3>
-                          <span className={styles.exerciseOrder}>
-                            {index + 1}
-                          </span>
-                        </div>
-                        <p className={styles.exerciseDuration}>
-                          Varaktighet: {exercise.duration} minuter
-                        </p>
-
-                        {exercise.image_url && (
-                          <img
-                            src={exercise.image_url}
-                            alt={exercise.title}
-                            className={styles.exerciseImage}
-                          />
-                        )}
-                        {exercise.video_url &&
-                        (exercise.video_url.includes("youtube.com") ||
-                          exercise.video_url.includes("youtu.be")) ? (
-                          <div className={styles.videoWrapper}>
-                            <iframe
-                              src={exercise.video_url}
-                              width="100%"
-                              height="100%"
-                              title="YouTube video player"
-                              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          </div>
-                        ) : null}
-                        <p className={styles.exerciseDescription}>
-                          {exercise.description}
-                        </p>
-                        <div className={styles.buttonWrapperExercise}>
-                          <div className={styles.sortGroup}>
-                            <button
-                              onClick={() => handleMove("asc", exercise.id)}
-                            >
-                              <ArrowUp size={20} />
-                            </button>
-                            <button
-                              onClick={() => handleMove("desc", exercise.id)}
-                            >
-                              <ArrowDown size={20} />
-                            </button>
-                          </div>
-                          <div className={styles.sortGroup}>
-                            <button
-                              className={styles.deleteButton}
-                              onClick={(e) =>
-                                handleDeleteExercise(e, exercise.id)
-                              }
-                            >
-                              <Trash2 size={20} />
-                            </button>
-
-                            <button
-                              className={styles.editButton}
-                              // onClick={onClick}
-                              title="Redigera"
-                            >
-                              <Pencil size={18} className={styles.icon} />
-                            </button>
-                          </div>
-                          <button
-                            className={styles.completeButton}
-                            onClick={(e) => completeNotes(e, exercise)}
-                          >
-                            {" "}
-                            Kompletera
-                          </button>
-                        </div>
-                      </li>
+                      <ExerciseCard
+                        key={exercise.id}
+                        exercise={exercise}
+                        index={index}
+                        onMove={handleMove}
+                        onDelete={handleDeleteExercise}
+                        onComplete={completeNotes}
+                        onEdit={(exercise) => {
+                          setSelectedExercise(exercise);
+                          // setStep(2);
+                        }}
+                        onSaveEdit={(updatedExercise) => {
+                          setExercises((prev) =>
+                            prev.map((ex) =>
+                              ex.id === updatedExercise.id
+                                ? updatedExercise
+                                : ex
+                            )
+                          );
+                        }}
+                      />
                     ))}
                 </ul>
               )}
             </div>
           </>
         ) : (
-          <div className={styles.editorView}>
-            {selectedExercise.image_url && (
-              <img
-                src={selectedExercise.image_url}
-                alt={selectedExercise.title}
-                className={styles.exerciseImage}
+          <>
+            {selectedExercise && (
+              <ExerciseEditorView
+                exercise={selectedExercise}
+                onSave={(content) => {
+                  console.log("Sparat innehåll:", content);
+                }}
+                onClose={closeModalExercise}
               />
             )}
-            {selectedExercise.video_url &&
-            (selectedExercise.video_url.includes("youtube.com") ||
-              selectedExercise.video_url.includes("youtu.be")) ? (
-              <div className={styles.videoWrapper}>
-                <iframe
-                  src={selectedExercise.video_url}
-                  width="100%"
-                  height="100%"
-                  title="YouTube video player"
-                  allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : null}
-            <h4 className={styles.editorTitle}>
-              {selectedExercise ? selectedExercise.title : ""}
-            </h4>
-            <EditorWrapper
-              onContentSave={(content) => {
-                console.log("EditorWrapper sparade innehåll:", content);
-              }}
-              onClose={() => {
-                closeModalExercise();
-              }}
-            />
-          </div>
+          </>
         )}
         <ConfirmDialog
           open={confirmOpen}

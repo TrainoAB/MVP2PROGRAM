@@ -1,0 +1,161 @@
+.exerciseCard {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.exerciseDescription {
+    color: var(--secondary-grey-shade-dark);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.exerciseDuration {
+    color: var(--secondary-grey);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.orderWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .exerciseOrder {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: black;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-left: 0.5rem;
+    }
+}
+
+.exerciseTitle {
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.exerciseOrder {
+    font-size: 1rem;
+    color: #999;
+}
+
+.exerciseDuration {
+    margin: 0.5rem 0;
+    font-style: italic;
+}
+
+.exerciseImage {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin: 0.5rem 0;
+}
+
+.videoWrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    /* 16:9 aspect ratio */
+    margin: 0.5rem 0;
+}
+
+.videoWrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.exerciseDescription {
+    margin: 0.5rem 0;
+    line-height: 1.4;
+}
+
+.buttonWrapperExercise {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+
+    .completeButton {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.15rem;
+        border: none;
+        outline: none;
+        width: 25%;
+        padding: var(--button-small-padding);
+        border-radius: var(--radius);
+        background: var(--maincolor);
+        color: #fff;
+        text-align: center;
+        font-size: var(--font-small);
+        font-weight: 400;
+        font-family: inherit;
+        cursor: pointer;
+        margin-left: 1.2rem;
+
+        &:hover {
+            background: var(--maincolor-hover);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease-in-out;
+        }
+
+        &:active {
+            background: var(--maincolor);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+    }
+}
+
+.sortGroup {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.deleteButton {
+    background: none;
+    color: red;
+    border: none;
+    cursor: pointer;
+}
+
+.editButton {
+    background: none;
+    color: #333;
+    border: none;
+    cursor: pointer;
+}
+
+.completeButton {
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.completeButton:hover {
+    background-color: #005ac1;
+}
+
+.icon {
+    vertical-align: middle;
+}
