@@ -126,8 +126,7 @@ export default function AddExerciseModal({
 
     try {
       setIsSaving(true);
-      const { imageUrl, videoUrl, title, duration, description, index_order } =
-        exercise;
+      const { imageUrl, videoUrl, title, duration, description, index_order } = exercise;
 
       const month_number = parseInt(month);
       const day_number = parseInt(day);
@@ -172,13 +171,6 @@ export default function AddExerciseModal({
                 onClick={() => setStep(1)}
               ></button>
               <h4 className={styles.title}>Kompleterande anteckningar</h4>
-              <button
-                type="button"
-                onClick={closeModalExercise}
-                className={styles.closeBtn}
-              >
-                ✕
-              </button>
             </>
           )}
         </div>
@@ -231,15 +223,18 @@ export default function AddExerciseModal({
               >
                 <div className={styles.closeButtonsWrapper}>
                   <p className={styles.imageLoadTitle}>Omslag</p>
-                  <button
-                    type="button"
-                    onClick={closeModalExercise}
-                    aria-label="Stäng modal"
-                    className={styles.closeButton}
-                  >
-                    ×
-                  </button>
+                  {step === 1 && (
+                    <button
+                      type="button"
+                      onClick={closeModalExercise}
+                      aria-label="Stäng modal"
+                      className={styles.closeButton}
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
+
                 <div className={styles.buttonContainer}>
                   <button
                     type="button"

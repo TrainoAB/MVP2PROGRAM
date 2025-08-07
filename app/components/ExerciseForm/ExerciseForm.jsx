@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
+import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
+import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import styles from "./ExerciseForm.module.css";
 
 export default function ExerciseForm({ exercise, onSave, onCancel }) {
@@ -11,6 +13,28 @@ export default function ExerciseForm({ exercise, onSave, onCancel }) {
     video_url: exercise.video_url || "",
     id: exercise.id,
   });
+
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const openModalImg = () => setIsImageModalOpen(true);
+  const closeModalImg = () => setIsImageModalOpen(false);
+
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const openModalVideo = () => setIsVideoModalOpen(true);
+  const closeModalVideo = () => setIsVideoModalOpen(false);
+
+  const setExerciseWrapper = (rawUrl) => {
+    if (!rawUrl) return;
+
+    const videoUrl = rawUrl.videoUrl ?? rawUrl.video_url ?? null;
+    const imageUrl = rawUrl.imageUrl ?? rawUrl.image_url ?? null;
+
+    let updatedVideoUrl = videoUrl;
+
+    if (videoUrl) {
+      const videoId = extractYouTubeId(videoUrl);
+      updatedVideoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+    }
+  };
 
   const [errors, setErrors] = useState({});
 
@@ -36,6 +60,14 @@ export default function ExerciseForm({ exercise, onSave, onCancel }) {
     }));
   };
 
+
+  const handleSetTraining = (updatedFields) => {
+    // setExercise((prev) => ({
+    //   ...prev,
+    //   ...updatedFields,
+    // }));
+  };
+
   const handleSubmit = () => {
     const newErrors = validate();
     if (Object.keys(newErrors).length > 0) {
@@ -47,6 +79,11 @@ export default function ExerciseForm({ exercise, onSave, onCancel }) {
 
   return (
     <div className={styles.exerciseForm}>
+      <div className={styles.closeWrapper}>
+        <button onClick={onCancel} className={styles.closeButton}>
+          <X size={20} strokeWidth={3} />
+        </button>
+      </div>
       <div className={styles.inputGroup}>
         <label className={styles.label} htmlFor="title">
           Titel
@@ -57,30 +94,80 @@ export default function ExerciseForm({ exercise, onSave, onCancel }) {
           id="title"
           value={form.title}
           onChange={handleChange}
-          className={`${styles.inputField} ${
-            errors.title ? styles.inputError : ""
-          }`}
+          className={styles.inputProgramTitle}
         />
         {errors.title && <p className={styles.errorText}>{errors.title}</p>}
       </div>
 
       <div className={styles.inputGroup}>
         <label className={styles.label} htmlFor="duration">
-          Varaktighet (minuter)
+          Varaktighet
         </label>
-        <input
-          type="number"
-          name="duration"
-          id="duration"
-          value={form.duration}
-          onChange={handleChange}
-          className={`${styles.inputField} ${
-            errors.duration ? styles.inputError : ""
-          }`}
-        />
+        <div className={styles.durationInput}>
+          <input
+            type="number"
+            name="duration"
+            id="duration"
+            min="1"
+            max="120"
+            inputMode="numeric"
+            value={form.duration}
+            onChange={handleChange}
+            className={styles.inputTime}
+          />
+          <span className={styles.timeSuffix}>min</span>
+        </div>
         {errors.duration && (
           <p className={styles.errorText}>{errors.duration}</p>
         )}
+        {exercise.image_url && (
+          <img
+            src={exercise.image_url}
+            alt={exercise.title}
+            className={styles.exerciseImage}
+          />
+        )}
+
+        {exercise.video_url &&
+        (exercise.video_url.includes("youtube.com") ||
+          exercise.video_url.includes("youtu.be")) ? (
+          <div className={styles.videoWrapper}>
+            <iframe
+              src={exercise.video_url}
+              width="100%"
+              height="100%"
+              title="YouTube video player"
+              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        ) : null}
+      </div>
+      <UploadYoutubeVideoModal
+        isVideoModalOpen={isVideoModalOpen}
+        closeModalVideo={closeModalVideo}
+        setTraining={setExerciseWrapper}
+      ></UploadYoutubeVideoModal>
+      <UploadImageModal
+        isImageModalOpen={isImageModalOpen}
+        closeModalImg={closeModalImg}
+        setTraining={handleSetTraining}
+      ></UploadImageModal>
+      <div className={styles.buttonContainer}>
+        <button
+          type="button"
+          onClick={openModalImg}
+          className={styles.chooseImageButton}
+        >
+          Ändra bild
+        </button>
+        <button
+          type="button"
+          onClick={openModalVideo}
+          className={styles.openBtn}
+        >
+          Ändra Video
+        </button>
       </div>
 
       <div className={styles.inputGroup}>
@@ -102,11 +189,8 @@ export default function ExerciseForm({ exercise, onSave, onCancel }) {
       </div>
 
       <div className={styles.buttonWrapperExercise}>
-        <button onClick={handleSubmit} className={styles.completeButton}>
+        <button onClick={handleSubmit} className={styles.standardButton}>
           Spara
-        </button>
-        <button onClick={onCancel} className={styles.deleteButton}>
-          <X size={18} />
         </button>
       </div>
     </div>
