@@ -224,3 +224,28 @@ export async function deleteExercise(exerciseId) {
     throw error;
   }
 }
+
+export async function updateExercise(exerciseId, updatedData) {
+  try {
+    const response = await fetch(`/api/update_exercise/${exerciseId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Fel vid uppdatering av övning:", errorText);
+      throw new Error(`Uppdatering misslyckades: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log("Övning uppdaterad:", result);
+    return result;
+  } catch (error) {
+    console.error("Fel vid updateExercise:", error);
+    throw error;
+  }
+}

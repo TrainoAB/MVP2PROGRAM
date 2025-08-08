@@ -46,7 +46,6 @@ export default function CreateTrainingProgram() {
 
   const [step, setStep] = useState(1);
   const [exercises, setExercises] = useState([]);
-  const [editing, setEditing] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [loadingExercises, setLoadingExercises] = useState(false);
 
@@ -193,22 +192,7 @@ export default function CreateTrainingProgram() {
     });
   };
 
-  function validateForm() {
-    const newErrors = {};
-    if (!exercises.title || exercises.title.length < 2) {
-      newErrors.title = "Titeln måste vara minst 2 tecken.";
-    }
-    if (!exercises.duration || exercises.duration < 1) {
-      newErrors.duration = "Ange en giltig längd.";
-    }
-    if (!exercises.description || exercises.description.length < 10) {
-      newErrors.description = "Beskrivningen är för kort.";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }
-
-  // complite notes
+  // complete notes
   const completeNotes = (e, exercise) => {
     e.preventDefault();
     setStep(2);
@@ -221,6 +205,13 @@ export default function CreateTrainingProgram() {
     setExerciseToDelete(exerciseId);
     setConfirmOpen(true);
   };
+
+  // Update
+    const handleSaveEdit = (updatedExercise) => {
+      setExercises((prev) =>
+        prev.map((ex) => (ex.id === updatedExercise.id ? updatedExercise : ex))
+      );
+    };
 
   const confirmDeleteExercise = async () => {
     try {
@@ -371,15 +362,7 @@ export default function CreateTrainingProgram() {
                           setSelectedExercise(exercise);
                           // setStep(2);
                         }}
-                        onSaveEdit={(updatedExercise) => {
-                          setExercises((prev) =>
-                            prev.map((ex) =>
-                              ex.id === updatedExercise.id
-                                ? updatedExercise
-                                : ex
-                            )
-                          );
-                        }}
+                        onSaveEdit={handleSaveEdit}
                       />
                     ))}
                 </ul>

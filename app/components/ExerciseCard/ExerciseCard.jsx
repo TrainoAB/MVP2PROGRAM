@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ExerciseForm from "@/app/components/ExerciseForm/ExerciseForm";
+import { updateExercise } from "@/app/lib/actions";
 import { ArrowUp, ArrowDown, Trash2, Pencil } from "lucide-react";
 import styles from "./ExerciseCard.module.css";
 
@@ -19,11 +20,15 @@ export default function ExerciseCard({
        <li className={styles.exerciseCard}>
          <ExerciseForm
            exercise={exercise}
-           onSave={(updatedExercise) => {
-             onSaveEdit(updatedExercise);
-             setIsEditing(false);
-           }}
-           onCancel={() => setIsEditing(false)}
+           onSave={async (updatedExercise) => {
+         try {
+           await updateExercise(updatedExercise.id, updatedExercise);
+                setIsEditing(false);
+          } catch (error) {
+            console.error("Kunde inte spara övningen:", error);
+          }
+        }}
+        onCancel={() => setIsEditing(false)}
          />
        </li>
      );
