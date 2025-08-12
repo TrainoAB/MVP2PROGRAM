@@ -6,7 +6,7 @@ export async function GET() {
 }
 
 export async function PUT(request, { params }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { id } = params;
   const updatedData = await request.json();
 

@@ -48,6 +48,7 @@ export default function CreateTrainingProgram() {
   const [exercises, setExercises] = useState([]);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [loadingExercises, setLoadingExercises] = useState(false);
+  const [status, setStatus] = useState(null);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [exerciseToDelete, setExerciseToDelete] = useState(null);
@@ -206,13 +207,6 @@ export default function CreateTrainingProgram() {
     setConfirmOpen(true);
   };
 
-  // Update
-    const handleSaveEdit = (updatedExercise) => {
-      setExercises((prev) =>
-        prev.map((ex) => (ex.id === updatedExercise.id ? updatedExercise : ex))
-      );
-    };
-
   const confirmDeleteExercise = async () => {
     try {
       const result = await deleteExercise(exerciseToDelete);
@@ -227,6 +221,14 @@ export default function CreateTrainingProgram() {
       setExerciseToDelete(null);
     }
   };
+
+  const handleSaveEdit = async (updatedExercise) => {
+    setExercises((prev) =>
+      prev.map((ex) => (ex.id === updatedExercise.id ? updatedExercise : ex))
+    );
+    setStatus({ type: "success", message: "Övningen uppdaterades!" });
+  };
+  
 
   const setDayMediaWrapper = (newMedia) => {
     console.log("newMedia:", newMedia);

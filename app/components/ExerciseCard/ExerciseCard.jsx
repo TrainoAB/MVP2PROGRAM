@@ -11,97 +11,130 @@ export default function ExerciseCard({
   onDelete,
   onComplete,
   onSaveEdit,
-})
-{
+}) {
   const [isEditing, setIsEditing] = useState(false);
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("");
 
-   if (isEditing) {
-     return (
-       <li className={styles.exerciseCard}>
-         <ExerciseForm
-           exercise={exercise}
-           onSave={async (updatedExercise) => {
-         try {
-           await updateExercise(updatedExercise.id, updatedExercise);
+    const showMessage = (msg, type) => {
+      setMessage(msg);
+      setStatus(type);
+      setTimeout(() => {
+        setMessage("");
+        setStatus("");
+      }, 3000);
+    };
+
+  if (isEditing) {
+    return (
+      <li className={styles.exerciseCard}>
+        <ExerciseForm
+          exercise={exercise}
+          onSave={async (updatedExercise) => {
+            try {
+              const result = await updateExercise(
+                updatedExercise.id,
+                updatedExercise
+              );
+              if (result.success) {
+                onSaveEdit(updatedExercise);
+                showMessage("Övning uppdaterad!", "success");
                 setIsEditing(false);
-          } catch (error) {
-            console.error("Kunde inte spara övningen:", error);
-          }
-        }}
-        onCancel={() => setIsEditing(false)}
-         />
-       </li>
-     );
-   }
+              } else {
+                showMessage(
+                  result.message || "Uppdatering misslyckades",
+                  "error"
+                );
+              }
+            } catch (error) {
+              setMessage("Något gick fel vid uppdatering");
+              setStatus("error");
+              console.error("Kunde inte spara övningen:", error);
+            }
+          }}
+          onCancel={() => setIsEditing(false)}
+        />
+        {message && (
+          <div className={status === "success" ? styles.success : styles.error}>
+            {message}
+          </div>
+        )}
+      </li>
+    );
+  }
 
-   return (
-     <li className={styles.exerciseCard}>
-       <div className={styles.orderWrapper}>
-         <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
-         <span className={styles.exerciseOrder}>{index + 1}</span>
-       </div>
+  return (
+    <li className={styles.exerciseCard}>
+      <div className={styles.orderWrapper}>
+        <h3 className={styles.exerciseTitle}>{exercise.title}</h3>
+        <span className={styles.exerciseOrder}>{index + 1}</span>
+      </div>
 
-       <p className={styles.exerciseDuration}>
-         Varaktighet: {exercise.duration} minuter
-       </p>
+      <p className={styles.exerciseDuration}>
+        Varaktighet: {exercise.duration} minuter
+      </p>
 
-       {exercise.image_url && (
-         <img
-           src={exercise.image_url}
-           alt={exercise.title}
-           className={styles.exerciseImage}
-         />
-       )}
+      {exercise.image_url && (
+        <img
+          src={exercise.image_url}
+          alt={exercise.title}
+          className={styles.exerciseImage}
+        />
+      )}
 
-       {exercise.video_url &&
-       (exercise.video_url.includes("youtube.com") ||
-         exercise.video_url.includes("youtu.be")) ? (
-         <div className={styles.videoWrapper}>
-           <iframe
-             src={exercise.video_url}
-             width="100%"
-             height="100%"
-             title="YouTube video player"
-             allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-             allowFullScreen
-           />
-         </div>
-       ) : null}
+      {exercise.video_url &&
+      (exercise.video_url.includes("youtube.com") ||
+        exercise.video_url.includes("youtu.be")) ? (
+        <div className={styles.videoWrapper}>
+          <iframe
+            src={exercise.video_url}
+            width="100%"
+            height="100%"
+            title="YouTube video player"
+            allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      ) : null}
 
-       <p className={styles.exerciseDescription}>{exercise.description}</p>
-
-       <div className={styles.buttonWrapperExercise}>
-         <div className={styles.sortGroup}>
-           <button onClick={() => onMove("asc", exercise.id)}>
-             <ArrowUp size={20} />
-           </button>
-           <button onClick={() => onMove("desc", exercise.id)}>
-             <ArrowDown size={20} />
-           </button>
-         </div>
-         <div className={styles.sortGroup}>
-           <button
-             className={styles.deleteButton}
-             onClick={(e) => onDelete(e, exercise.id)}
-             title="Ta bort"
-           >
-             <Trash2 size={20} />
-           </button>
-           <button
-             className={styles.editButton}
-             onClick={() => setIsEditing(true)}
-             title="Redigera"
-           >
-             <Pencil size={18} className={styles.icon} />
-           </button>
-         </div>
-         <button
-           className={styles.completeButton}
-           onClick={(e) => onComplete(e, exercise)}
-         >
-           Komplettera
-         </button>
-       </div>
-     </li>
-   );
+      <p className={styles.exerciseDescription}>{exercise.description}</p>
+      {message && (
+        <div className={status === "success" ? styles.success : styles.error}>
+          {message}
+        </div>
+      )}
+      <div className={styles.buttonWrapperExercise}>
+        <div className={styles.sortGroup}>
+          <button onClick={() => onMove("asc", exercise.id)}>
+            <ArrowUp size={20} />
+          </button>
+          <button onClick={() => onMove("desc", exercise.id)}>
+            <ArrowDown size={20} />
+          </button>
+        </div>
+        <div className={styles.sortGroup}>
+          <button
+            className={styles.deleteButton}
+            onClick={(e) => onDelete(e, exercise.id)}
+            title="Ta bort"
+          >
+            <Trash2 size={20} />
+          </button>
+          <button
+            className={styles.editButton}
+            onClick={() => setIsEditing(true)}
+            title="Redigera"
+          >
+            <Pencil size={18} className={styles.icon} />
+          </button>
+        </div>
+        <button
+          className={styles.completeButton}
+          onClick={(e) => onComplete(e, exercise)}
+        >
+          Komplettera
+        </button>
+      </div>
+    </li>
+  );
 }

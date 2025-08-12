@@ -124,8 +124,8 @@ export default function ExerciseForm({ exercise, onSave, onCancel }) {
           )}
           {form.image_url && (
             <img
-              src={exercise.image_url}
-              alt={exercise.title}
+              src={form.image_url}
+              alt={form.title}
               className={styles.exerciseImage}
             />
           )}
@@ -143,7 +143,7 @@ export default function ExerciseForm({ exercise, onSave, onCancel }) {
                 allowFullScreen
               />
             </div>
-            ) : null}
+          ) : null}
         </div>
         <UploadYoutubeVideoModal
           isVideoModalOpen={isVideoModalOpen}

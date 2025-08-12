@@ -159,3 +159,17 @@
 .icon {
     vertical-align: middle;
 }
+
+.success {
+    color: green;
+    background-color: #d4edda;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.error {
+    color: red;
+    background-color: #f8d7da;
+    padding: 8px;
+    border-radius: 4px;
+}
