@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
-    padding: 0 1.3rem .2rem 0;
+    padding: 0 .6rem .2rem 0;
     width: 100%;
 
     .closeButton {
@@ -22,6 +22,12 @@
     }
 }
 
+.imageLoadTitle {
+    font-size: .9rem;
+    font-weight: var(--weight);
+    color: var(--fgcolor);
+    margin-left: 1.2rem;
+}
 .imageLoadTitle {
     font-size: .9rem;
     font-weight: var(--weight);
@@ -206,7 +212,7 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            padding: .6rem;
+            padding: .4rem;
             gap: .5rem;
 
             .formCompact {

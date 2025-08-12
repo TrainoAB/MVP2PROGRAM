@@ -181,6 +181,19 @@ export default function AddExerciseModal({
           )}
         </div>
         <div className={styles.traingProgramContainer}>
+          <div className={styles.closeButtonsWrapper}>
+            <p className={styles.imageLoadTitle}>Omslag</p>
+            {step === 1 && (
+              <button
+                type="button"
+                onClick={closeModalExercise}
+                aria-label="Stäng modal"
+                className={styles.closeButton}
+              >
+                ×
+              </button>
+            )}
+          </div>
           <UploadYoutubeVideoModal
             isVideoModalOpen={isVideoModalOpen}
             closeModalVideo={closeModalVideo}
@@ -227,7 +240,7 @@ export default function AddExerciseModal({
                     : styles.formCompact
                 }`}
               >
-                <div className={styles.closeButtonsWrapper}>
+                {/* <div className={styles.closeButtonsWrapper}>
                   <p className={styles.imageLoadTitle}>Omslag</p>
                   {step === 1 && (
                     <button
@@ -239,7 +252,7 @@ export default function AddExerciseModal({
                       ×
                     </button>
                   )}
-                </div>
+                </div> */}
 
                 <div className={styles.buttonContainer}>
                   <button
