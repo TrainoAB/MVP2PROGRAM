@@ -14,28 +14,6 @@ export default function UploadImageModal({
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState({ type: "", message: "" });
 
-  // Hantera manuell URL-inskrivning
-  const handleSubmitImage = (e) => {
-    e.preventDefault();
-
-   
-
-    if (!imageUrl || !/\.(jpg|jpeg|png|gif)$/i.test(imageUrl)) {
-      setStatus({
-        type: "error",
-        message: "❌ Misslyckades att ladda upp bild försök igen!",
-      });
-      return;
-    }
-
-    const updated = {
-      imageUrl: `/assets/${imageUrl}`,
-      videoUrl: "",
-    };
-    setTraining(updated);
-    closeModalImg();
-  };
-
   useEffect(() => {
     if (isImageModalOpen) {
       setStatus({ type: "", message: "" });
@@ -122,7 +100,7 @@ export default function UploadImageModal({
               className={styles.hiddenInput}
             />
             <button className={styles.uploadImgButton} type="submit">
-              Ladda upp bild
+              Spara
             </button>
           </div>
         </form>
@@ -139,23 +117,6 @@ export default function UploadImageModal({
             {status.message}
           </p>
         )}
-        <p className={styles.or}>eller</p>
-
-        <h4>Lägg till bildlänk</h4>
-        <form onSubmit={handleSubmitImage}>
-          <input
-            type="text"
-            placeholder="bildensnamn.png eller t.ex .gif, .jpg"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className={styles.input}
-          />
-          <div className={styles.modalButtonsWrapper}>
-            <button type="submit" className={styles.modalButtons}>
-              Spara
-            </button>
-          </div>
-        </form>
       </div>
     </Modal>
   );
