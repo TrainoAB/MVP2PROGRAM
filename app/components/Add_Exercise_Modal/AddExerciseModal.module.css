@@ -1,7 +1,10 @@
 .closeButtonsWrapper {
     display: flex;
-    justify-content: flex-end;
-    padding-right: .5rem;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 .6rem .2rem 0;
+    width: 100%;
 
     .closeButton {
         background: transparent;
@@ -19,6 +22,12 @@
     }
 }
 
+.imageLoadTitle {
+    font-size: .9rem;
+    font-weight: var(--weight);
+    color: var(--fgcolor);
+    margin-left: 1.2rem;
+}
 
 .modalOverlay {
     position: fixed;
@@ -50,7 +59,6 @@
         justify-content: space-between;
         align-items: center;
         gap: 0.5rem;
-        padding: 0 0 .2rem 0;
 
         .backBtn {
             filter: invert(var(--inverted));
@@ -331,13 +339,6 @@
                 margin-left: .5rem;
             }
         }
-    }
-
-    .imageLoadTitle {
-        font-size: .9rem;
-        font-weight: var(--weight);
-        color: var(--fgcolor);
-        margin-left: 1.2rem;
     }
 
     .buttonContainer {
