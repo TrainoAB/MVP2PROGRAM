@@ -163,7 +163,7 @@ export default function AddExerciseModal({
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <div className={styles.closeButtonsWrapper}>
+        <div className={styles.completeButtonsWrapper}>
           {step > 1 && (
             <>
               <button
@@ -171,6 +171,12 @@ export default function AddExerciseModal({
                 onClick={() => setStep(1)}
               ></button>
               <h4 className={styles.title}>Kompleterande anteckningar</h4>
+              <button
+                className={styles.closeBtn}
+                onClick={closeModalExercise}
+                aria-label="Stäng modal"
+              >x
+              </button>
             </>
           )}
         </div>

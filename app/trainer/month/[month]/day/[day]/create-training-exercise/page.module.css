@@ -101,18 +101,6 @@
         background-position: center;
     }
 
-    /* .fallbackImage {
-        width: 100%;
-        margin: 0 0 1rem 0;
-        max-height: clamp(13rem, 30vw, 16rem);
-        aspect-ratio: auto;
-        aspect-ratio: 1/1;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-size: 100%;
-        background-position: center;
-    } */
-
     .form {
         width: 100%;
         max-width: 30rem;
