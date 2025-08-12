@@ -64,8 +64,6 @@
     .completeButtonsWrapper {
         display: flex;
         align-items: center;
-        /* padding: 1rem 1.2rem;
-        width: 100%; */
         gap: 0.5rem;
 
         .title {
@@ -195,6 +193,7 @@
 
     .fallbackImage {
         width: 100%;
+        margin: .3rem;
         max-height: 16rem;
         aspect-ratio: auto;
         aspect-ratio: 1/1;
