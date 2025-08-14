@@ -1,9 +1,9 @@
-import react from "react";
+import { useEffect, useState } from "react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import LexicalEditor from "./LexicalEditor";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
-import { addExerciseNotes } from "@/app/lib/actions";
+import { addExerciseNotes, fetchExerciseNotes } from "@/app/lib/actions";
 import styles from "./editor.module.css";
 
 const editorConfig = {
@@ -32,31 +32,30 @@ Object.entries(editorConfig).forEach(([key, value]) => {
 });
 
 export default function EditorWrapper({ exerciseId, onSave, onClose }) {
+  const [initialNotes, setInitialNotes] = useState("");
   const initialConfig = {
     namespace: "ExerciseEditor",
     nodes: [HeadingNode, ListNode, ListItemNode], // egna nodes om du har några
     onError: (error) => console.error(error),
   };
 
-  const handleSave = (html) => {
-    if (!exerciseId) {
-      console.error("exerciseId saknas");
-      return;
-    }
-    if (!html || html.trim() === "") {
-      console.error("Innehållet är tomt");
-      return;
-    }
+useEffect(() => {
+  if (!exerciseId) return;
 
-    addExerciseNotes({ exerciseId, content: html })
-      .then(() => console.log("Sparad!"))
-      .catch(console.error);
+  const fetchNotes = async () => {
+    console.log("Hämtar övningsanteckningar för ID:", exerciseId);
+    const data = await fetchExerciseNotes(exerciseId);
+    setInitialNotes(data?.content || "");
   };
+
+  fetchNotes();
+}, [exerciseId]);
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <LexicalEditor
         exerciseId={exerciseId}
+        initialContent={initialNotes}
         onContentSave={onSave}
         onClose={onClose}
       />

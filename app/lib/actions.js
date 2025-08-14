@@ -275,3 +275,29 @@ export async function addExerciseNotes( exerciseId, content ) {
     throw error;
   }
 }
+
+export async function fetchExerciseNotes(exerciseId) {
+  try {
+    const response = await fetch(`/api/get_exercise_notes?exercise_id=${encodeURIComponent(exerciseId)}`
+      , {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Fel vid hämtning av övningsanteckningar:", errorText);
+      throw new Error(`Hämtning misslyckades: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("Övningsanteckningar hämtade:", data);
+    return data;
+  } catch (error) {
+    console.error("Fel vid fetchExerciseNotes:", error);
+    throw error;
+  }
+}

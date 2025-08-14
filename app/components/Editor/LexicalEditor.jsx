@@ -1,23 +1,60 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { addExerciseNotes } from "@/app/lib/actions";
+import { addExerciseNotes, fetchExerciseNotes } from "@/app/lib/actions";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { $generateHtmlFromNodes } from "@lexical/html";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
+import { $getRoot } from "lexical";
 import ToolbarPlugin from "./ToolbarPlugin";
 import styles from "./editor.module.css";
 
-export default function LexicalEditor({ exerciseId, onContentSave, onClose }) {
+export default function LexicalEditor({
+  exerciseId,
+  initialHtml,
+  onContentSave,
+  onClose,
+}) {
   const [editor] = useLexicalComposerContext();
+  const [message, setMessage] = useState(false);
+
+  useEffect(() => {
+    if (!exerciseId) return;
+
+    async function loadNotes() {
+      try {
+        const res = await fetchExerciseNotes(exerciseId);
+        if (res?.success && res?.data?.content) {
+          const htmlString = res.data.content;
+          console.log("📄 Laddar HTML i editor:", htmlString);
+
+          editor.update(() => {
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(htmlString, "text/html");
+            const nodes = $generateNodesFromDOM(editor, dom);
+            const root = $getRoot();
+            root.clear();
+            root.append(...nodes);
+          });
+        }
+      } catch (err) {
+        console.error("Kunde inte ladda anteckningar:", err);
+      }
+    }
+
+    loadNotes();
+  }, [editor, initialHtml]);
 
   if (!exerciseId) {
-    console.error("exerciseId saknas");
-    return null;
+    console.log("Sparar bara lokalt, inget exerciseId ännu");
+    if (typeof onContentSave === "function") {
+      onContentSave(html);
+    }
+    return;
   }
 
   const handleSaveClick = () => {
@@ -30,7 +67,7 @@ export default function LexicalEditor({ exerciseId, onContentSave, onClose }) {
         }
 
         if (typeof onContentSave === "function") {
-          onContentSave(html); // skickas vidare till EditorWrapper
+          onContentSave(html);
         } else {
           console.warn("onContentSave är inte definierad!");
         }
@@ -44,8 +81,15 @@ export default function LexicalEditor({ exerciseId, onContentSave, onClose }) {
         console.log("html:", html);
 
         addExerciseNotes(exerciseId, html)
-          .then(() => console.log("Sparad!"))
-          .catch(console.error);
+          .then(() => {
+            setMessage("Anteckningar sparade!");
+            console.log("Sparad!");
+
+            setTimeout(() => {
+              setMessage(null);
+            }, 10000);
+          })
+          .catch((error));
 
         if (typeof onClose === "function") {
           onClose();
