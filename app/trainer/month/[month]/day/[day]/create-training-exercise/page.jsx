@@ -14,6 +14,7 @@ import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/
 import { extractYouTubeId } from "@/app/functions/functions";
 import AddExerciseModal from "@/app/components/Add_Exercise_Modal/AddExerciseModal";
 import { deleteExercise } from "@/app/lib/actions";
+import { addExerciseNotes } from "@/app/lib/actions";
 import ConfirmDialog from "@/app/components/ConfirmDialog/ConfirmDialog";
 import ExerciseCard from "@/app/components/ExerciseCard/ExerciseCard";
 import DayMedia from "@/app/components/DayMedia/DayMedia";
@@ -47,6 +48,7 @@ export default function CreateTrainingProgram() {
   const [step, setStep] = useState(1);
   const [exercises, setExercises] = useState([]);
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [showEditor, setShowEditor] = useState(false);
   const [loadingExercises, setLoadingExercises] = useState(false);
   const [status, setStatus] = useState(null);
 
@@ -251,6 +253,22 @@ export default function CreateTrainingProgram() {
   };
   console.log(JSON.stringify(dayMedia, null, 2));
 
+  const saveExerciseNotes = async (exerciseId, content) => {
+      console.log("saveExerciseNotes called with:", { exerciseId, content });
+
+      if (!exerciseId || !content) {
+        console.error("❌ Kan inte spara: exerciseId eller content saknas");
+        return;
+    }
+    
+     try {
+       await addExerciseNotes({ exerciseId, content });
+       console.log("✅ Notes sparade!");
+     } catch (err) {
+       console.error("❌ Tillägg misslyckades:", err);
+     }
+  };
+
   return (
     <div className={styles.trainingProgramContainer}>
       <header className={styles.header}>
@@ -376,9 +394,7 @@ export default function CreateTrainingProgram() {
             {selectedExercise && (
               <ExerciseEditorView
                 exercise={selectedExercise}
-                onSave={(content) => {
-                  console.log("Sparat innehåll:", content);
-                }}
+                onSave={ saveExerciseNotes }
                 onClose={closeModalExercise}
               />
             )}

@@ -249,3 +249,29 @@ export async function updateExercise(exerciseId, updatedData) {
     throw error;
   }
 }
+
+export async function addExerciseNotes( exerciseId, content ) {
+    console.log("Skickar till API:", { exerciseId, content });
+  try {
+    const response = await fetch(`/api/add_exercise_notes/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ exercise_id: exerciseId, content: content }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Fel vid tillägg av övningsanteckningar:", errorText);
+      throw new Error(`Tillägg misslyckades: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log("Övningsanteckningar tillagda:", result);
+    return result;
+  } catch (error) {
+    console.error("Fel vid addExerciseNotes:", error);
+    throw error;
+  }
+}

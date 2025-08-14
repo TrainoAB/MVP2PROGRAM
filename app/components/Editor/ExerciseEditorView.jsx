@@ -34,7 +34,13 @@ export default function ExerciseEditorView({ exercise, onSave, onClose }) {
 
       <h4 className={styles.exerciseTitle}>{exercise.title}</h4>
 
-      <EditorWrapper onContentSave={onSave} onClose={onClose} />
+      <EditorWrapper
+        exerciseId={exercise.id}
+        onContentSave={(content) => {
+          onSave(exercise.id, content);
+        }}
+        onClose={onClose}
+      />
     </div>
   );
 }

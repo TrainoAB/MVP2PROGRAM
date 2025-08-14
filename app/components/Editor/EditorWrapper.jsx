@@ -1,9 +1,10 @@
 import react from "react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import LexicalEditor from "./LexicalEditor";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
-import LexicalEditor from "./LexicalEditor";
-import styles from "./editor.module.css"
+import { addExerciseNotes } from "@/app/lib/actions";
+import styles from "./editor.module.css";
 
 const editorConfig = {
   namespace: "MyEditor",
@@ -17,7 +18,7 @@ const editorConfig = {
       underline: styles.underline,
     },
   },
-  
+
   onError(error) {
     throw error;
   },
@@ -30,18 +31,35 @@ Object.entries(editorConfig).forEach(([key, value]) => {
   console.log(`${key}:`, value);
 });
 
-export default function EditorWrapper({
-  onContentSave,
-  onClose }) {
-
-  const handleContentSave = (content) => {
-    if (onContentSave) {
-      onContentSave(content);
-    }
+export default function EditorWrapper({ exerciseId, onSave, onClose }) {
+  const initialConfig = {
+    namespace: "ExerciseEditor",
+    nodes: [HeadingNode, ListNode, ListItemNode], // egna nodes om du har några
+    onError: (error) => console.error(error),
   };
+
+  const handleSave = (html) => {
+    if (!exerciseId) {
+      console.error("exerciseId saknas");
+      return;
+    }
+    if (!html || html.trim() === "") {
+      console.error("Innehållet är tomt");
+      return;
+    }
+
+    addExerciseNotes({ exerciseId, content: html })
+      .then(() => console.log("Sparad!"))
+      .catch(console.error);
+  };
+
   return (
-    <LexicalComposer initialConfig={editorConfig}>
-      <LexicalEditor onContentSave={handleContentSave} onClose={onClose} />
+    <LexicalComposer initialConfig={initialConfig}>
+      <LexicalEditor
+        exerciseId={exerciseId}
+        onContentSave={onSave}
+        onClose={onClose}
+      />
     </LexicalComposer>
   );
 }

@@ -175,7 +175,8 @@ export default function AddExerciseModal({
                 className={styles.closeBtn}
                 onClick={closeModalExercise}
                 aria-label="Stäng modal"
-              >x
+              >
+                x
               </button>
             </>
           )}
@@ -240,20 +241,6 @@ export default function AddExerciseModal({
                     : styles.formCompact
                 }`}
               >
-                {/* <div className={styles.closeButtonsWrapper}>
-                  <p className={styles.imageLoadTitle}>Omslag</p>
-                  {step === 1 && (
-                    <button
-                      type="button"
-                      onClick={closeModalExercise}
-                      aria-label="Stäng modal"
-                      className={styles.closeButton}
-                    >
-                      ×
-                    </button>
-                  )}
-                </div> */}
-
                 <div className={styles.buttonContainer}>
                   <button
                     type="button"
@@ -365,8 +352,10 @@ export default function AddExerciseModal({
               </form>
             ) : (
               <EditorWrapper
-                onContentSave={(content) => {
-                  console.log("EditorWrapper sparade innehåll:", content);
+                exerciseId={exercise.id}
+                onSave={(html) => {
+                  console.log("Sparad text:", html);
+                  // här kan du t.ex. uppdatera state eller skicka till API
                 }}
                 onClose={() => {
                   closeModalExercise();
