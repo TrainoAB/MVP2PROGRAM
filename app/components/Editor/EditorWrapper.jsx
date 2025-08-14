@@ -33,30 +33,63 @@ Object.entries(editorConfig).forEach(([key, value]) => {
 
 export default function EditorWrapper({ exerciseId, onSave, onClose }) {
   const [initialNotes, setInitialNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const initialConfig = {
     namespace: "ExerciseEditor",
-    nodes: [HeadingNode, ListNode, ListItemNode], // egna nodes om du har några
+    editable: true,
+    nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode], 
+    theme: {
+      paragraph: styles.editorParagraph,
+      text: {
+        bold: styles.textBold,
+        italic: styles.textItalic,
+        underline: styles.underline,
+      },
+    },
     onError: (error) => console.error(error),
   };
 
 useEffect(() => {
   if (!exerciseId) return;
-
   const fetchNotes = async () => {
-    console.log("Hämtar övningsanteckningar för ID:", exerciseId);
-    const data = await fetchExerciseNotes(exerciseId);
-    setInitialNotes(data?.content || "");
+    setLoading(true);
+    try {
+      const data = await fetchExerciseNotes(exerciseId);
+      setInitialNotes(data?.content || "");
+    } catch (err) {
+      console.error("Kunde inte hämta anteckningar:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   fetchNotes();
 }, [exerciseId]);
+  
+    const handleSave = async (content) => {
+      try {
+        if (exerciseId) {
+          // Uppdatera befintliga anteckningar
+          await addExerciseNotes(exerciseId, content);
+          onSave?.(exerciseId);
+        } else {
+          // Skapa nya anteckningar (returnerar nytt ID om du vill)
+          const newId = await addExerciseNotes(null, content);
+          onSave?.(newId);
+        }
+      } catch (err) {
+        console.error("Kunde inte spara anteckningar:", err);
+      }
+    };
+    if (loading) return <p>Laddar anteckningar...</p>;
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <LexicalEditor
         exerciseId={exerciseId}
         initialContent={initialNotes}
-        onContentSave={onSave}
+        onContentSave={handleSave}
         onClose={onClose}
       />
     </LexicalComposer>

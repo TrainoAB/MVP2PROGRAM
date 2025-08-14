@@ -143,3 +143,23 @@
     margin: 0;
     padding: 0;
 }
+
+.message {
+    padding: 8px 12px;
+    margin-top: 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.success {
+    background-color: #e6ffed;
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+}
+
+.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #c62828;
+}

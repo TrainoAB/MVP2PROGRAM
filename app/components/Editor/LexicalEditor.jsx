@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { addExerciseNotes, fetchExerciseNotes } from "@/app/lib/actions";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
@@ -13,117 +12,78 @@ import { $getRoot } from "lexical";
 import ToolbarPlugin from "./ToolbarPlugin";
 import styles from "./editor.module.css";
 
-export default function LexicalEditor({
-  exerciseId,
-  initialHtml,
-  onContentSave,
-  onClose,
-}) {
+export default function LexicalEditor({ exerciseId, onClose }) {
   const [editor] = useLexicalComposerContext();
-  const [message, setMessage] = useState(false);
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    if (!exerciseId) return;
+    if (!exerciseId || !editor) return;
 
-    async function loadNotes() {
+    const loadNotes = async () => {
       try {
         const res = await fetchExerciseNotes(exerciseId);
-        if (res?.success && res?.data?.content) {
-          const htmlString = res.data.content;
-          console.log("📄 Laddar HTML i editor:", htmlString);
+        const htmlString = res?.data?.content || "<p></p>";
+        console.log("📄 Laddar HTML i editor:", htmlString);
 
-          editor.update(() => {
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(htmlString, "text/html");
-            const nodes = $generateNodesFromDOM(editor, dom);
-            const root = $getRoot();
-            root.clear();
-            root.append(...nodes);
-          });
-        }
+        editor.update(() => {
+          const parser = new DOMParser();
+          const dom = parser.parseFromString(htmlString, "text/html");
+          let nodes = $generateNodesFromDOM(editor, dom);
+
+          const root = $getRoot();
+          root.clear();
+
+          if (nodes.length === 0) {
+            // Om inga nodes skapades, lägg till ett tomt stycke
+            const paragraphNode = editor
+              .getEditorState()
+              .createParagraphNode?.();
+            if (paragraphNode) nodes = [paragraphNode];
+          }
+          root.append(...nodes);
+        });
       } catch (err) {
         console.error("Kunde inte ladda anteckningar:", err);
       }
-    }
+    };
 
     loadNotes();
-  }, [editor, initialHtml]);
+  }, [exerciseId, editor]);
 
-  if (!exerciseId) {
-    console.log("Sparar bara lokalt, inget exerciseId ännu");
-    if (typeof onContentSave === "function") {
-      onContentSave(html);
-    }
-    return;
-  }
+  const handleSaveClick = async () => {
+    editor.update(async () => {
+      const html = $generateHtmlFromNodes(editor);
+      if (!html || html.trim() === "") {
+        setMessage({ text: "Innehållet är tomt", type: "error" });
+        setTimeout(() => setMessage(null), 4000);
+        return;
+      }
 
-  const handleSaveClick = () => {
-    editor.update(() => {
-      editor.getEditorState().read(() => {
-        const html = $generateHtmlFromNodes(editor);
-        if (!html || html.trim() === "") {
-          console.error("Innehållet är tomt");
-          return;
-        }
+      if (!exerciseId) {
+        setMessage({
+          text: "Sparar lokalt (ingen exerciseId)",
+          type: "success",
+        });
+        setTimeout(() => setMessage(null), 4000);
+        return;
+      }
 
-        if (typeof onContentSave === "function") {
-          onContentSave(html);
-        } else {
-          console.warn("onContentSave är inte definierad!");
-        }
-
-        if (!exerciseId) {
-          console.error("exerciseId saknas");
-          return;
-        }
-
-        console.log("exerciseId:", exerciseId);
-        console.log("html:", html);
-
-        addExerciseNotes(exerciseId, html)
-          .then(() => {
-            setMessage("Anteckningar sparade!");
-            console.log("Sparad!");
-
-            setTimeout(() => {
-              setMessage(null);
-            }, 10000);
-          })
-          .catch((error));
-
-        if (typeof onClose === "function") {
-          onClose();
-        }
-      });
+      try {
+        await addExerciseNotes(exerciseId, html);
+        setMessage({ text: "Anteckningar sparade!", type: "success" });
+        setTimeout(() => {
+          setMessage(null);
+          if (typeof onClose === "function") {
+            onClose();
+          }
+        }, 2000);
+      } catch (err) {
+        console.error(err);
+        setMessage({ text: "Fel vid sparande!", type: "error" });
+        setTimeout(() => setMessage(null), 4000);
+      }
     });
   };
-
-  const onChange = useCallback(
-    (editorState) => {
-      editorState.read(() => {
-        const html = $generateHtmlFromNodes(editor);
-        if (!html || html.trim() === "") return;
-        if (typeof onContentSave === "function") {
-          onContentSave(html);
-        }
-      });
-    },
-    [onContentSave, editor]
-  );
-
-  useEffect(() => {
-    if (!editor) return;
-    const unregister = editor.registerUpdateListener(({ editorState }) => {
-      editorState.read(() => {
-        const html = $generateHtmlFromNodes(editor);
-        if (!html || html.trim() === "") return;
-        if (typeof onContentSave === "function") {
-          onContentSave(html || "");
-        }
-      });
-    });
-    return () => unregister();
-  }, [editor, onContentSave]);
 
   return (
     <>
@@ -138,7 +98,15 @@ export default function LexicalEditor({
           />
           <ListPlugin />
           <HistoryPlugin />
-          <OnChangePlugin onChange={onChange} />
+          {message && (
+            <div
+              className={`${styles.message} ${
+                message.type === "success" ? styles.success : styles.error
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
         </div>
         <div className={styles.buttonContainer}>
           <button
