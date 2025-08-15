@@ -55,38 +55,54 @@ export async function saveExercise({
   videoUrl,
   dayVideoUrl,
   imageUrl,
-  index_order,
   month_number,
   day_number,
+  index_order,
 }) {
-  const response = await fetch("/api/save-exercise", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      training_program_id,
-      month_number,
-      day_number,
-      title,
-      duration,
-      description,
-      day_image_url: dayImageUrl ?? null,
-      day_video_url: dayVideoUrl ?? null,
-      exercise_image_url: imageUrl ?? null,
-      exercise_video_url: videoUrl ?? null,
-      index_order,
-    }),
-  });
+  try {
+    const durationValue = parseInt(duration, 10);
 
-  if (!response.ok) {
-    const responseText = await response.text();
-    console.error("Felstatus:", response.status, "Svar:", responseText);
-    throw new Error("Sparningen misslyckades");
+    if (isNaN(durationValue) || durationValue <= 0) {
+      throw new Error("Duration måste vara ett positivt heltal");
+    }
+
+    const payload = {
+      ...exercise,
+      duration: durationValue,
+    };
+
+    const response = await fetch("/api/save-exercise", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        training_program_id,
+        month_number,
+        day_number,
+        title,
+        duration,
+        description,
+        day_image_url: dayImageUrl ?? null,
+        day_video_url: dayVideoUrl ?? null,
+        exercise_image_url: imageUrl ?? null,
+        exercise_video_url: videoUrl ?? null,
+        index_order,
+      }),
+    });
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      console.error("Felstatus:", response.status, "Svar:", responseText);
+      throw new Error("Sparningen misslyckades");
+    }
+    const data = await response.json();
+    console.log("🧾 Body innehåller:", data);
+    return data;
+  } catch (error) {
+    console.error("Fel vid saveExercise:", error);
+    throw error;
   }
-  const body = await response.json();
-  console.log("🧾 Body innehåller:", body);
-  return body;
 }
 
 export async function getExercisesByDay(programId, month, day) {
@@ -135,7 +151,6 @@ export async function getDescription(programId) {
 }
 
 export async function fetchExercises({ month, day, programId }) {
-
   console.log("📦 fetchExercises kallad med:", { month, day, programId });
   if (!month || !day || !programId) {
     console.error("❌ fetchExercises: saknar parametrar", {
@@ -158,17 +173,17 @@ export async function fetchExercises({ month, day, programId }) {
     const res = await fetch(url);
 
     if (!res.ok) {
-       if (res.status === 500) {
-         console.warn("ℹ️  Inga övningar eller internserverfel (500).");
-         return { success: false, data: [], message: "Inga övningar" };
-       } else {
-            console.error("❌ API-svar var inte OK", res.status);
-            return {
-              success: false,
-              data: [],
-              message: `Status: ${res.status}`,
-            };
-      };
+      if (res.status === 500) {
+        console.warn("ℹ️  Inga övningar eller internserverfel (500).");
+        return { success: false, data: [], message: "Inga övningar" };
+      } else {
+        console.error("❌ API-svar var inte OK", res.status);
+        return {
+          success: false,
+          data: [],
+          message: `Status: ${res.status}`,
+        };
+      }
     }
     const data = await res.json();
 
@@ -185,21 +200,19 @@ export async function fetchExercises({ month, day, programId }) {
   }
 }
 
-export async function fetchDayMedia({ programId, day, month, setDayMedia })
-{
-    const res = await fetch(
-      `/api/get-training-day?programId=${programId}&day=${day}&month=${month}`
-    );
-    const result = await res.json();
+export async function fetchDayMedia({ programId, day, month, setDayMedia }) {
+  const res = await fetch(
+    `/api/get-training-day?programId=${programId}&day=${day}&month=${month}`
+  );
+  const result = await res.json();
 
-    if (result.success) {
-      setDayMedia({
-        image: result.data.cover_image_url,
-        video: result.data.cover_video_url,
-      });
-    }
+  if (result.success) {
+    setDayMedia({
+      image: result.data.cover_image_url,
+      video: result.data.cover_video_url,
+    });
+  }
 }
-
 
 export async function deleteExercise(exerciseId) {
   try {
@@ -250,8 +263,8 @@ export async function updateExercise(exerciseId, updatedData) {
   }
 }
 
-export async function addExerciseNotes( exerciseId, content ) {
-    console.log("Skickar till API:", { exerciseId, content });
+export async function addExerciseNotes(exerciseId, content) {
+  console.log("Skickar till API:", { exerciseId, content });
   try {
     const response = await fetch(`/api/add_exercise_notes/`, {
       method: "POST",
@@ -278,13 +291,14 @@ export async function addExerciseNotes( exerciseId, content ) {
 
 export async function fetchExerciseNotes(exerciseId) {
   try {
-    const response = await fetch(`/api/get_exercise_notes?exercise_id=${encodeURIComponent(exerciseId)}`
-      , {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `/api/get_exercise_notes?exercise_id=${encodeURIComponent(exerciseId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    }
     );
 
     if (!response.ok) {
@@ -301,3 +315,26 @@ export async function fetchExerciseNotes(exerciseId) {
     throw error;
   }
 }
+
+// async function saveExerciseData(exerciseData) {
+//   try {
+//     const res = await fetch("/api/save_exercises", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(exerciseData),
+//     });
+
+//     if (!res.ok) {
+//       throw new Error("Kunde inte spara övningen");
+//     }
+
+//     const data = await res.json();
+//     console.log("Sparat:", data);
+//     return data;
+//   } catch (error) {
+//     console.error("Fel vid sparning:", error);
+//     throw error;
+//   }
+// }

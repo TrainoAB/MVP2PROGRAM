@@ -459,3 +459,7 @@
         }
     }
 }
+
+.inputError {
+    border: 1px solid red;
+}

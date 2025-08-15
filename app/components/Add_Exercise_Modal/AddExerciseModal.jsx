@@ -5,6 +5,7 @@ import Image from "next/image";
 import UploadImageModal from "@/app/components/Upload_Image_Modal/UploadImageModal";
 import UploadYoutubeVideoModal from "@/app/components/Upload-YoutubeVideo-Modal/UploadYoutubeVideoModal";
 import EditorWrapper from "@/app/components/Editor/EditorWrapper";
+import { useSearchParams, useParams } from "next/navigation";
 import { extractYouTubeId } from "@/app/functions/functions";
 import { saveExercise } from "@/app/lib/actions";
 import styles from "./AddExerciseModal.module.css";
@@ -13,11 +14,8 @@ export default function AddExerciseModal({
   isExerciseModalOpen,
   closeModalExercise,
   onExerciseAdded,
-  trainingProgramId,
   dayImageUrl,
   dayVideoUrl,
-  month,
-  day,
 }) {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const openModalImg = () => setIsImageModalOpen(true);
@@ -28,8 +26,10 @@ export default function AddExerciseModal({
   const closeModalVideo = () => setIsVideoModalOpen(false);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [exerciseId, setExerciseId] = useState(null);
 
   const [exercise, setExercise] = useState({
+    id: null,
     videoUrl: null,
     imageUrl: null,
     duration: "",
@@ -43,9 +43,6 @@ export default function AddExerciseModal({
     title: "",
     description: "",
   });
-
-  const training_program_id = trainingProgramId || null;
-
   console.log("exercise", exercise);
 
   const [step, setStep] = useState(1);
@@ -80,25 +77,66 @@ export default function AddExerciseModal({
       ...updatedFields,
     }));
   };
+  const params = useParams();
+  const { month, day } = params;
+  const searchParams = useSearchParams();
+  const training_program_id = searchParams.get("programId");
 
-  const completeNotes = (e) => {
+  console.log("Training Program ID:", training_program_id);
+
+  if (!training_program_id) {
+    console.error("❌ Saknar training_program_id");
+    return;
+  }
+
+  const completeNotes = async (e) => {
+    const newErrors = {
+      title: exercise.title.trim() ? "" : "Fältet är obligatoriskt",
+      description: exercise.description.trim() ? "" : "Fältet är obligatoriskt",
+      duration: exercise.duration > 0 ? "" : "Måste vara större än 0",
+    };
+
+    setErrors(newErrors);
     e.preventDefault();
-    setStep(2);
+    const { imageUrl, videoUrl, title, duration, description, index_order } =
+      exercise;
+    const saved = await saveExercise({
+      training_program_id,
+      videoUrl,
+      imageUrl,
+      title,
+      duration,
+      description,
+      index_order,
+      month_number: parseInt(month),
+      day_number: parseInt(day),
+    });
+    if (saved?.exercise?.id) {
+      setExerciseId(saved.exercise.id);
+      setStep(2);
+    } else {
+      alert("Något gick fel, kunde inte spara övningen");
+    }
+    console.log("Sparad övning:", saved);
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
+    if (errors.duration) return; 
+    const newErrors = {
+      title: exercise.title.trim() ? "" : "Fältet är obligatoriskt",
+      description: exercise.description.trim() ? "" : "Fältet är obligatoriskt",
+      duration: exercise.duration > 0 ? "" : "Måste vara större än 0",
+    };
+
+    setErrors(newErrors);
     console.log("Formulär skickas!");
+
+    const hasError = Object.values(newErrors).some((err) => err !== "");
+    if (hasError) return;
 
     const { title, duration, description } = exercise;
 
-    const newErrors = {
-      duration: "",
-      title: "",
-      description: "",
-    };
-
-    let hasError = false;
 
     if (!duration || String(duration).trim().length < 1) {
       newErrors.duration = "* Beräknade längd krävs.";
@@ -115,10 +153,11 @@ export default function AddExerciseModal({
       hasError = true;
     }
 
-     if (hasError) {
-       setErrors(newErrors);
-       return;
-     }
+    if (hasError) {
+      setErrors(newErrors);
+      return false;
+    }
+
     console.log(errors);
     console.log("duration:", duration, "Length:", duration.length);
     console.log("title:", title, "Length:", title.length);
@@ -126,7 +165,8 @@ export default function AddExerciseModal({
 
     try {
       setIsSaving(true);
-      const { imageUrl, videoUrl, title, duration, description, index_order } = exercise;
+      const { imageUrl, videoUrl, title, duration, description, index_order } =
+        exercise;
 
       const month_number = parseInt(month);
       const day_number = parseInt(day);
@@ -145,6 +185,12 @@ export default function AddExerciseModal({
         day_number,
       });
 
+      if (savedExercise && savedExercise.id) {
+        setExercise(savedExercise); // Sätter hela objektet
+        setExerciseId(savedExercise.id);
+        setStep(2);
+      }
+
       if (!savedExercise.success) {
         throw new Error("Kunde inte spara träningsprogrammet korrekt.");
       }
@@ -152,12 +198,24 @@ export default function AddExerciseModal({
       setIsSaving(false);
       console.log("Sparning lyckades!");
       closeModalExercise();
-      onExerciseAdded?.();
       console.log("Modalen STÄNGS!");
+      onExerciseAdded?.();
+      return true;
     } catch (error) {
-      console.error("Fel vid sparning:", error);
+      console.error(error);
+      return false;
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  // const isFormValid = () => {
+  //   return (
+  //     exercise.title.trim().length >= 2 &&
+  //     exercise.description.trim().length >= 10 &&
+  //     exercise.duration > 0
+  //   );
+  // };
 
   if (!isExerciseModalOpen) return null;
   return (
@@ -268,16 +326,39 @@ export default function AddExerciseModal({
                       min="1"
                       step="1"
                       inputMode="numeric"
+                      value={exercise.duration || ""}
                       onChange={(e) => {
                         const value = parseInt(e.target.value, 10);
-                        if (!isNaN(value) && value > 0) {
-                          setExercise({ ...exercise, duration: value });
-                          setErrors((prev) => ({ ...prev, duration: "" }));
-                        } else if (e.target.value === "") {
-                          setExercise({ ...exercise, duration: "" });
+                        if (value === "") {
+                          // Tomt fält
+                          setExercise({
+                            ...exercise,
+                            duration: isNaN(value) ? "" : value,
+                          });
+                          setErrors((prev) => ({
+                            ...prev,
+                            duration:
+                              isNaN(value) || value <= 0
+                                ? "Duration måste vara ett positivt heltal"
+                                : "",
+                          }));
+                        }
+       
+
+                        const intValue = parseInt(value, 10);
+
+                        if (isNaN(intValue) || intValue <= 0) {
+                          // Ogiltigt värde
+                          setErrors((prev) => ({
+                            ...prev,
+                            duration: "Duration måste vara ett positivt heltal",
+                          }));
+                        } else {
+                          // Giltigt värde
+                          setExercise({ ...exercise, duration: intValue });
+                          setErrors((prev) => ({ ...prev, duration: null }));
                         }
                       }}
-                      value={exercise.duration}
                       className={`${styles.inputTime} ${
                         errors.duration ? styles.inputError : ""
                       }`}
@@ -301,7 +382,13 @@ export default function AddExerciseModal({
                     onChange={(e) => {
                       setExercise({ ...exercise, title: e.target.value });
                       if (e.target.value.trim().length >= 2) {
-                        setErrors((prev) => ({ ...prev, title: "" }));
+                        setErrors((prev) => ({
+                          ...prev,
+                          title:
+                            value.trim() === ""
+                              ? "Fältet är obligatoriskt"
+                              : "",
+                        }));
                       }
                     }}
                   />
@@ -322,7 +409,13 @@ export default function AddExerciseModal({
                     onChange={(e) => {
                       setExercise({ ...exercise, description: e.target.value });
                       if (e.target.value.trim().length >= 10) {
-                        setErrors((prev) => ({ ...prev, description: "" }));
+                        setErrors((prev) => ({
+                          ...prev,
+                          description:
+                            value.trim() === ""
+                              ? "Fältet är obligatoriskt"
+                              : "",
+                        }));
                       }
                     }}
                     className={`${styles.inputField} ${
@@ -338,6 +431,7 @@ export default function AddExerciseModal({
                     type="button"
                     onClick={completeNotes}
                     className={styles.standardButton}
+                    disabled={isSaving}
                   >
                     Kompletera
                   </button>
@@ -351,16 +445,23 @@ export default function AddExerciseModal({
                 </div>
               </form>
             ) : (
-              <EditorWrapper
-                exerciseId={exercise.id}
-                onSave={(html) => {
-                  console.log("Sparad text:", html);
-                  // här kan du t.ex. uppdatera state eller skicka till API
-                }}
-                onClose={() => {
-                  closeModalExercise();
-                }}
-              />
+              step === 2 &&
+              exerciseId && (
+                <EditorWrapper
+                  exerciseId={exerciseId}
+                  onSave={async (notesHtml) => {
+                    try {
+                      await handleSaveAll(notesHtml);
+                      closeModalExercise();
+                    } catch (err) {
+                      alert("Kunde inte spara övningen");
+                    }
+                  }}
+                  onClose={() => {
+                    closeModalExercise();
+                  }}
+                />
+              )
             )}
           </main>
         </div>

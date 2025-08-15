@@ -3,7 +3,7 @@ import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import LexicalEditor from "./LexicalEditor";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListNode, ListItemNode } from "@lexical/list";
-import { addExerciseNotes, fetchExerciseNotes } from "@/app/lib/actions";
+import { saveExercise, updateExercise, addExerciseNotes, fetchExerciseNotes} from "@/app/lib/actions";
 import styles from "./editor.module.css";
 
 const editorConfig = {
@@ -32,13 +32,16 @@ Object.entries(editorConfig).forEach(([key, value]) => {
 });
 
 export default function EditorWrapper({ exerciseId, onSave, onClose }) {
+  console.log("Editor för exerciseId:", exerciseId);
   const [initialNotes, setInitialNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [exercises, setExercises] = useState([]);
+  console.log("ExerciseId", exerciseId);
 
   const initialConfig = {
     namespace: "ExerciseEditor",
     editable: true,
-    nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode], 
+    nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode],
     theme: {
       paragraph: styles.editorParagraph,
       text: {
@@ -50,39 +53,36 @@ export default function EditorWrapper({ exerciseId, onSave, onClose }) {
     onError: (error) => console.error(error),
   };
 
-useEffect(() => {
-  if (!exerciseId) return;
-  const fetchNotes = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchExerciseNotes(exerciseId);
-      setInitialNotes(data?.content || "");
-    } catch (err) {
-      console.error("Kunde inte hämta anteckningar:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchNotes();
-}, [exerciseId]);
-  
-    const handleSave = async (content) => {
+  useEffect(() => {
+    if (!exerciseId) return;
+    const fetchNotes = async () => {
+      setLoading(true);
       try {
-        if (exerciseId) {
-          // Uppdatera befintliga anteckningar
-          await addExerciseNotes(exerciseId, content);
-          onSave?.(exerciseId);
-        } else {
-          // Skapa nya anteckningar (returnerar nytt ID om du vill)
-          const newId = await addExerciseNotes(null, content);
-          onSave?.(newId);
-        }
+        const data = await fetchExerciseNotes(exerciseId);
+        setInitialNotes(data?.content || "");
       } catch (err) {
-        console.error("Kunde inte spara anteckningar:", err);
+        console.error("Kunde inte hämta anteckningar:", err);
+      } finally {
+        setLoading(false);
       }
     };
-    if (loading) return <p>Laddar anteckningar...</p>;
+    fetchNotes();
+  }, [exerciseId]);
+
+  const handleSave = async (content) => {
+    try {
+        await addExerciseNotes(exerciseId, content);
+      onSave?.(exerciseId);
+       setExercises((prev) =>
+         prev.map((ex) =>
+           ex.id === exerciseId ? { ...ex, notes: notesHtml } : ex
+         )
+      );
+    } catch (err) {
+      console.error("Kunde inte spara anteckningar:", err);
+    }
+  };
+  if (loading) return <p>Laddar anteckningar...</p>;
 
   return (
     <LexicalComposer initialConfig={initialConfig}>

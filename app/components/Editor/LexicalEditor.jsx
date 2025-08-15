@@ -12,7 +12,7 @@ import { $getRoot } from "lexical";
 import ToolbarPlugin from "./ToolbarPlugin";
 import styles from "./editor.module.css";
 
-export default function LexicalEditor({ exerciseId, onClose }) {
+export default function LexicalEditor({ exerciseId, onContentSave, onClose, trainingProgramId }) {
   const [editor] = useLexicalComposerContext();
   const [message, setMessage] = useState(null);
 
@@ -34,7 +34,6 @@ export default function LexicalEditor({ exerciseId, onClose }) {
           root.clear();
 
           if (nodes.length === 0) {
-            // Om inga nodes skapades, lägg till ett tomt stycke
             const paragraphNode = editor
               .getEditorState()
               .createParagraphNode?.();
@@ -76,7 +75,7 @@ export default function LexicalEditor({ exerciseId, onClose }) {
           if (typeof onClose === "function") {
             onClose();
           }
-        }, 2000);
+        }, 4000);
       } catch (err) {
         console.error(err);
         setMessage({ text: "Fel vid sparande!", type: "error" });

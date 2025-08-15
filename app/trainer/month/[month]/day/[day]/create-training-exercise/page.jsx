@@ -48,7 +48,6 @@ export default function CreateTrainingProgram() {
   const [step, setStep] = useState(1);
   const [exercises, setExercises] = useState([]);
   const [selectedExercise, setSelectedExercise] = useState(null);
-  const [showEditor, setShowEditor] = useState(false);
   const [loadingExercises, setLoadingExercises] = useState(false);
   const [status, setStatus] = useState(null);
 
@@ -313,6 +312,7 @@ export default function CreateTrainingProgram() {
             dayVideoUrl={dayMedia.videoUrl}
             month={month}
             day={day}
+            onClose={closeModalExercise}
           ></AddExerciseModal>
         </div>
       )}
