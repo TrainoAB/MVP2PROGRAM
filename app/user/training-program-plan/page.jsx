@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Header_DisplayButton from "@/components/Header_DisplayButton";
+import Header_DisplayButton from "@/app/components/Header_DisplayButton";
 // import Calendar from "@/components/Calendar/Calendar";
-import Calendar from "@/components/Calendar";
+import Calendar from "@/app/components/Calendar";
 import Image from "next/image";
 import styles from "./page.module.css";
 
