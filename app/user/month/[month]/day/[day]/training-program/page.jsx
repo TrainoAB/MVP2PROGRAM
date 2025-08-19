@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import workouts from "@/data/workouts.json";
+import workouts from "@/app/data/workouts.json";
 
 import styles from "./page.module.css";
 
